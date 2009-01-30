@@ -1,0 +1,60 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[latin1]{inputenc}
+\usepackage[francais]{babel}
+%\usepackage{inputenc}
+%\makeindex
+\begin{document}
+\section{Introduction}
+\subsection{Contexte de la thèse}
+\begin{itemize}
+	\item contexte général (Laboratoire, équipe)
+	\item Traitement d'images embarqué 
+	\item nécessité de code legacy
+	\item Contraintes de traitement temps réel 
+	\item Calcul parallèle 
+	\item Projets :  Ocelle, Teraops.
+\end{itemize}
+\subsection{Architectures Parallèles}
+\begin{itemize}
+	\item Les niveaux de parallélisme
+	\item les différents types d'architectures: Multi-core, GPU, modèle mémoire(partagée, distribuée), SIMD, SWAR
+	\item L'architecture du Cell
+\end{itemize}
+\subsection{Modèles de Programmation et Outils de Parallélisation}
+\begin{itemize}
+	\item Présentation des différents modèles de programmation (Shared Memory, Message Passing, Stream processing)
+	\item OpenMP (Compilateur  XLC, barcelona CellSS) + MPI (MPI en général, MPI microtastk IBM) + Stream Processing (RapidMind, Sequoia)
+	\item vectorisation (gcc, xlc) difficultés sur le Cell
+	\item Outils de haut-niveau SPEARS, Gedae
+	\item validation outils (quand c'est possible) avec code simple (addition matricielle).
+\end{itemize}
+\section{Optimisation des transferts et du contrôle}
+\begin{itemize}
+	\item Tiling 1D, 2D
+	\item bord, chaînage d'opérateur, fusion.
+	\item double buffering.
+	\item Outils: Cell\_MPI, dépôt APP( peut être dans le contexte aussi) 
+\end{itemize}
+\section{Parallélisation de Code de Traitement d'Images}
+\subsection{Algorithmes Régulier}
+\subsubsection{Harris points d'intérêt}
+\begin{itemize}
+	\item Présentation de l'algorithme
+	\item Algorithme représentatif du traitement d'images bas niveau.
+	\item difficultés liées à l'implémentation, adaptation au contraintes du Cell, jeux d'instruction( floats) , DMA.... 
+	\item Modèle de parallélisation
+	\item Mesure de performances
+	\item Modèle analytique pour la prédiction de performances
+\end{itemize}
+\subsubsection{Un autre algo régulier (Sigma Delta, ..)}
+\begin{itemize}
+	\item mémorisation dans SPE ou pas.
+\end{itemize}
+\subsubsection{Un autre algo irrégulier ECC}
+\begin{itemize}
+	\item load balancing
+\end{itemize}
+\section{Conclusion}
+
+
+\end{document}
