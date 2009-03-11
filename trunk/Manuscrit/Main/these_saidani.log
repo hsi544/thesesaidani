@@ -1,11 +1,16 @@
-This is pdfTeXk, Version 3.141592-1.40.3 (Web2C 7.5.6) (format=pdflatex 2009.3.7)  9 MAR 2009 08:56
+This is pdfTeXk, Version 3.141592-1.40.3 (Web2C 7.5.6) (format=pdflatex 2009.3.11)  11 MAR 2009 22:05
 entering extended mode
  %&-line parsing enabled.
 **these_saidani.tex
 (./these_saidani.tex
 LaTeX2e <2005/12/01>
 Babel <v3.8h> and hyphenation patterns for english, usenglishmax, dumylang, noh
-yphenation, basque, french, loaded.
+yphenation, arabic, farsi, croatian, ukrainian, russian, bulgarian, czech, slov
+ak, danish, dutch, finnish, basque, french, german, ngerman, ibycus, greek, mon
+ogreek, ancientgreek, hungarian, italian, latin, mongolian, norsk, icelandic, i
+nterlingua, turkish, coptic, romanian, welsh, serbian, slovenian, estonian, esp
+eranto, uppersorbian, indonesian, polish, portuguese, spanish, catalan, galicia
+n, swedish, ukenglish, loaded.
 (./MYbook.cls
 
 LaTeX Warning: You have requested document class `MYbook',
@@ -52,25 +57,25 @@ LaTeX Warning: Unused global option(s):
 (./these_saidani.aux)
 \openout1 = `these_saidani.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 17.
-LaTeX Font Info:    ... okay on input line 17.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 17.
-LaTeX Font Info:    ... okay on input line 17.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 17.
-LaTeX Font Info:    ... okay on input line 17.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 17.
-LaTeX Font Info:    ... okay on input line 17.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 17.
-LaTeX Font Info:    ... okay on input line 17.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 17.
-LaTeX Font Info:    ... okay on input line 17.
-LaTeX Font Info:    Try loading font information for OT1+ptm on input line 17.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Try loading font information for OT1+ptm on input line 18.
  (/usr/share/texmf-texlive/tex/latex/psnfss/ot1ptm.fd
 File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
 )
 Chapter 1.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <24.88> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 18.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 19.
 [1
 
 
@@ -80,16 +85,15 @@ LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <24.88> not available
 (./Chapter1/cell_architecture.tex
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <12> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 14.
- [3]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [4]
+ [3] [4] [5]
 Overfull \hbox (1.74176pt too wide) in paragraph at lines 23--24
 \OT1/ptm/m/n/12 con-tient une mmoire lo-cale de 256 KB (scrath-pad) qui est une
  mmoire de donnes et d'instructions.
  []
 
-[5]) [6] (./Chapter1/programming_models.tex
+[6]) [7] [8
+
+] (./Chapter1/programming_models.tex
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <17.28> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 1.
 
@@ -97,10 +101,11 @@ Underfull \hbox (badness 10000) in paragraph at lines 2--4
 
  []
 
+[9]
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <14.4> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 4.
 LaTeX Font Info:    Try loading font information for OT1+pcr on input line 5.
-(/usr/share/texmf-texlive/tex/latex/psnfss/ot1pcr.fd
+ (/usr/share/texmf-texlive/tex/latex/psnfss/ot1pcr.fd
 File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
 )
 LaTeX Font Info:    Font shape `OT1/pcr/bx/n' in size <12> not available
@@ -112,47 +117,50 @@ pcr/b/n/12 Value<N,T>\OT1/ptm/m/n/12 , \OT1/pcr/b/n/12 Array<D,T> \OT1/ptm/m/n/
 12 et \OT1/pcr/b/n/12 Program\OT1/ptm/m/n/12 ,
  []
 
-[7
-
-]
+[10]
 Underfull \hbox (badness 10000) in paragraph at lines 8--11
 
  []
 
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [11]
+[12]
+LaTeX Font Info:    Try loading font information for OMS+ptm on input line 24.
+ (/usr/share/texmf-texlive/tex/latex/psnfss/omsptm.fd
+File: omsptm.fd 
 )
-Runaway argument?
-{\texttt {Array} supportent les opérateurs "[]" et "()" pour l'accès \ETC.
-! File ended while scanning use of \textbf .
-<inserted text> 
-                \par 
-l.22 \input{Chapter1/programming_models}
-                                        
-I suspect you have forgotten a `}', causing me
-to read past where you wanted me to stop.
-I'll try to recover; but if the error is serious,
-you'd better type `E' or `X' now and fix your file.
+LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <12> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 24.
 
+Underfull \hbox (badness 10000) in paragraph at lines 25--26
 
-Underfull \vbox (badness 2644) has occurred while \output is active []
+ []
 
- [8]
-[9] (./these_saidani.aux) ) 
+[13] [14]
+Underfull \hbox (badness 10000) in paragraph at lines 35--40
+
+ []
+
+[15]) [16] [17] (./these_saidani.aux) ) 
 Here is how much of TeX's memory you used:
- 405 strings out of 95063
- 5234 string characters out of 1182611
- 54411 words of memory out of 1500000
- 3628 multiletter control sequences out of 10000+50000
- 17389 words of font info for 34 fonts, out of 1200000 for 2000
- 28 hyphenation exceptions out of 8191
- 22i,4n,21p,1773b,145s stack positions out of 5000i,500n,6000p,200000b,5000s
-{/usr/share/texmf-texlive/fonts/enc/dvips/base/8r.en
-c}</usr/share/texmf-texlive/fonts/type1/urw/courier/ucrb8a.pfb></usr/share/texm
-f-texlive/fonts/type1/urw/times/utmb8a.pfb></usr/share/texmf-texlive/fonts/type
-1/urw/times/utmr8a.pfb></usr/share/texmf-texlive/fonts/type1/urw/times/utmr8a.p
-fb></usr/share/texmf-texlive/fonts/type1/urw/times/utmri8a.pfb>
-Output written on these_saidani.pdf (9 pages, 84505 bytes).
+ 425 strings out of 94080
+ 5558 string characters out of 1165311
+ 55804 words of memory out of 1500000
+ 3747 multiletter control sequences out of 10000+50000
+ 17646 words of font info for 35 fonts, out of 1200000 for 2000
+ 645 hyphenation exceptions out of 8191
+ 23i,4n,21p,1773b,208s stack positions out of 5000i,500n,6000p,200000b,5000s
+{/usr/share/texmf-texlive/fonts/enc/dvip
+s/base/8r.enc}</usr/share/texmf-texlive/fonts/type1/bluesky/cm/cmsy10.pfb></usr
+/share/texmf-texlive/fonts/type1/urw/courier/ucrb8a.pfb></usr/share/texmf-texli
+ve/fonts/type1/urw/times/utmb8a.pfb></usr/share/texmf-texlive/fonts/type1/urw/t
+imes/utmr8a.pfb></usr/share/texmf-texlive/fonts/type1/urw/times/utmr8a.pfb></us
+r/share/texmf-texlive/fonts/type1/urw/times/utmri8a.pfb>
+Output written on these_saidani.pdf (17 pages, 108474 bytes).
 PDF statistics:
- 53 PDF objects out of 1000 (max. 8388607)
+ 82 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 131072)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
