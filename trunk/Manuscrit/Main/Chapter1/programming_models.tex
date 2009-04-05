@@ -76,3 +76,6 @@ Durant l'exécution de l'application le runtime maintient une liste de tâches prê
 Etant donné une liste de tâches prêtes et une liste de ressources disponibles, le runtime choisit la meilleure correspondance entre les tâches et les ressources et soumet les tâches pour l'exécution. La soumission de la tâche comprend toutes les actions nécessaires pour pouvoir exécuter la tâche: le transfert des paramètres et la requête d'exécution de la tâche.
 \subsubsection{Middleware pour le Cell}
 Une application CellSS est composée de deux types de binaires exécutables : le programme principal, qui s'exécute sur le PPE, et le programme tâche qui lui s'exécute sur le SPE. Ces binaires sont obtenus par compilation de deux sources générés par le compilateur CellSS et les librairies de runtime.
+[A COMPLETER]
+\section{Sequoia: Programmer la Hiérarchie Mémroire}
+Sequoia est un langage de programmation bas-niveau dédié aux machines modernes, que cela soit des processeurs parallèles ou alors superscalaires, et dans lesquels l'allocation de la mémoire et le transferts des données au travers de la hiérarchie mémoire est primordiale pour la performance.Sequoia est une extension au langage C même si les constructions qu'il permet de faire sont très différentes du modèle de programmation du C.
