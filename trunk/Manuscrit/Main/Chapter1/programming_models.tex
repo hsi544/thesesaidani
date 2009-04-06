@@ -77,5 +77,26 @@ Etant donné une liste de tâches prêtes et une liste de ressources disponibles, l
 \subsubsection{Middleware pour le Cell}
 Une application CellSS est composée de deux types de binaires exécutables : le programme principal, qui s'exécute sur le PPE, et le programme tâche qui lui s'exécute sur le SPE. Ces binaires sont obtenus par compilation de deux sources générés par le compilateur CellSS et les librairies de runtime.
 [A COMPLETER]
-\section{Sequoia: Programmer la Hiérarchie Mémroire}
-Sequoia est un langage de programmation bas-niveau dédié aux machines modernes, que cela soit des processeurs parallèles ou alors superscalaires, et dans lesquels l'allocation de la mémoire et le transferts des données au travers de la hiérarchie mémoire est primordiale pour la performance.Sequoia est une extension au langage C même si les constructions qu'il permet de faire sont très différentes du modèle de programmation du C.
+\section{\emph{Sequoia}: Programmer la Hiérarchie Mémoire}
+\emph{\textbf{Sequoia}} est un langage de programmation bas-niveau dédié aux machines modernes, que cela soit des processeurs parallèles ou alors superscalaires, et dans lesquels l'allocation de la mémoire et le transferts des données au travers de la hiérarchie mémoire est primordiale pour la performance.\emph{\textbf{Sequoia}} est une extension au langage C même si les constructions qu'il permet de faire sont très différentes du modèle de programmation du C. Il est basé sur un modèle de programmation qui assiste l'utilisateur dans la structuration des programmes parallèles efficaces au niveau de la bande passante qui restent portables sur de nouvelles machines. Le modèle de programmation repose sur quelques principes qui sont les suivants:
+\begin{itemize}
+\item La notion de mémoire hiérarchique est directement introduite dans le modèle de programmation ce qui permet un gain de portabilité et de performance. \emph{\textbf{Sequoia}} s'exécute sur des machines qui sont représentées sous forme d'un modèle abstrait en arbre de modules mémoire distincts qui décrit comment les données sont transférées et où elles résident dans la hiérarchie mémoire.
+\item Les \emph{task} sont utilisées comme une abstraction des unités de calcul auto-suffisantes qui incluent la description des communications et de la charge de travail. La \emph{task} isole chaque calcul dans son propre espace mémoire local et contient le parallélisme.
+\item Afin de garantir la portabilité, une stricte séparation est maintenue entre l'expression générique de l'algorithme et les optimisations spécifiques à une machine donnée. Pour minimiser l'impact de cette séparation sur la performance les détails du déploiement sur une machine spécifique sont sous le contrôle de l'utilisateur.
+\end{itemize}
+Ainsi, \emph{\textbf{Sequoia}} adopte une approche pragmatique pour fournir un outil de programmation parallèle portable en fournissant un ensemble limité d'abstractions qui peut être implémenté de manière efficace et sous contrôle de l'utilisateur.
+\subsection{Mémoire Hiérarchique}
+\begin{figure}[!htbf]
+	\centering
+	\includegraphics[scale =0.6]{Chapter1/Figures/Sequoia_fig1}
+	\caption{Multiplication de matrices de tailles 1024x1024 structurée en hiérarchie de tâches indépendantes effectuant des multiplications sur des blocs de données plus petits}
+  \label{seq_fig1}
+\end{figure}
+Le principe de mémoire hiérarchique est au coeur de l'outil \emph{\textbf{Sequoia}}, car dans les systèmes modernes contenant plusieurs unités de traitement avec une hiérarchie mémoire à plusieurs niveaux, il est primordial de diviser un calcul de taille importante en des opérations plus petites pour atteindre des bonnes performances car cela permet d'exposer le parallélisme et d'atténuer l'effet de la latence d'accès à la mémoire car les données sont physiquement proches des unités de traitement. Un exemple de découpage pour l'application produit de matrices est donné dans \ref{seq_fig1}, dans cet exemple qui contient du parallélisme imbriqué et où la localité des données est primordiale. \emph{\textbf{Sequoia}} requiert une telle réorganisation hiérarchique dans les programmes, qui a été inspirée de l'idée des \emph{space-limited procedures} qui prône les strategies \emph{divide-and-conquer} tenant compte de la hiérarchie mémoire. Les \emph{space-limited procedures} requièrent à chaque fonction dans une chaîne d'appels d'accepter des arguments occupant beaucoup moins d'espace mémoire que les fonctions appellantes. Un système complet a été implémenté autour de cette abstraction incluant un compilateur et un runtime pour le processeur Cell.\\
+L'écriture d'un programme \emph{\textbf{Sequoia}} implique la description abstraite d'une hiérarchie de tâches et le mapping de ces tâches sur la hiérarchie mémoire de la machine cible. Cela impose à l'utilisateur de considerer une machine parallèle comme un arbre de modules mémoire distincts. Les transferts de données entre les niveaux de la hiérarchie se font par blocks éventuellement asynchrones. La logique du programme décrit le transfert des données à tous les niveaux, mais les noyaux de calcul sont contraints de travailles que sur les données qui sont sur les noeuds feuilles (de niveau 0) de l'arbre représentant la machine. La représentation abstraite du processeur Cell (Fig.\ref{seq_fig2}) contient des noeuds correspondants à la mémoire principale ainsi qu'à chaque mémoire locale du SPE.
+\begin{figure}[!htbf]
+	\centering
+	\includegraphics[scale =0.6]{Chapter1/Figures/Sequoia_fig2}
+	\caption{Modèle abstrait Sequoia du processeur Cell}
+  \label{seq_fig2}
+\end{figure}
