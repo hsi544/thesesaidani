@@ -1,16 +1,17 @@
 %\documentclass[11pt]{report}
-\documentclass[twoside,french,a4,12pt,openright]{MYbook}
+%\documentclass[twoside,french,a4,12pt,openright]{MYbook}
 %\documentclass[twoside,french,a4,12pt,openright]{book}
-%\documentclass[twoside,french,a4,12pt,openright]{report}
+\documentclass[twoside,french,a4,12pt,openright]{report}
 %\usepackage{utthesis}
 \usepackage[latin1]{inputenc}
 \usepackage[french]{babel}
-\usepackage{fancybox}
+%\usepackage{fancybox}
 \usepackage{fancyhdr}
 \usepackage[Lenny]{fncychap}
 \usepackage{lmodern}
 \usepackage[T1]{fontenc}
-\usepackage{charter}%\usepackage{times}
+\usepackage{charter}
+%\usepackage{times}
 \usepackage{graphicx}
 \usepackage{a4wide}
 \linespread{1.25}
@@ -18,8 +19,7 @@
 
 \begin{document}
 \chapter{Introduction}
-\part{Vue d'Ensemble de l'Architecture du Processeur Cell}
 \input{Chapter1/cell_architecture}
-\part{Modèles de Programmation pour le Processeur Cell}
+\chapter{Modèles de Programmation}
 \input{Chapter1/programming_models}
 \end{document}
