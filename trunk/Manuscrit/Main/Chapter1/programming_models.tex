@@ -139,5 +139,9 @@ Permet de faire le mapping en une collection de blocks, qui effectue une réducti
 \end{itemize}
 \rule{\textwidth}{0.2mm}\\
 \subsubsection{Variantes de Tâches}
-
+\emph{\textbf{Sequoia}} inclut deux types de tâches qui servent essentiellement à distinguer le code de mapping du code de calcul, elles sont décrites ci-dessous:
+\begin{itemize}
+\item \emph{Inner Tasks}: se sont les tâches qui appellent des sous-tâches. Elles n'ont pas d'accès direct à leurs arguments de type tableau mais elles passent aux sous-tâches sous forme de blocks. Les \emph{Inner Tasks} utilisent les primitives de \emph{mapping} et de \emph{blocking} pour structurer les calculs sous forme de sous-tâches. La définition d'une \emph{Inner Task} n'est associée à aucun module mémoire particulier de la machine, elle peu s'exécuter dans n'importe quel niveau de la hiérarchie mémoire dans lequel les données traitées tiennent.
+\item \emph{Leaf Tasks}: se sont des tâches qui ne font pas appel à des sous-tâches et qui opèrent directement sur des données résident dans les niveaux feuilles de la hiérarchie mémoire. 
+\end{itemize}
 
