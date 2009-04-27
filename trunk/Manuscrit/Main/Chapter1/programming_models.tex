@@ -1,4 +1,7 @@
 Dans ce chapitre on se propose de faire une revue des modèles de programmations pour le processeur Cell. Par modèle de programmation on entend outil de déploiement de code ou de parallélisation de code conçu pour le Cell. Les approches citées dans ce qui suit sont celles qui nous ont paru pertinents et assez mures pour pouvoir être utilisées dans notre domaines d'applications. Il reprennent généralement des outils existants pour les architectures parallèles à mémoire partagée ou distribuée qui ont été adaptés pour l'architecture et la hiérarchie mémoire du Cell.
+\section{Les Threads POSIX}
+Les threads POSIX\footnote{Portable Operating System Interface for Unix} ou Pthreads sont une standardisation du modèle de programmation par threads pour les système UNIX. Ce modèle est basé sur une API de programmation parallèle qui permet la gestion des threads ainsi que la synchronisation par mutex ou variables conditionnelles. 
+
 
 \section{RapidMind}
 \textbf{RapidMind}\cite{rapidmind} est un modèle de programmation parallèle multi-plateformes, GPU, multi-coeur symétrique et pour le processeur Cell, il relève du modèle de programmation \emph{stream programming} et s'apparente à un langage de programmation enfoui dans C++. Il est basé sur la bibliothèque template C++ et une librairie de runtime qui effectué la génération dynamique de code. La librairie template permet l'invocation permet l'invocation de code SPE à l'intérieur du code PPE, avec l'ensemble du code SPE écrit en template.\\
