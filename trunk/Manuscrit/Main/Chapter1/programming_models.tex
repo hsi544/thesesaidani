@@ -9,8 +9,13 @@ L'API des threads POSIX peut être décomposée en trois types de routines:
 \item \textbf{Les mutex} (abbréviation de \emph{mutual exclusion}): ils permettent de synchoniser les threads, les routines gère la création, déstruction réservation et libération des mutex.
 \item \textbf{Les variables conditionnelles} : ces dernières gèrent la communication entre des threads qui partagent les mute. Elles sont basée sur des conditions fixées par le programmeur, elles incluent des fonctions de création, déstruction, attente et signalisation basées sur certaines valeurs de ces variables. 
 \end{itemize}
-
+\rule{\textwidth}{0.2mm}\\
 \subsubsection{Gestion des Threads}
+\begin{itemize}
+\item \textbf{Création et Terminaison des Threads}: Initiallement le programme contient un seul thread qui est le \texttt{main()}. Les autres threads doivent être créés explicitement par le programmeur. \texttt{pthread\_create} créé un nouveau thread et le rend exécutable. Cette routine peut être appelée autant de fois que l'on veut et à n'importe quel endroit dans le code. Le nombre de threads maximal crée par un process dépend de l'implémentation. Une fois crées les threads peuvent créer d'autres threads et il n'existe aucune dépendance ni hiérarchie entre les threads. Les thread est crée avec certain attributs par défaut, ceux-ci pouvant être changés ultérieurement. Il existe plusieurs manières de terminer un thread: soit par le thread lui même qui le fait par un return de sa routine principale ou par la fonction \texttt{pthread\_exit()}, ou alors par un autre thread en utilisant \texttt{pthread\_cancel()} et enfin en cas de terminaison du process parent.
+\item \textbf{Passage d'Arguments au Threads} : On peut passer un argument au thread via la routine \texttt{pthread\_create()}. On peut également passer plusieurs arguments en les rassemblant dans une structure et en passant l'adresse de celle-ci.
+\item \textbf{Jonction et Détachement des Threads} : La jonction est une manière de faire une synchronisation entre les threads, la fonction \texttt{pthread\_join()} bloque le thread appelant jusqu'a ce que le thread appelé se termine.
+\end{itemize}
 \subsubsection{Les Variables Mutex}
 \subsubsection{Les Variables de Condition}
 
