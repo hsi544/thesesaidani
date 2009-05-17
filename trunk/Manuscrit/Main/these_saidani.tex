@@ -7,10 +7,12 @@
 \usepackage[french]{babel}
 %\usepackage{fancybox}
 \usepackage{fancyhdr}
+\usepackage{listings}
 \usepackage[Lenny]{fncychap}
 \usepackage{lmodern}
 \usepackage[T1]{fontenc}
 \usepackage{charter}
+\usepackage{color}
 %\usepackage{times}
 \usepackage{graphicx}
 \usepackage{a4wide}
@@ -19,9 +21,11 @@
 
 
 \begin{document}
-\tableofcontents\begin{center}
+\tableofcontents
 
-\end{center}
+%defining a shade of gray
+\definecolor{light-gray}{gray}{0.95}
+
 \chapter{Introduction}
 \input{Chapter1/cell_architecture}
 \chapter{Modèles de Programmation}
