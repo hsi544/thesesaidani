@@ -59,4 +59,26 @@ Tous les points non-nuls qui restent dans la carte de coarsité sont des points d
 	\label{fig_house}
 \end{figure}
 
+\subsection{Détails de l'Implémentation}
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width= \columnwidth]{Chapter2/figures/harris_NB}
+	\caption{Implémentation de l'algorithme de Harris sous forme de graphe flot de données}
+	\label{fig_HarrisAlgorithm}
+\end{figure}
+Une illustration d'une image d'entrée 512$\times$512 en niveau de gris et de la détection de points d'intérêts est donnée dans la figure  \ref{fig_house}. Les images en niveaux de gris sont typiquement des données 8-bit non signées et la sortie de l'algorithme est dans ce cas là un entier 32-bit signé. Toutefois, à cause du nombre limité des instructions dans le jeu du SPU, nous avons choisi d'implémenter l'algorithme en flottant simple-précision et ce pour les entrée, sortie est calculs intermédiaires. Dans notre implémentation nous avons réparti l'algorithme en 4 noyaux de calcul distincts : Un opérateur de Sobel représentant la dérivée dans les directions horrizontale et verticale, un opérateur de multiplication, un opérateur de lissage de Gauss ($w$ dans Eq. \ref{eq_01}) suivi d'un opérateur de coarsité. Dans notre implémentation la constante $k$ dans Eq. \ref{eq_04} est mise à zéro (typiquement elle est fixée à 0.04) car nous avons constaté que le terme en $k$ pouvait être négligé et n'avait pas d'influence sur le résultat. Le graphe flot de données est illustré dans Fig. \ref{fig_HarrisAlgorithm} qui est représentatif des algorithmes de traitement d'images car il contient des noyaux de convolution et des opérateurs point à point. Les noyaux de convolution de Sobel $Grad X$, $Grad Y$ et le  noyaux de lissage $Gauss$ sont définis par :
+\begin{eqnarray*}
+Grad X = \begin{bmatrix}-1 & 0 & 1 \\ -2 & 0 & 2 \\ -1 & 0 & 1 \end{bmatrix}; Grad Y = \begin{bmatrix}-1 & -2 & -1 \\ 0 & 0 & 0 \\ 1 & 2 & 1 \end{bmatrix}; Gauss = \frac{1}{16}\begin{bmatrix}1 & 2 & 1 \\ 2 & 4 & 2 \\ 1 & 2 & 1 \end{bmatrix}
+\end{eqnarray*}
+%\begin{figure}[!htb]
+%	\centering
+%	\includegraphics[scale = 0.25]{Chapter2/figures/fig_convo}
+%	\caption{Illustration of memory complexity for a $3\times3$ convolution kernel, output/input access ratio is 1/9}
+%	\label{fig_convo}
+%\end{figure}
+
+%The convolution kernels computation consist in centering the kernel on a pixel and computing the cumulated sum of the point to point product of the kernel elements with the image patch surrounding the central pixel. Hence, the Harris algorithm can be considered as a memory bounded problem since this kind of operators are great bandwidth consumers as they consume more elements than they produce (Fig. \ref{fig_convo}). For this reason we chose to perform memory access optimizations at several levels of the Cell processor memory hierarchy.
+
+
+
 
