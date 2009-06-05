@@ -32,7 +32,7 @@ Harris et Stephens ont constaté que le calcul des valeurs propres est coûteux ca
 \item Pour chaque pixel $(x, y)$ de l'image calculer la matrice de corrélation $M$:\\
 \begin{equation}
 \label{eq_03}
-M=\begin{bmatrix} A & C \\ C & B \end{bmatrix}; \mbox{où:} A=\left(\frac{\partial I}{\partial x}\right)^{2}\otimes w, B=\left(\frac{\partial I}{\partial y}\right)^{2}\otimes w, A = \left(\frac{\partial I}{\partial x}\frac{\partial I}{\partial y}\right)\otimes w
+M=\begin{bmatrix} S_{xx} & S_{xy} \\ S_{xy} & S_{yy} \end{bmatrix}; \mbox{où:} S_{xx}=\left(\frac{\partial I}{\partial x}\right)^{2}\otimes w, S_{yy}=\left(\frac{\partial I}{\partial y}\right)^{2}\otimes w, S_{xy} = \left(\frac{\partial I}{\partial x}\frac{\partial I}{\partial y}\right)\otimes w
 \end{equation}
 
 Où	$\otimes$ est l'opérateur de convolution $w$ un noyau Gaussien.\\
@@ -42,14 +42,15 @@ Où	$\otimes$ est l'opérateur de convolution $w$ un noyau Gaussien.\\
 C(x,y)=det(M)-k(trace(M))^{2}
 \end{equation}
 \begin{eqnarray*}
-det(M)=AB-C^{2}\\
-trace(M)=A+B\
+det(M)=S_{xx}.S_{yy}-S_{xy}^{2}\\
+trace(M)=S_{xx}+S_{yy}
 \end{eqnarray*}
-et $k$ une constante empirique.
-\item Seuiller la carte d'intérêts en mettant tous les $C(x, y)$ sous un seuil déterminé $T$ à zero. 
-\item Effectuer une suppression de non-maximal pour trouver le maximum local. 
+et $k$ une constante empirique.\\
+Une illustration d'une détection de points d'intérêt sur une image 512$\times$512 en niveaux de gris est donné en figure \ref{fig_house}. Afin d'obtenir ce résultat, deux étapes supplémentaires sont nécessaires qui permettent d'extraire une information visuelle à partir de la matrice $C(x,y)$\footnote{Ces étapes ont pour but de visualiser le résultat et ne sont donc pas incluses dans le graphe de l'algorithme}. Ces étapes sont les suivantes :
+\begin{enumerate}
+\item Seuillage de la carte d'intérêt en mettant toute les valeurs de $C(x,y)$ inférieurs à un seuil donné à zéro.
+\item Extraction des maxima locaux en gardant les points qui sont plus grand que tous leurs voisins dans un voisinage 3$\times$3.
 \end{enumerate}
-Tous les points non-nuls qui restent dans la carte de coarsité sont des points d'intérêts.
 \begin{figure}[!htb]
 	\centering
 \begin{tabular}{cc}
@@ -66,18 +67,15 @@ Tous les points non-nuls qui restent dans la carte de coarsité sont des points d
 	\caption{Implémentation de l'algorithme de Harris sous forme de graphe flot de données}
 	\label{fig_HarrisAlgorithm}
 \end{figure}
+Les images en niveaux de gris sont typiquement des données stockées une des entiers 8-it non signés et la sortie de l'algorithme de Harris est dans ce cas là un entier 32 bit signé. Toutefois, pour des raisons de limitation du jeux d'instruction du SPU, et afin de garantir une comparaison objective avec les extension Altivec et SSE nous avons choisi le format flottant simple précision pour l'entrée et la sortie de l'algorithme. Dans notre implémentation nous avons divisé l'algorithme en 4 noyaux de traitement : un opérateur de \emph{Sobel} qui représente la dérivée dans les directions horizontale et verticale, un opérateur de multiplication, un noyau de lisage de \emph{Gauss} ($w$ dans l'équation \ref{eq_03} suivi d'un opérateur de coarsité. Nous avons fixé la constante $k$ à zéro (typiquement elle est fixée à 0.04) car ceci n'avait pas d'influence sur le résultat qualitatif. On obtient ainsi le graphe flot de données donné dans la figure \ref{fig_HarrisAlgorithm} qui est représentatif d'un algorithme de traitement d'images bas niveau car il englobe des noyaux de convolution et des opérateurs point à point. Les noyaux de convolution de Sobel ($GradX$ et $GradY$)et le noyau de $Gauss$ sont définis comme suit: 
+In our implementation of the Harris operator we divided the algorithm into four computationkernels: a Sobel operator representing the derivative in the horizontal and vertical directions,a multiplication operator, a Gaussian smoothing operator (w in Eq. 2) followed by a coarsitycomputation. In our implementation the k constant in Eq. 4 is xed to 0 as it does not changethe qualitative results. This leads to the data ow graph given in Fig. 3 which is representative oftypical image processing algorithms as it includes convolution kernels and point to point operatorsand in which the Sobel operator convolution kernels (one for horizontal gradient (GradX) andone for the vertical gradient (GradY )) and the Gauss smoothing kernel Gauss are dened by :
+
+
+
 Une illustration d'une image d'entrée 512$\times$512 en niveau de gris et de la détection de points d'intérêts est donnée dans la figure  \ref{fig_house}. Les images en niveaux de gris sont typiquement des données 8-bit non signées et la sortie de l'algorithme est dans ce cas là un entier 32-bit signé. Toutefois, à cause du nombre limité des instructions dans le jeu du SPU, nous avons choisi d'implémenter l'algorithme en flottant simple-précision et ce pour les entrée, sortie est calculs intermédiaires. Dans notre implémentation nous avons réparti l'algorithme en 4 noyaux de calcul distincts : Un opérateur de Sobel représentant la dérivée dans les directions horrizontale et verticale, un opérateur de multiplication, un opérateur de lissage de Gauss ($w$ dans Eq. \ref{eq_01}) suivi d'un opérateur de coarsité. Dans notre implémentation la constante $k$ dans Eq. \ref{eq_04} est mise à zéro (typiquement elle est fixée à 0.04) car nous avons constaté que le terme en $k$ pouvait être négligé et n'avait pas d'influence sur le résultat. Le graphe flot de données est illustré dans Fig. \ref{fig_HarrisAlgorithm} qui est représentatif des algorithmes de traitement d'images car il contient des noyaux de convolution et des opérateurs point à point. Les noyaux de convolution de Sobel $Grad X$, $Grad Y$ et le  noyaux de lissage $Gauss$ sont définis par :
 \begin{eqnarray*}
 Grad X = \begin{bmatrix}-1 & 0 & 1 \\ -2 & 0 & 2 \\ -1 & 0 & 1 \end{bmatrix}; Grad Y = \begin{bmatrix}-1 & -2 & -1 \\ 0 & 0 & 0 \\ 1 & 2 & 1 \end{bmatrix}; Gauss = \frac{1}{16}\begin{bmatrix}1 & 2 & 1 \\ 2 & 4 & 2 \\ 1 & 2 & 1 \end{bmatrix}
 \end{eqnarray*}
-%\begin{figure}[!htb]
-%	\centering
-%	\includegraphics[scale = 0.25]{Chapter2/figures/fig_convo}
-%	\caption{Illustration of memory complexity for a $3\times3$ convolution kernel, output/input access ratio is 1/9}
-%	\label{fig_convo}
-%\end{figure}
-
-%The convolution kernels computation consist in centering the kernel on a pixel and computing the cumulated sum of the point to point product of the kernel elements with the image patch surrounding the central pixel. Hence, the Harris algorithm can be considered as a memory bounded problem since this kind of operators are great bandwidth consumers as they consume more elements than they produce (Fig. \ref{fig_convo}). For this reason we chose to perform memory access optimizations at several levels of the Cell processor memory hierarchy.
 
 
 
