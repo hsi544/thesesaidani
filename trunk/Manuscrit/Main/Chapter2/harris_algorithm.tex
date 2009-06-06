@@ -46,6 +46,7 @@ det(M)=S_{xx}.S_{yy}-S_{xy}^{2}\\
 trace(M)=S_{xx}+S_{yy}
 \end{eqnarray*}
 et $k$ une constante empirique.\\
+\end{enumerate}
 Une illustration d'une détection de points d'intérêt sur une image 512$\times$512 en niveaux de gris est donné en figure \ref{fig_house}. Afin d'obtenir ce résultat, deux étapes supplémentaires sont nécessaires qui permettent d'extraire une information visuelle à partir de la matrice $C(x,y)$\footnote{Ces étapes ont pour but de visualiser le résultat et ne sont donc pas incluses dans le graphe de l'algorithme}. Ces étapes sont les suivantes :
 \begin{enumerate}
 \item Seuillage de la carte d'intérêt en mettant toute les valeurs de $C(x,y)$ inférieurs à un seuil donné à zéro.
@@ -68,15 +69,36 @@ Une illustration d'une détection de points d'intérêt sur une image 512$\times$51
 	\label{fig_HarrisAlgorithm}
 \end{figure}
 Les images en niveaux de gris sont typiquement des données stockées une des entiers 8-it non signés et la sortie de l'algorithme de Harris est dans ce cas là un entier 32 bit signé. Toutefois, pour des raisons de limitation du jeux d'instruction du SPU, et afin de garantir une comparaison objective avec les extension Altivec et SSE nous avons choisi le format flottant simple précision pour l'entrée et la sortie de l'algorithme. Dans notre implémentation nous avons divisé l'algorithme en 4 noyaux de traitement : un opérateur de \emph{Sobel} qui représente la dérivée dans les directions horizontale et verticale, un opérateur de multiplication, un noyau de lisage de \emph{Gauss} ($w$ dans l'équation \ref{eq_03} suivi d'un opérateur de coarsité. Nous avons fixé la constante $k$ à zéro (typiquement elle est fixée à 0.04) car ceci n'avait pas d'influence sur le résultat qualitatif. On obtient ainsi le graphe flot de données donné dans la figure \ref{fig_HarrisAlgorithm} qui est représentatif d'un algorithme de traitement d'images bas niveau car il englobe des noyaux de convolution et des opérateurs point à point. Les noyaux de convolution de Sobel ($GradX$ et $GradY$)et le noyau de $Gauss$ sont définis comme suit: 
-In our implementation of the Harris operator we divided the algorithm into four computationkernels: a Sobel operator representing the derivative in the horizontal and vertical directions,a multiplication operator, a Gaussian smoothing operator (w in Eq. 2) followed by a coarsitycomputation. In our implementation the k constant in Eq. 4 is xed to 0 as it does not changethe qualitative results. This leads to the data ow graph given in Fig. 3 which is representative oftypical image processing algorithms as it includes convolution kernels and point to point operatorsand in which the Sobel operator convolution kernels (one for horizontal gradient (GradX) andone for the vertical gradient (GradY )) and the Gauss smoothing kernel Gauss are dened by :
-
-
-
-Une illustration d'une image d'entrée 512$\times$512 en niveau de gris et de la détection de points d'intérêts est donnée dans la figure  \ref{fig_house}. Les images en niveaux de gris sont typiquement des données 8-bit non signées et la sortie de l'algorithme est dans ce cas là un entier 32-bit signé. Toutefois, à cause du nombre limité des instructions dans le jeu du SPU, nous avons choisi d'implémenter l'algorithme en flottant simple-précision et ce pour les entrée, sortie est calculs intermédiaires. Dans notre implémentation nous avons réparti l'algorithme en 4 noyaux de calcul distincts : Un opérateur de Sobel représentant la dérivée dans les directions horrizontale et verticale, un opérateur de multiplication, un opérateur de lissage de Gauss ($w$ dans Eq. \ref{eq_01}) suivi d'un opérateur de coarsité. Dans notre implémentation la constante $k$ dans Eq. \ref{eq_04} est mise à zéro (typiquement elle est fixée à 0.04) car nous avons constaté que le terme en $k$ pouvait être négligé et n'avait pas d'influence sur le résultat. Le graphe flot de données est illustré dans Fig. \ref{fig_HarrisAlgorithm} qui est représentatif des algorithmes de traitement d'images car il contient des noyaux de convolution et des opérateurs point à point. Les noyaux de convolution de Sobel $Grad X$, $Grad Y$ et le  noyaux de lissage $Gauss$ sont définis par :
 \begin{eqnarray*}
-Grad X = \begin{bmatrix}-1 & 0 & 1 \\ -2 & 0 & 2 \\ -1 & 0 & 1 \end{bmatrix}; Grad Y = \begin{bmatrix}-1 & -2 & -1 \\ 0 & 0 & 0 \\ 1 & 2 & 1 \end{bmatrix}; Gauss = \frac{1}{16}\begin{bmatrix}1 & 2 & 1 \\ 2 & 4 & 2 \\ 1 & 2 & 1 \end{bmatrix}
+Grad_{X} = \begin{bmatrix}-1 & 0 & 1 \\ -2 & 0 & 2 \\ -1 & 0 & 1 \end{bmatrix}; Grad_{Y} = \begin{bmatrix}-1 & -2 & -1 \\ 0 & 0 & 0 \\ 1 & 2 & 1 \end{bmatrix}; Gauss = \frac{1}{16}\begin{bmatrix}1 & 2 & 1 \\ 2 & 4 & 2 \\ 1 & 2 & 1 \end{bmatrix}
 \end{eqnarray*}
+Etant donnée qu'ils consomment plus d'entrée qu'ils ne produisent de sorties, les noyaux de convolution sont le goulot d'étranglement de l'algorithme car elles augmentent considérablement le trafic mémoire. Au vu de la nature des calculs effectués dans les différents noyaux, et qui sont très simples généralement (une suite de multiplications/accumulation) on peut considérer que les instructions mémoire sont prépondérantes dans l'application et de ce fait on peut qualifier l'algorithme de \emph{memory-bounded problem} (problème limité par la mémoire). C'est pour cela que les efforts d'optimisation sur l'algorithme de Harris sont faites par l'optimisation des accès mémoire à différent niveaux de la hiérarchie mémoire du processeur Cell. 
+\subsection{Exploitation du Parallélisme et Optimisations Multi-niveau}
+Les techniques d'optimisation démontrées ici sont multiples et variées. Certaines sont de nature algorithmique et relèvent plutôt du domaine du traitement du signal et des images. D'autres techniques génériques relèvent plutôt du domaine de l'optimisation logicielle est qu'on retrouve par fois dans certains compilateurs optimisants. Les techniques précédentes sont générales et peuvent être appliqués à la majorité des processeurs généralistes car elle ne tiennent pas compte des aspects spécifiques d'une architecture donnée. Par contre, des optimisations de plus haut niveau et qui sont spécifiques à l'architecture particulière du Cell ont aussi été employées. Celles-ci ne sont généralement pas reproductibles sur d'autres architectures parallèles car elle relèvent plus d'une adéquation entre l'algorithme et l'architecture qui contient certains dispositifs qui n'existent que sur le Cell et des fois elles résultent de contraintes de programmation spécifiques au Cell comme la taille limitée des mémoire locale des SPEs et par conséquent la gestion logicielle de l'utilisation de la mémoire.
+\subsubsection{Techniques Spécifiques au Domaine}
+Ces optimisations relèvent plutôt du domaine du traitement du signal et des images. Elles peuvent donc être appliquées à plusieurs algorithmes et sur n'importe quelle architecture. Celles que nous avons utilisé concernent les noyaux de convolution et sont : la séparabilité, le chevauchement (overlapping) et la factorisation des calculs.
+\paragraph{Séparabilité des Noyaux}
+Cette optimisation consiste à exploiter le fait que les noyaux de convolution 2D de \emph{Sobel} \emph{Gauss} soient séparables en deux filtre de convolution 1D. Ainsi, la matrice des coefficients peut être exprimée comme un produit de deux vecteur comme l'illustre les équations suivantes :
+\begin{eqnarray*}
+Grad_{X} =  \frac{1}{  8} \begin{bmatrix} -1 &  0 &   1  \\ -2 & 0 & 2 \\ -1 & 0 & 1 \end{bmatrix} =    \frac{1}{8} \begin{bmatrix} -1 \\ 0 \\ 1 \end{bmatrix} \times  \begin{bmatrix} 1 & 2 & 1 \end{bmatrix};
+Grad_{Y} =  \frac{1}{  8} \begin{bmatrix} -1 & -2 & -1   \\  0 & 0 & 0 \\  1 & 2 & 1 \end{bmatrix}  =   \frac{1}{8} \begin{bmatrix} 1 \\ 2 \\ 1 \end{bmatrix} \times  \begin{bmatrix} -1 & 0 & 1 \end{bmatrix}\\
+Gauss      =  \frac{1}{16} \begin{bmatrix}  1 &  2 &   1  \\  2 & 4 & 2 \\  1 & 2 & 1 \end{bmatrix} = \frac{1}{16}\begin{bmatrix}1 \\ 2 \\ 1 \end{bmatrix} \times \begin{bmatrix}1  & 2 & 1 \end{bmatrix}
+\end{eqnarray*}
+Lorsqu'on sépare les noyaux de convolutions le calcul se fait en deux passes une pour chaque vecteur. Grâce à la séparabilité des noyaux on arrive à réduire le nombre d'instructions mémoire ainsi que la complexité arithmétique. La comparaison est illustrée dans le tableau \ref{tab_sepa}
+\begin{table}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+Opérateur & Nombre &\texttt{MUL} &\texttt{ADD} & Total \\
+\hline
+\emph{Sobel} & 2 & 3 & 5 &16 \\
+\hline
+\emph{Mul} & 3 & 1 & 0 &3 \\
+\hline
+\emph{Gauss} & 3 & 1 & 0 &3 \\
+\hline
+\end{tabular}
+\caption{Réduction de la complexité mémoire et arithmétique par séparabilité des noyaux}
+\end{table}
 
-
-
+%Operator Number MUL ADD Total%Complexity without optimization%Sobel 2 3 5 16%Mul 3 1 0 3%Gauss 3 6 8 42%Coarsity 1 2 1 3%Total - 29 35 64%Complexity with optimizations%Sobel 2 0 5 10%Mul 3 1 0 3%Gauss 3 0 6 18%Coarsity 1 2 1 3%Total - 4 30 34
 
