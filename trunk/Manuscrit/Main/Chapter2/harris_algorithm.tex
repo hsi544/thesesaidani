@@ -86,6 +86,7 @@ Gauss      =  \frac{1}{16} \begin{bmatrix}  1 &  2 &   1  \\  2 & 4 & 2 \\  1 & 
 \end{eqnarray*}
 Lorsqu'on sépare les noyaux de convolutions le calcul se fait en deux passes une pour chaque vecteur. Grâce à la séparabilité des noyaux on arrive à réduire le nombre d'instructions mémoire ainsi que la complexité arithmétique. La comparaison est illustrée dans le tableau \ref{tab_sepa}
 \begin{table}
+\centering
 \begin{tabular}{|c||c|c|c|c|}
 \multicolumn{5}{c}{\emph{Complexité sans Optimisation}}\\
 \hline
@@ -121,15 +122,36 @@ Lorsqu'on sépare les noyaux de convolutions le calcul se fait en deux passes une
 \emph{Total} & - & 4 & 30 & 34 \\
 \hline
 \end{tabular}
+\label{tab_sepa}
 \caption{Réduction de la complexité mémoire et arithmétique par séparabilité des noyaux}
 \end{table}
 \paragraph{Chevauchement des Noyaux}
 La deuxième particularité des noyaux de convolution est une notion de chevauchement qui permet d'avoir une redondance d'une partie des données. En effet, comme le démontre la figure \ref{fig_ovelapping}, à chaque itération du calcul de la convolution il n'y a qu'une seule nouvelle colonne chargée. Les colonnes redondantes sont copiées dans les registres en les décalant d'un pas à droite par rapport à leur position précédente (\emph{rotation de registres}). On notera que le même type d'optimisation peut se faire grâce à un \emph{déroulage de boucle}.
 \paragraph{Réduction et Factorisation des Calculs}
 Cette optimisation provient du fait que les noyaux utilisés sont séparables. Au lieu de mémoriser les deux dernières colonnes, on mémorise le résultat du filtrage par le premier filtre 1D pour le réutiliser 
-à l'itération suivante de la boucle. Si l'on prend comme exemple la convolution d'un region 3$\times$4 par un noyaux de \emph{Gauss}, les étapes sont les suivantes:
-\begin{eqnarray*}
-[r_{0};r_{1}] = \begin{bmatrix} 1 & 2 & 1  \\ 2 & 4 & 2 \\ 1 & 2 & 1 \end{bmatrix}* \begin{bmatrix} a_{0} & b_{0} & c_{0} & d_{0}\\ a_{1} & b_{1} & c_{1} & d_{1}\\ a_{2} & b_{2} & c_{2} & d_{2}\end{bmatrix}\\
-r_{0} = \begin{bmatrix} 1 & 2 & 1 \end{bmatrix}* \left(\begin{bmatrix} 1 \\ 2 \\ 1 \end{bmatrix}\right)%[r_{0}] %= [1 2 1 ]*\begin{bmatrix} 1 \\ 2 \\ 1 \end{bmatrix} * \begin{bmatrix} a_{0} \\ a_{1} \\ a_{2} \end{bmatrix}^{T}
-%  \\ 2 & 4 & 2 \\ 1 & 2 & 1 \end{bmatrix}* \begin{bmatrix} a_{0} & b_{0} & c_{0} & d_{0}\\ a_{1} & b_{1} & c_{1} & d_{1}\\ a_{2} & b_{2} & c_{2} & d_{2}\end{bmatrix}\\
-\end{eqnarray*}
+à l'itération suivante de la boucle. Si l'on prend comme exemple la convolution d'un region 3$\times$4 par un noyaux de \emph{Gauss}, les étapes sont les suivantes:\\
+
+\begin{figure}[!ht]
+\begin{tabular}{|c|c|c|}
+\hline
+1 & 2 & 1 \\
+\hline
+2 & 4 & 2 \\
+\hline
+1 & 2 & 1\\
+\hline
+\end{tabular}
+\begin{tabular}{|c|c|c|c|}
+\hline
+$a_{0}$ & $b_{0}$ & $c_{0}$ & $d_{0}$\\
+\hline
+$a_{1}$ & $b_{1}$ & $c_{1}$ & $d_{1}$\\
+\hline
+$a_{2}$ & $b_{2}$ & $c_{2}$ & $d_{2}$\\
+\hline
+\end{tabular}
+\end{figure}
+
+[Mettre figure ici]\\
+Un tableau similaire au tableau \ref{tab_sepa} donne la différence en terme de complexité arithmétique entre la version de base de l'algorithme est la version tenant compte de la réduction et de la factorisation des calculs.
+[A Compélter]\\
