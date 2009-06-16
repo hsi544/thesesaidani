@@ -9,7 +9,7 @@ Etant donné les caractéristiques de l'architecture du Cell ainsi que celles de l
 \section{Algorithme de Harris}
 La détection de point d'intéréts de Harris et Stephen \cite{harris_corner} est utilisée dans les systèmes de vision par ordinateur pour l'extraction de connaissance comme la détection de mouvement, correspondance d'images, suivi d'objets, reconstruction 3D et reconnaissance d'objets. Cet algorithme fut proposé pour palier aux manques de l'algorithme de Moravec \cite{moravec} qui était sensible au bruit et pas invariant à la rotation. Un coin peut être définit comme étant l'intersection de deux contours lorsque un point d'intérêt peut être définit comme un point ayant une position bien déterminée qui peut être détecté de manière robuste. Ainsi, le point d'intérêt peut être un coin mais aussi un point isolé d'intensité maximum ou minimum localement, une terminaison de ligne ou un point de courbe où la courbure est localement maximale.
 
-\subsection{Description de l'Algorithmes}
+\subsection{Description de l'Algorithme}
 Si l'on considère des zones de l'images de dimensions $u \times v$ (dans notre cas $3 \times 3$ dans une images 2-dimensions en niveaux de gris $I$  qui est décalée de $(x, y)$, l'opérateur de Harris est basé sur l'estimation de l'autocorrélation locale $S$ dont l'équation est la suivante:
 \begin{equation}
 \label{eq_00}
@@ -155,3 +155,14 @@ $a_{2}$ & $b_{2}$ & $c_{2}$ & $d_{2}$\\
 [Mettre figure ici]\\
 Un tableau similaire au tableau \ref{tab_sepa} donne la différence en terme de complexité arithmétique entre la version de base de l'algorithme est la version tenant compte de la réduction et de la factorisation des calculs.
 [A Compélter]\\
+\subsubsection{Schémas de Parallélisation}
+\paragraph{SPMD Conventionnel}
+Dans ce schéma de déploiement l'image est divisée en 8 regions de même taille, afin que chacun des 8 SPEs ait une charge de calcul équivalente. Tous les SPEs exécutent le même code. Les opérateurs sont exécutés successivement sur l'image entière l'un après l'autre. A titre d'exemple l'opérateur de multiplication n'est exécuté que lorsque le calcul du filtre de \emph{Sobel} est achevé sur toute l'image. Ce modèle de calcul est dit \emph{data-parallel} car les données sont envoyées en parallèle sur les SPEs et traitées de manière complètement indépendantes les unes des autres. Toutefois, la bande passante sur le bus mémoire centrale vers \emph{locale store} est beaucoup sollicitées car les données sont systématiquement lues et écrites avant et après chaque opérateur.
+\paragraph{Pipeline Conventionnel}
+Cette implémentation de l'algorithme consiste à déployer le graphe d'opérateur sous forme de pipeline. L'image n'est pas subdivisée en régions de traitement mais chaque tuile traitée traverse le pipeline avant qu'une nouvelle tuile ne puisse l'être. L'algorithme est par conséquent fortement séquentialisé. Par contre la bande-passante inter-SPEs est bien exploitée car la majorité des transferts se font entre SPEs et par conséquent la pression exercée sur le bus précédemment est atténuée car elle est répartie sur l'ensemble de l'anneau.
+\paragraph{Chaînage d'opérateur par paires}
+Dans cette version deux opérateurs successifs sont placés sur le même SPE. Ainsi, les opérateur \emph{Sobel} et \emph{Mul} sont placé sur un même SPE et \emph{Gauss} et \emph{Coarsity} sont placés sur un autre SPE. Le nombre de SPEs dans un processeur Cell étant de 8, ce schéma permet d'avoir 4 regions de l'image traitées en parallèle. Si l'on compare cette version à la précédente, on notera que la pression sur le bus d'interconnexion est plus importantes car les transferts concurrents sont plus nombreux et par conséquent le risque de contention du bus est plus probable.
+\paragraph{Chaînage et fusion d'opérateur par paires}
+Cette version est une variante de celle qui la précède. L'idée étant de fusionner les opérateurs présent sur un même SPE, et ce afin d'éliminer les instructions de \texttt{LOAD} et \texttt{STORE} présent à la sortie de du premier et à l'entrée du second. De ce fait, le nombre de cycles peut être considérablement réduit, surtout lorsque l'on sait que la latence des instructions mémoire est de 6 cycles sur les SPE \cite{cell_handbook}.
+\paragraph{Chaînage entier et fusion d'opérateur par paires}
+Dans cette implémentation tous les opérateurs sont exécutés sur le même SPE. D'une part ceci permet d'éviter les transferts DMA entre SPE et minimise donc les transactions sur le bus d'interconnexion. 
