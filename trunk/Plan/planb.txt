@@ -1,0 +1,41 @@
+1.Introduction.
+ _ TI.
+ - Cell
+- //
+2. Le proc Cell.
+2.1 Archi 
+2.2 exp TLP
+2.3 exp SIMD Altivec
+2.4 à la main c pas bien => outils
+
+3. Outils existants
+....
+
+
+3.6 abstraction/efficacité.
+
+4. Modèle HL
+4.1
+4.2
+4.3. Squelette
+ _ conclusion on fait des squelettes.
+
+5. Cell-Skell
+API
+PPE<->SPE ?
+comment implementer, polymorphisme runtime_ polymorphisme compilation
+-> Prog Generique _> Expression Templates (bas niveau).
+-> Proto
+-> Grammaire Semantique
+ex dédié 
+6. Algo
+Harris
+sigma-delta
+ECC.
+test bench
+
+7 Conclusion.
+
+
+
+
