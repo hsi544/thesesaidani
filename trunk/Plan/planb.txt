@@ -1,4 +1,4 @@
-1.Introduction.
+﻿1.Introduction.
  _ TI.
  - Cell
 - //
@@ -20,7 +20,8 @@
 4.3. Squelette
  _ conclusion on fait des squelettes.
 
-5. Cell-Skell
+5. Cell-Skell  ceux de skeel c'est pardo,pipe,seq et chain
+
 API
 PPE<->SPE ?
 comment implementer, polymorphisme runtime_ polymorphisme compilation
