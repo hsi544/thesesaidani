@@ -24,11 +24,12 @@
 
 API
 PPE<->SPE ?
-comment implementer, polymorphisme runtime_ polymorphisme compilation
--> Prog Generique _> Expression Templates (bas niveau).
+comment implementer, polymorphisme runtime polymorphisme compilation
+-> Prog Generique -> Expression Templates (bas niveau).
 -> Proto
 -> Grammaire Semantique
 ex dédié 
+
 6. Algo
 Harris
 sigma-delta

@@ -1,9 +1,47 @@
-La programmation parallèle structurée qu'on appelle programmation par squelettes algorithmiques \cite{skeletons_cole} restraint l'expression du parallèlisme à la composition d'un nombre prédéfinit de \emph{patterns} nommés squelettes. Les squelettes algorithmiques sont des briques de base génériques, portables et réutilisables pour lesquelles une implémentation parallèle peut exister. Ils sont issues des langages de programmation fonctionnelle. Un système de programmation basé sur les squelettes fournit un ensemble fixe et relativement limité de squelettes. Chaque squelette représente une manière unique d'exploiter le parallélisme dans une organisation spécifique du calcul, tels que le parallélisme de données, de tâches, le \emph{divide-and-conquer} parallèle ou encore le pipeline. En combinant ces \emph{patterns} le développeur peut construire une spécification haut-niveau de son programme parallèle. Le système peut ainsi exploiter cette spécification pour la transformation de code, l'exploitant efficace des ressources ou encore le placement.\\
+La programmation parallèle structurée qu'on appelle programmation par squelettes algorithmiques \cite{skeletons_cole} restraint l'expression du parallèlisme à la composition d'un nombre prédéfini de \emph{patterns} nommés squelettes. Les squelettes algorithmiques sont des briques de base génériques, portables et réutilisables pour lesquelles une implémentation parallèle peut exister. Ils sont issues des langages de programmation fonctionnelle. Un système de programmation basé sur les squelettes fournit un ensemble fixe et relativement limité de squelettes. Chaque squelette représente une manière unique d'exploiter le parallélisme dans une organisation spécifique du calcul, tels que le parallélisme de données, de tâches, le \emph{divide-and-conquer} parallèle ou encore le pipeline. En combinant ces \emph{patterns} le développeur peut construire une spécification haut-niveau de son programme parallèle. Le système peut ainsi exploiter cette spécification pour la transformation de code, l'exploitant efficace des ressources ou encore le placement.\\
 La composition des squelettes peut se faire d'une manière non-hiérarchique en mettant en séquence les différents blocs en en utilisant des variables temporaires pour sauvegarder les résultats intermédiaires, ou alors de manière hiérarchique en imbriquant les fonctions squelette et ce en construisant une fonction composée dans laquelle le code de plusieurs squelettes est passé en paramètre d'un autre squelette. Ceci présente une manière élégante d'exprimer le parallélisme multi-niveau.\\
 Dans un environnement de programmation declarative, comme dans les langages fonctionnels ou alors dans la programmation par squelettes, la composition hiérarchique procure au générateur de code plus de liberté de choix pour les transformations automatiques et l'utilisation efficace des ressources, comme par exemple le nombre de processeurs utilisé en parallèle dans un niveau particulier de la hiérarchie. les squelettes ne pouvant pas être imbriqués  sont généralement implémentées avec juste une librairie générique alors que les squelettes nichés requièrent un pré-traitement qui déroule la hiérarchie du squelette en utilisant par exemple les templates C++ ou les macros de preprocesseur en C.
 
-\section{The Divide \& Conquer Skeleton (Fixed Degree}
-Ce type de squelette provient de la célèbre technique du \emph{divide and conquer}. Cette technique peut s'appliquer lorsque la solution à un problème peut être définie récursivement comme une collections de sous-problèmes qui sont des instances plus petites du problème original. Les algorithmes de ce type offrent un bon potentiel de parallélisation. En effet, si l'on arrive à exprimer un problème sous forme de sous-problèmes définis récursivement  on imagine bien que ces derniers peuvent être exécutées de manière concurrente sur plusieurs processeurs. L'exécution des algorithmes du type \emph{divide and conquer} se résume à l'évaluation d'un arbre de processus évoluant dynamiquement, le processus représentant un sous-problème généré. Le défi étant de s'assurer que les déploiement de cet arbre virtuel se fait de la manière la plus efficace possible sur une vraie machine. 
-\section{The Iterative Combination Skeleton}
-\section{The Cluster Skeleton}
-\section{The Task Queue Skeleton}
+\section{Modèle de Programmation}
+\begin{figure}[!htb]
+	\centering
+  \includegraphics[width= 0.8\columnwidth]{Chapter3/figures/skeleton_example}
+	\caption{Exemple de graphe de processus communicants avec hiérarchisation}
+	\label{skelexple}
+\end{figure}
+Dans le modèle de programmation parallèle par squelettes algorithmiques, une application est définie comme étant un graphe de processus communicants. Cette représentation permet de spécifier les schémas de communication entre les processus \textbf{$P_{i}$}, de mettre en évidence les fonctions séquentielles \textbf{$F_{i}$} contenues dans l'application, ainsi que les processus nécessaires à l'exécution parallèle de l'application. Un exemple de représentation est donné dans la figure \ref{skelexple}. On peut distinguer sur cette figure deux parties distinctes : 
+\begin{itemize}
+\item Le système d'équilibrage de charge \textbf{(A)} qui utilise $k$ processeurs qui traite les données fournies par le processus \emph{Distrib}, ces dernières étant regroupées par le processus \emph{Collect}. Il faudra noter que le flux alimente le processeurs de manière dynamique dès qu'il trouve un processus libre.
+\item Le mécanisme de contrôle \textbf{(A)} qui permet de séquencer les traitement dans l'ordre donnée par le graphe. Ce mécanisme assure que les données, une fois traitées (fonction $F_{i}$) par le processeur $P_{i}$, sont transmises au processus $P_{i+1}$. On pourra noter que le schéma d'exécution dans ce cas là est du type \emph{pipeline}.
+\end{itemize}
+Le modèle de programmation parallèle par squelettes algorithmiques repose sur l'extraction de tels schémas récurrents. Un squelette est ainsi défini comme étant un schéma générique paramètré par une liste de fonctions qu'il est possible d'instancier et de composer. Fonctionnellement, les squelettes algorithmiques sont des \textbf{fonctions d'ordre supérieur}, c'est à dire des fonctions prenant une ou plusieurs fonctions comme arguments et retournant une fonction comme résultat. La programmation par squelettes devient permet au programmeur d'utiliser un modèle haut-niveau pour décrire son application, sans se soucier de certains détails complexes comme l'ordonnancement ou le placement. Il peut alors définir une application parallèle comme suit:
+\begin{itemize}
+\item Instancier des squelettes en spécifiant les fonctions qui les définissent.
+\item Exprimer la composition des ces squelettes.
+\end{itemize}
+L’expression de la compositions peut se faire en encodant cette dernière sous la forme d’un \textbf{arbre}(\ref{fig_tree}) dont les noeuds représentent les squelettes utilisés et les feuilles, les fonctions séquentielles passées en paramètres à ces squelettes.
+\begin{figure}[!htb]
+	\centering
+  \includegraphics[width= 0.8\columnwidth]{Chapter3/figures/fig_tree}
+	\caption{Arbre représentant le squelette en Figure \ref{skelexple}}
+	\label{fig_tree}
+\end{figure}
+
+Dans la figure \ref{fig_tree}, le squelette \textbf{Pipeline} décrit le schéma générique correspondant à la section \textbf{B} du graphe de processus communiquant initial. Le squelette \textbf{Farm} représente quant à lui la partie \textbf{A} de ce même schéma. Les fonctions $F_{i}$ apparaissent aux feuilles de l'arbre, c'est à dire en argument des squelettes. On note aussi que les fonctions \textbf{Distrib} et Collect n'apparaissent plus explicitement, car elles font partie intégrante du squelette \textbf{Farm}. Cette représentation met en avant un des aspects les plus importants de l'approche
+à base de squelettes algorithmiques : à partir d'un nombre restreint de squelettes (classiquement moins d'une dizaine), il est possible de définir des applications complexes. Ceci suppose toutefois que l'on ait formalisé le type d'application que l'on va chercher à paralléliser, de définir précisément le jeu de squelettes que l'on désire mettre à disposition du développeur et de spécifier leurs sémantiques fonctionnelles et opérationnelles. Il existe plusieurs classifications des squelettes. Toutefois, on peut les répartir en trois groupes : les squelettes dédiés au parallélisme de contrôle, les squelettes dédiés au parallélisme de données et les squelettes dédiés à la structuration séquentielle de l’application.
+\subsection{Squelettes dédiés au parallélisme de contrôle}
+\subsubsection{Le Squelette Pipeline}
+\subsubsection{Le Squelette Pardo}
+\subsection{Squelettes dédiés au parallélisme de données}
+\subsubsection{Le Squelette Farm}
+\subsubsection{Le squelette SCM}
+\subsection{Squelettes dédiés à la structuration de l’application}
+\subsubsection{Le Squelette Sequence}
+\subsubsection{Le Squelette Select}
+
+%On trouve dans la littérature plusieurs jeux de squelettes algorithmiques répondant à divers besoins [45, 22, 5, 88, 119, 54]. Au sein de QUAFF, 
+%\section{The Divide \& Conquer Skeleton (Fixed Degree}
+%Ce type de squelette provient de la célèbre technique du \emph{divide and conquer}. Cette technique peut s'appliquer lorsque la solution à un problème peut être définie récursivement comme une collections de sous-problèmes qui sont des instances plus petites du problème original. Les algorithmes de ce type offrent un bon potentiel de parallélisation. En effet, si l'on arrive à exprimer un problème sous forme de sous-problèmes définis récursivement  on imagine bien que ces derniers peuvent être exécutées de manière concurrente sur plusieurs processeurs. L'exécution des algorithmes du type \emph{divide and conquer} se résume à l'évaluation d'un arbre de processus évoluant dynamiquement, le processus représentant un sous-problème généré. Le défi étant de s'assurer que les déploiement de cet arbre virtuel se fait de la manière la plus efficace possible sur une vraie machine. 
+%\section{The Iterative Combination Skeleton}
+%\section{The Cluster Skeleton}
+%\section{The Task Queue Skeleton}
