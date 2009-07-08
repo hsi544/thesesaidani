@@ -20,7 +20,7 @@
 4.3. Squelette
  _ conclusion on fait des squelettes.
 
-5. Cell-Skell  ceux de skeel c'est pardo,pipe,seq et chain
+5. Cell-Skell  ceux de skell_be c'est pardo,pipe,seq et chain
 
 API
 PPE<->SPE ?

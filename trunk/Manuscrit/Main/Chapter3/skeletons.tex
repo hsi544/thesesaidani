@@ -22,7 +22,7 @@ Le modèle de programmation parallèle par squelettes algorithmiques repose sur l'
 L’expression de la compositions peut se faire en encodant cette dernière sous la forme d’un \textbf{arbre}(\ref{fig_tree}) dont les noeuds représentent les squelettes utilisés et les feuilles, les fonctions séquentielles passées en paramètres à ces squelettes.
 \begin{figure}[!htb]
 	\centering
-  \includegraphics[width= 0.8\columnwidth]{Chapter3/figures/fig_tree}
+  \includegraphics[width= 0.7\columnwidth]{Chapter3/figures/fig_tree}
 	\caption{Arbre représentant le squelette en Figure \ref{skelexple}}
 	\label{fig_tree}
 \end{figure}
@@ -30,7 +30,17 @@ L’expression de la compositions peut se faire en encodant cette dernière sous la
 Dans la figure \ref{fig_tree}, le squelette \textbf{Pipeline} décrit le schéma générique correspondant à la section \textbf{B} du graphe de processus communiquant initial. Le squelette \textbf{Farm} représente quant à lui la partie \textbf{A} de ce même schéma. Les fonctions $F_{i}$ apparaissent aux feuilles de l'arbre, c'est à dire en argument des squelettes. On note aussi que les fonctions \textbf{Distrib} et Collect n'apparaissent plus explicitement, car elles font partie intégrante du squelette \textbf{Farm}. Cette représentation met en avant un des aspects les plus importants de l'approche
 à base de squelettes algorithmiques : à partir d'un nombre restreint de squelettes (classiquement moins d'une dizaine), il est possible de définir des applications complexes. Ceci suppose toutefois que l'on ait formalisé le type d'application que l'on va chercher à paralléliser, de définir précisément le jeu de squelettes que l'on désire mettre à disposition du développeur et de spécifier leurs sémantiques fonctionnelles et opérationnelles. Il existe plusieurs classifications des squelettes. Toutefois, on peut les répartir en trois groupes : les squelettes dédiés au parallélisme de contrôle, les squelettes dédiés au parallélisme de données et les squelettes dédiés à la structuration séquentielle de l’application.
 \subsection{Squelettes dédiés au parallélisme de contrôle}
+%pardo,pipe,seq et chain
 \subsubsection{Le Squelette Pipeline}
+Ce squelette couvre les situations dans laquelle une liste de fonction qui doivent s'exécuter en série, est répartie sur un ensemble de processeurs différents. En régime permanent l'exécution de la fonction $F_{i}$ sur les données $D_{i+1}$ se fait alors en parallèle avec celle de la fonction $F_{i+1}$ sur les données $D_{i}$. La figure \ref{skell-pipe} illustre ce fonctionnement en régime permanent.
+\begin{figure}[!htb]
+	\centering
+  \includegraphics[width= \columnwidth]{Chapter3/figures/skell-pipe}
+	\caption{Exemple de squelette du type \textbf{Pipeline}}
+	\label{skell-pipe}
+\end{figure}
+Le parallélisme résulte du fait que l'évaluation des différents fonctions du \textbf{Pipeline} sur des éléments différents du flux ($D_{0}$, $D_{1}$ par exemple sur la figure \ref{skell-pipe}) se fait de manière indépendante. Deux grandeurs caractérisent alors le \textbf{Pipeline} : (1)la latence qui est la durée de traitement d'un élément de flux par tous les étages du pipeline, (2) le débit, qui mesure le nombre de résultats fournis par unités de temps et qui est déterminé par l'étage le plus lent du \textbf{Pipeline}.
+
 \subsubsection{Le Squelette Pardo}
 \subsection{Squelettes dédiés au parallélisme de données}
 \subsubsection{Le Squelette Farm}
