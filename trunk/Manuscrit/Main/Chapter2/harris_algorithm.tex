@@ -159,6 +159,12 @@ Un tableau similaire au tableau \ref{tab_sepa} donne la différence en terme de c
 \paragraph{SPMD Conventionnel}
 Dans ce schéma de déploiement l'image est divisée en 8 regions de même taille, afin que chacun des 8 SPEs ait une charge de calcul équivalente. Tous les SPEs exécutent le même code. Les opérateurs sont exécutés successivement sur l'image entière l'un après l'autre. A titre d'exemple l'opérateur de multiplication n'est exécuté que lorsque le calcul du filtre de \emph{Sobel} est achevé sur toute l'image. Ce modèle de calcul est dit \emph{data-parallel} car les données sont envoyées en parallèle sur les SPEs et traitées de manière complètement indépendantes les unes des autres. Toutefois, la bande passante sur le bus mémoire centrale vers \emph{locale store} est beaucoup sollicitées car les données sont systématiquement lues et écrites avant et après chaque opérateur.
 \paragraph{Pipeline Conventionnel}
+\begin{figure}[!htb]
+	\centering
+  \includegraphics[width= \columnwidth]{Chapter2/figures/harris-pipeline}
+	\caption{Scéma de Parallélisation Pipeline}
+	\label{harris-pipeline}
+\end{figure}
 Cette implémentation de l'algorithme consiste à déployer le graphe d'opérateur sous forme de pipeline. L'image n'est pas subdivisée en régions de traitement mais chaque tuile traitée traverse le pipeline avant qu'une nouvelle tuile ne puisse l'être. L'algorithme est par conséquent fortement séquentialisé. Par contre la bande-passante inter-SPEs est bien exploitée car la majorité des transferts se font entre SPEs et par conséquent la pression exercée sur le bus précédemment est atténuée car elle est répartie sur l'ensemble de l'anneau.
 \paragraph{Chaînage d'opérateur par paires}
 Dans cette version deux opérateurs successifs sont placés sur le même SPE. Ainsi, les opérateur \emph{Sobel} et \emph{Mul} sont placé sur un même SPE et \emph{Gauss} et \emph{Coarsity} sont placés sur un autre SPE. Le nombre de SPEs dans un processeur Cell étant de 8, ce schéma permet d'avoir 4 regions de l'image traitées en parallèle. Si l'on compare cette version à la précédente, on notera que la pression sur le bus d'interconnexion est plus importantes car les transferts concurrents sont plus nombreux et par conséquent le risque de contention du bus est plus probable.
