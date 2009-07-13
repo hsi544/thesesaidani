@@ -157,6 +157,12 @@ Un tableau similaire au tableau \ref{tab_sepa} donne la différence en terme de c
 [A Compélter]\\
 \subsubsection{Schémas de Parallélisation}
 \paragraph{SPMD Conventionnel}
+\begin{figure}[!htb]
+	\centering
+  \includegraphics[width= \columnwidth]{Chapter2/figures/harris-spmd}
+	\caption{Scéma de Parallélisation SPMD Conventionnel}
+	\label{harris-spmd}
+\end{figure}
 Dans ce schéma de déploiement l'image est divisée en 8 regions de même taille, afin que chacun des 8 SPEs ait une charge de calcul équivalente. Tous les SPEs exécutent le même code. Les opérateurs sont exécutés successivement sur l'image entière l'un après l'autre. A titre d'exemple l'opérateur de multiplication n'est exécuté que lorsque le calcul du filtre de \emph{Sobel} est achevé sur toute l'image. Ce modèle de calcul est dit \emph{data-parallel} car les données sont envoyées en parallèle sur les SPEs et traitées de manière complètement indépendantes les unes des autres. Toutefois, la bande passante sur le bus mémoire centrale vers \emph{locale store} est beaucoup sollicitées car les données sont systématiquement lues et écrites avant et après chaque opérateur.
 \paragraph{Pipeline Conventionnel}
 \begin{figure}[!htb]
