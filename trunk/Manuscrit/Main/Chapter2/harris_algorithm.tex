@@ -220,8 +220,19 @@ Les tableau \ref{tab_sepaover_arith} et \ref{tab_sepaover_mem} donnent la différ
 \label{tab_sepaover_mem}
 \caption{Réduction de la complexité mémoire par séparabilité et chevauchement des noyaux}
 \end{table}
-\paragraph{composition de fonctions}
-Cette technique d'optimisation s'avère très efficace surtout dans les codes ou les instructions mémoire sont prépondérantes. En effet, le fait de composer deux fonctions de calcul pour en faire une seule qui effectue les deux calculs réduit considérablement le nombre d'accès mémoire puisque les opérations de sauvegarde et de chargement intermédiaires entre les deux fonctions initiales sont supprimées, et la transaction se fait au niveaux des registres. De plus, le coût de l'appel de fonction (taille de la pile, et branchement) est également réduit, car le résultat de la composition de fonctions et une seule fonction. Dans les cas les plus simples, la mise en oeuvre de cette technique n'est pas difficile. Toutefois, lorsqu'il s'agit d'opérateurs de convolution comme dans notre cas, des nouvelles contraintes apparaissent afin de garantir la validité du résultat du calcul. Ainsi, des règles de composition s'imposent en fonction de l'ordre dans lequel s'enchaînent les fonctions. Ces rêgles sont illustrées sur la figure \ref{fig_compo}.
+\paragraph{Composition de Fonctions}
+\begin{figure}[!htb]
+	\centering
+  \includegraphics[width= \columnwidth]{Chapter2/figures/funccompo}
+	\caption{Règle de composition de fonctions.\textbf{(a)} composition de deux opérateurs point à point \textbf{(b)} composition d'un noyaux de convolution suivi d'un opérateur point à point \textbf{(c)} composition d'un opérateur point à point  suivi d'un noyaux de convolution \textbf{(d)} composition de deux noyaux de convolution successifs}
+	\label{fig_compo}
+\end{figure}
+Cette technique d'optimisation s'avère très efficace surtout dans les codes ou les instructions mémoire sont prépondérantes. En effet, le fait de composer deux fonctions de calcul pour en faire une seule qui effectue les deux calculs réduit considérablement le nombre d'accès mémoire puisque les opérations de sauvegarde et de chargement intermédiaires entre les deux fonctions initiales sont supprimées, et la transaction se fait au niveaux des registres. De plus, le coût de l'appel de fonction (taille de la pile, et branchement) est également réduit, car le résultat de la composition de fonctions et une seule fonction. Dans les cas les plus simples, la mise en oeuvre de cette technique n'est pas difficile. Toutefois, lorsqu'il s'agit d'opérateurs de convolution comme dans notre cas, des nouvelles contraintes apparaissent afin de garantir la validité du résultat du calcul. Ainsi, des règles de composition s'imposent en fonction de l'ordre dans lequel s'enchaînent les fonctions. Ces règles sont illustrées sur la figure \ref{fig_compo}. On peut alors constater qu'il existe plusieurs règles de composition des fonctions selon d'une part : la nature des opérateurs mis en jeu et d'autre part l'ordre dans lequel il s'enchaînent. En terme d'apport de cette technique en terme de performances nous observons deux aspects distincts:
+\begin{itemize}
+\item \textbf{Complexité mémoire} : on observe en effet que ceux ci sont systématiquement réduits, car les opérations de \texttt{LOAD/STORE} intermédiaires sont supprimés, sauf dans le cas de la composition de deux noyaux de convolution (cas \textbf{(d)} sur la figure \ref{fig_compo})ou la présence de bords supplémentaires augmente considérablement le nombre des accès mémoire.
+\item \textbf{Complexité arithmétique} : Cele-ci ne change pas dans le meilleurs des cas notamment lorsque les opérateurs composées sont point à point ou alors lorsque l'opérateur de convolution est placé devant un opérateur point à point (cas \textbf{(b)} sur la figure \ref{fig_compo}). Toutefois, si la convolution est placée à la suite d'un quelconque traitement, elle impose que l'opérateur qui la précède soit effectué sur tous les pixels de voisinage, ce qui augmente considérablement la compléxité arithmétique, en particulier lorsque l'opérateur qui précède est une convolution (cas \textbf{(d)} sur la figure \ref{fig_compo}).
+\end{itemize}
+
 \subsubsection{Schémas de Parallélisation}
 \paragraph{SPMD Conventionnel}
 \begin{figure}[!htb]
