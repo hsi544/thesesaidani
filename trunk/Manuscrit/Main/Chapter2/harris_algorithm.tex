@@ -236,24 +236,75 @@ Cette technique d'optimisation s'avère très efficace surtout dans les codes ou l
 D'après les observations ci-dessus, la composition de fonction peut être un bon choix pour l'optimisation d'une chaîne de traitement telle que l'algorithme de detection de point d'intérêts de Harris. Toutefois, toutes les combinaisons n'apportent pas forcément une amélioration des performances, elle peuvent même dans certains cas les dégrader. Le tableau \ref{tab_memall} résume les complexité mémoire et arithmétiques des différents cas de composition sur la figure \ref{fig_compo} en incluant également les optimisations décrites auparavant.
 \begin{table}
 \centering
-\begin{tabular}{|c|c|c|c|c|}
-\multicolumn{5}{c}{\textbf{Version sans composition}\\
+\begin{tabular}{|c||c|c|c|c|}
 \hline
-Opérateur & Occurrences & LOADS & STORE & Total
+\multicolumn{5}{|c|}{\textbf{Version de base sans composition}}\\
 \hline
-Sobel & 2 & 6 & 1 & 14
+\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
 \hline
-Mul & 3 & 2 & 1 & 9
+\emph{Sobel} & 2 & 6 & 1 & 14\\
 \hline
-Gauss & 3 & 9 & 1 & 30
+\emph{Mul} & 3 & 2 & 1 & 9\\
 \hline
-Coarsity & 1 & 3 & 1 & 4
+\emph{Gauss} & 3 & 9 & 1 & 30\\
 \hline
-Harris & 1 & 3 & 1 & 4
+\emph{Coarsity} & 1 & 3 & 1 & 4\\
+\hline
+\emph{Harris} & 1 & 48 & 9 & 57\\
+\hline
+\multicolumn{5}{|c|}{\textbf{Version avec chevauchement et séparation des noyaux sans composition}}\\
+\hline
+\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
+\hline
+\emph{Sobel} & 1 & 3 & 2 & 5\\
+\hline
+\emph{Mul} & 3 & 2 & 1 & 6\\
+\hline
+\emph{Gauss} & 3 & 3 & 1 & 12\\
+\hline
+\emph{Coarsity} & 1 & 3 & 1 & 4\\
+\hline
+\emph{Harris} & 1 & 21 & 9 & 30\\
+\hline
+\multicolumn{5}{|c|}{\textbf{Version avec composition de Sobel$\circ$Mul et Gauss$\circ$Coarsity}}\\
+\hline
+\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
+\hline
+\emph{Sobel$\circ$Mul} & 1 & 9 & 3 & 12\\
+\hline
+\emph{Gauss$\circ$Coarsity} & 3 & 9 & 1 & 28\\
+\hline
+\emph{Harris} & 1 & 36 & 4 & 40\\
+\hline
+\multicolumn{5}{|c|}{\textbf{Version avec chevauchement et séparation + composition de Sobel$\circ$Mul et Gauss$\circ$Coarsity}}\\
+\hline
+\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
+\hline
+\emph{Sobel$\circ$Mul} & 1 & 3 & 3 & 6\\
+\hline
+\emph{Gauss$\circ$Coarsity} & 3 & 3 & 1 & 10\\
+\hline
+\emph{Harris} & 1 & 12 & 4 & 16\\
+\hline
+\multicolumn{5}{|c|}{\textbf{Version avec composition de Sobel$\circ$Mul$\circ$Gauss$\circ$Coarsity}}\\
+\hline
+\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
+\hline
+\emph{Sobel$\circ$Mul$\circ$Gauss$\circ$Coarsity} & 1 & 25 & 1 & 26\\
+\hline
+\emph{Harris} & - & - & - & 26\\
+\hline
+\multicolumn{5}{|c|}{\textbf{Version avec chevauchement et séparation + composition de Sobel$\circ$Mul$\circ$Gauss$\circ$Coarsity}}\\
+\hline
+\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
+\hline
+\emph{Sobel$\circ$Mul$\circ$Gauss$\circ$Coarsity} & 1 & 5 & 1 & 6\\
+\hline
+\emph{Harris} & - & - & - & 6\\
 \hline
 \end{tabular}
 \label{tab_memall}
-\caption{a remplir}
+\caption{Tableau récapitulatif de l'optimisation des accès mémoire en combinant l'ensemble des optimisations}
 \end{table}
 
 \subsubsection{Schémas de Parallélisation}
