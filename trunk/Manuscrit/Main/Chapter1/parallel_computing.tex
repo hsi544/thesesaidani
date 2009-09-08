@@ -4,7 +4,7 @@ Les logiciels ont été conçus historiquement pour une exécution en série. Les pro
 \subsubsection{Architecture de \emph{von Neumann}}
 \begin{figure}[!htb]
 	\centering
-	\includegraphics[width=0.5\columnwidth]{Chapter1/Figures/vonneumann}
+	\includegraphics[width=0.7\columnwidth]{Chapter1/figures/vonneumann}
 	\caption{Architecture de \emph{von Neumann}}
 	\label{figvonneumann}
 \end{figure}
@@ -51,17 +51,41 @@ Dans la suite nous donnons une classification des machines parallèles selon le t
 Il existe plusieurs variantes de ces machines mais toutes partagent une propriété commune qui est la capacité de tous les processeurs d'accéder toute la mémoire comme un espace d'adressage global. Ainsi, plusieurs processeurs peuvent opérer d'une manière indépendante mais partagent la même ressource mémoire. Un changement opéré par un processeurs dans un emplacement mémoire est visible à tous les autres processeurs. Cette classe de machine peut être divisée en deux sous-classe basées sur les temps d'accès à la mémoire : UMA et NUMA.
 
 \paragraph{Uniform Memory Access (UMA)}
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width=0.7\columnwidth]{Chapter1/figures/SMUMA}
+	\caption{Architecture de \emph{von Neumann}}
+	\label{figSMUMA}
+\end{figure}
 Ce sont principalement les machines de type SMP qui possèdent plusieurs processeurs identiques et qui peuvent accèder de manière égale et en un temps identique à la mémoire. Elles sont parfois appelées CC-UMA - Cache Coherent UMA. La cohérence de cache signifie que si un processeur met à jour un emplacement de la mémoire tous les autres processeurs sont au courant de ce changement. Cette fonctionnalité est assurée au niveau du \emph{hardware}.
 \paragraph{Non-Uniform Memory Access (NUMA)}
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width=0.7\columnwidth]{Chapter1/figures/SMNUMA}
+	\caption{Architecture de \emph{von Neumann}}
+	\label{figSMNUMA}
+\end{figure}
 Ce type de machines est souvent conçu en connectant deux ou plusieurs SPMs. Un SMP peut avoir un accès direct à la mémoire d'un autre SMP. Le temps d'accès à une mémoire donnée n'est pas égal pour tous les processeurs et Lorsque un noeud est traversé l'accès est plus lent. Si la cohérence de cache est garantie on parle alors de CC-NUMA.
 
 \paragraph{Avantages et Incovénients}
 Parmi les avantages de ce type d'architecture mémoire est une perspective simplifiée de la mémoire du point de vue du programmeur. Le partage des données entre les tâches est à la fois rapide et uniforme. Le premier inconvénient est le manque de mis à l'échelle (\emph{scalability}) entre la mémoire et les CPUs. Le fait d'augmenter le nombre de CPUs augment le trafic sur le bus mémoire et provoque un goulot d'étranglement et la gestion de la cohérence devient de plus en plus complexe. Le programmeur est responsable de la synchronisation des tâches qui garantit un accès correcte à la mémoire globale. Par conséquent, la conception de machine parallèles à mémoire partagée avec de plus en plus de processeurs devient difficile et coûteux. 
 \subsubsection{Les Machines Parallèles à Mémoire Distribuée}
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width=0.7\columnwidth]{Chapter1/Figures/DMEM}
+	\caption{Architecture de \emph{von Neumann}}
+	\label{figDMEM}
+\end{figure}
 Comme les machines à mémoire partégée, le machines à mémoire distribuée varient mais elles partagent tout de même un point commun : elles requièrent un réseau de communication pour connecter la mémoire inter-processeurs. Les différents processeurs possèdent leur propre mémoire locale. Les adresses mémoire d'un processeur donnée ne correspondent pas à celles d'un autre et par séquent le concept de mémoire globale n'existe pas. Puisque chaque processeur possède sa propre mémoire privée il opère de manière indépendante. En effet, chaque changement opéré sur sa mémoire locale n'as aucun effet sur la mémoire des autres processeurs ce qui exclue le concept de cohérence de cache. Lorsqu'un processeur à besoin des données contenues dans la mémoire d'un autre processeur, le programmeur est en charge de définir quand et comment les données sont transférées. Ce dernier est aussi responsable de la synchronisation.  
 \paragraph{Avantages et Incovénients}
 L'avantage majeur de ce type d'architecture est le fait que la mémoire soit scalable avec le nombre de processeurs. En effet, la taille de la mémoire croit proportionnellement avec le nombre de processeurs. Chaque processeur peut aussi accéder rapidement à sa mémoire locale sans interférence et sans engendrer de surcout du au maintien de la cohérence de cache. Le principal inconvenient de ce type d'architecture mémoire et la gestion explicite par le logiciel des communications entre les processeurs. Les accès à la mémoire se font souvent à des temps non-uniformes et la présence de plusieurs espaces d'adressage rend complexe l'adaptation de programmes écrits pour une mémoire partagée.
 \subsubsection{Les Machines Parallèles à Mémoire Hybride}
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width=0.7\columnwidth]{Chapter1/figures/HMEM}
+	\caption{Architecture de \emph{von Neumann}}
+	\label{figHMEM}
+\end{figure}
 Les machines les plus rapides du monde emploient des architectures mémoire dites hybrides qui regroupent les deux types précédents: partagée et distribuée. La composante mémoire partagée est souvent une machine SMP. La composante distribuée quant à elle est consiste en la mise en réseau de plusieurs machines SMP. Les différents SMPs ne peuvent adresser que leur propre mémoire et le transfert de données entre deux SMPs requiert des communications au travers du réseau. Selon le niveau dans lequel on se trouve, ce type de machine possèdent les inconvénients et avantages des deux précédentes architectures mémoire.
 \subsection{Modèle de Programmation Parallèle}
 Il existe plusieurs modèles de programmation pour les machines parallèles. Ces modèles existent à un niveau d'abstraction au dessus de l'architecture matérielle et de celle de la mémoire. Même si à première vue les modèles de programmation sont intimement liés à l'architecture de la machine ils sont supposés pouvoir être implémentés sur n'importe quelle machine parallèle quelqu'en soient les caractéristiques. Il n'exsite pas de modèle de programmation idéal mais certaine modèles de programmtion sont bien adaptés pour une application données sur une machine donnée. Dans la suite nous décrivons les principaux modèles de programmation parallèles.

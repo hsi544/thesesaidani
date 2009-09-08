@@ -50,7 +50,7 @@ Une API de gestion des threads SPE similaire à la librairie POSIX a été conçue, 
 Lorsque l'application fait une requête de creation de threads, la librairie de threads SPE envoie la requête à l'OS pour alouer un SPE et créer un thread SPE à partir d'un fichier objet de format ELF (Executable and Linkable Format) intégrée dans un executable Cell. Le \emph{miniloader} un programme SPE de 256-bit, télécharge la segment de code à exécuter sur le SPE, l'avantage de cette approche et d'une part d'éviter au PPE d'effectuer cette tâche et d'autre part de profiter du fait que les les transfers PPE-SPE quand il se font du côté SPE, sont nettement plus efficace grace à une interface qui contient plus de canaux de communications.
 \begin{figure}[!htbf]
 	\centering
-	\includegraphics[scale =0.6]{Chapter1/Figures/cell_compilation_process}
+	\includegraphics[scale =0.6]{Chapter1/figures/cell_compilation_process}
 	\caption{Processus \emph{dual source} de génération de code exécutable pour le Cell}
   \label{fig_compprocess}
 \end{figure}
@@ -218,7 +218,7 @@ Ainsi, \emph{\textbf{Sequoia}} adopte une approche pragmatique pour fournir un o
 \subsection{Mémoire Hiérarchique}
 \begin{figure}[!htbf]
 	\centering
-	\includegraphics[scale =0.6]{Chapter1/Figures/Sequoia_fig1}
+	\includegraphics[scale =0.6]{Chapter1/figures/Sequoia_fig1}
 	\caption{Multiplication de matrices de tailles 1024x1024 structurée en hiérarchie de tâches indépendantes effectuant des multiplications sur des blocs de données plus petits}
   \label{seq_fig1}
 \end{figure}
@@ -226,7 +226,7 @@ Le principe de mémoire hiérarchique est au coeur de l'outil \emph{\textbf{Sequoi
 L'écriture d'un programme \emph{\textbf{Sequoia}} implique la description abstraite d'une hiérarchie de tâches et le mapping de ces tâches sur la hiérarchie mémoire de la machine cible. Cela impose à l'utilisateur de considerer une machine parallèle comme un arbre de modules mémoire distincts. Les transferts de données entre les niveaux de la hiérarchie se font par blocks éventuellement asynchrones. La logique du programme décrit le transfert des données à tous les niveaux, mais les noyaux de calcul sont contraints de travailles que sur les données qui sont sur les noeuds feuilles (de niveau 0) de l'arbre représentant la machine. La représentation abstraite du processeur Cell (Fig.\ref{seq_fig2}) contient des noeuds correspondants à la mémoire principale ainsi qu'à chaque mémoire locale du SPE.
 \begin{figure}[!htbf]
 	\centering
-	\includegraphics[scale =0.6]{Chapter1/Figures/Sequoia_fig2}
+	\includegraphics[scale =0.6]{Chapter1/figures/Sequoia_fig2}
 	\caption{Modèle abstrait Sequoia du processeur Cell}
   \label{seq_fig2}
 \end{figure}

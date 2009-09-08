@@ -2,6 +2,21 @@ La programmation parallèle structurée qu'on appelle programmation par squelettes
 La composition des squelettes peut se faire d'une manière non-hiérarchique en mettant en séquence les différents blocs en en utilisant des variables temporaires pour sauvegarder les résultats intermédiaires, ou alors de manière hiérarchique en imbriquant les fonctions squelette et ce en construisant une fonction composée dans laquelle le code de plusieurs squelettes est passé en paramètre d'un autre squelette. Ceci présente une manière élégante d'exprimer le parallélisme multi-niveau.\\
 Dans un environnement de programmation declarative, comme dans les langages fonctionnels ou alors dans la programmation par squelettes, la composition hiérarchique procure au générateur de code plus de liberté de choix pour les transformations automatiques et l'utilisation efficace des ressources, comme par exemple le nombre de processeurs utilisé en parallèle dans un niveau particulier de la hiérarchie. les squelettes ne pouvant pas être imbriqués  sont généralement implémentées avec juste une librairie générique alors que les squelettes nichés requièrent un pré-traitement qui déroule la hiérarchie du squelette en utilisant par exemple les templates C++ ou les macros de preprocesseur en C.
 
+<<<<<<< .mine
+\section{Le Squelette \textbf{Pardo}}
+\section{Le Squelette \textbf{Pipeline}}
+\section{Le Squelette \textbf{Sequence}}
+\section{Le Squelette \textbf{Chain}}
+
+
+
+pardo,pipe,seq et chain
+%=====
+%\section{The Divide \& Conquer Skeleton (Fixed Degree}
+%Ce type de squelette provient de la célèbre technique du \emph{divide and conquer}. Cette technique peut s'appliquer lorsque la solution à un problème peut être définie récursivement comme une collections de sous-problèmes qui sont des instances plus petites du problème original. Les algorithmes de ce type offrent un bon potentiel de parallélisation. En effet, si l'on arrive à exprimer un problème sous forme de sous-problèmes définis récursivement  on imagine bien que ces derniers peuvent être exécutées de manière concurrente sur plusieurs processeurs. L'exécution des algorithmes du type \emph{divide and conquer} se résume à l'évaluation d'un arbre de processus évoluant dynamiquement, le processus représentant un sous-problème généré. Le défi étant de s'assurer que les déploiement de cet arbre virtuel se fait de la manière la plus efficace possible sur une vraie machine. 
+%\section{The Iterative Combination Skeleton}
+%\section{The Cluster Skeleton}
+%\section{The Task Queue Skeleton}=======
 \section{Modèle de Programmation}
 \begin{figure}[!htb]
 	\centering
@@ -60,4 +75,4 @@ Le squelette \textbf{Pardo} permet de placer de manière \emph{ad hoc} $N$  fonct
 %Ce type de squelette provient de la célèbre technique du \emph{divide and conquer}. Cette technique peut s'appliquer lorsque la solution à un problème peut être définie récursivement comme une collections de sous-problèmes qui sont des instances plus petites du problème original. Les algorithmes de ce type offrent un bon potentiel de parallélisation. En effet, si l'on arrive à exprimer un problème sous forme de sous-problèmes définis récursivement  on imagine bien que ces derniers peuvent être exécutées de manière concurrente sur plusieurs processeurs. L'exécution des algorithmes du type \emph{divide and conquer} se résume à l'évaluation d'un arbre de processus évoluant dynamiquement, le processus représentant un sous-problème généré. Le défi étant de s'assurer que les déploiement de cet arbre virtuel se fait de la manière la plus efficace possible sur une vraie machine. 
 %\section{The Iterative Combination Skeleton}
 %\section{The Cluster Skeleton}
-%\section{The Task Queue Skeleton}
+%\section{The Task Queue Skeleton}>>>>>>> .r54
