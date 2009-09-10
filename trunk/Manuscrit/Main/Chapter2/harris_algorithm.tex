@@ -73,11 +73,11 @@ Les images en niveaux de gris sont typiquement des données stockées une des enti
 Grad_{X} = \begin{bmatrix}-1 & 0 & 1 \\ -2 & 0 & 2 \\ -1 & 0 & 1 \end{bmatrix}; Grad_{Y} = \begin{bmatrix}-1 & -2 & -1 \\ 0 & 0 & 0 \\ 1 & 2 & 1 \end{bmatrix}; Gauss = \frac{1}{16}\begin{bmatrix}1 & 2 & 1 \\ 2 & 4 & 2 \\ 1 & 2 & 1 \end{bmatrix}
 \end{eqnarray*}
 Etant donnée qu'ils consomment plus d'entrée qu'ils ne produisent de sorties, les noyaux de convolution sont le goulot d'étranglement de l'algorithme car elles augmentent considérablement le trafic mémoire. Au vu de la nature des calculs effectués dans les différents noyaux, et qui sont très simples généralement (une suite de multiplications/accumulation) on peut considérer que les instructions mémoire sont prépondérantes dans l'application et de ce fait on peut qualifier l'algorithme de \emph{memory-bounded problem} (problème limité par la mémoire). C'est pour cela que les efforts d'optimisation sur l'algorithme de Harris sont faites par l'optimisation des accès mémoire à différent niveaux de la hiérarchie mémoire du processeur Cell. 
-\subsection{Exploitation du Parallélisme et Optimisations Multi-niveau}
+\section{Exploitation du Parallélisme et Optimisations Multi-niveau}
 Les techniques d'optimisation démontrées ici sont multiples et variées. Certaines sont de nature algorithmique et relèvent plutôt du domaine du traitement du signal et des images. D'autres techniques génériques relèvent plutôt du domaine de l'optimisation logicielle est qu'on retrouve par fois dans certains compilateurs optimisants. Les techniques précédentes sont générales et peuvent être appliqués à la majorité des processeurs généralistes car elle ne tiennent pas compte des aspects spécifiques d'une architecture donnée. Par contre, des optimisations de plus haut niveau et qui sont spécifiques à l'architecture particulière du Cell ont aussi été employées. Celles-ci ne sont généralement pas reproductibles sur d'autres architectures parallèles car elle relèvent plus d'une adéquation entre l'algorithme et l'architecture qui contient certains dispositifs qui n'existent que sur le Cell et des fois elles résultent de contraintes de programmation spécifiques au Cell comme la taille limitée des mémoire locale des SPEs et par conséquent la gestion logicielle de l'utilisation de la mémoire.
-\subsubsection{Techniques Spécifiques au Domaine}
+\subsection{Techniques Spécifiques au Domaine}
 Ces optimisations relèvent plutôt du domaine du traitement du signal et des images. Elles peuvent donc être appliquées à plusieurs algorithmes et sur n'importe quelle architecture. Celles que nous avons utilisé concernent les noyaux de convolution et sont : la séparabilité, le chevauchement (overlapping) et la factorisation des calculs.
-\paragraph{Séparabilité des Noyaux}
+\subsubsection{Séparabilité des Noyaux}
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[width= \columnwidth]{Chapter2/figures/convolution_sep}
@@ -139,7 +139,7 @@ Lorsqu'on sépare les noyaux de convolutions le calcul se fait en deux passes une
 \caption{Réduction de la complexité mémoire par séparabilité des noyaux}
 \end{table}
 
-\paragraph{Chevauchement des Noyaux}
+\subsubsection{Chevauchement des Noyaux}
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[width= \columnwidth]{Chapter2/figures/convolution_overlap}
@@ -170,7 +170,7 @@ La deuxième particularité des noyaux de convolution est une notion de chevauchem
 \label{tab_over_mem}
 \caption{Réduction de la complexité mémoire par chevauchement des noyaux}
 \end{table}
-\paragraph{Séparation des noyaux et chevauchement}
+\subsubsection{Séparation des noyaux et chevauchement}
 Cette optimisation n'est en fait qu'une combinaison des deux précédentes. En effet on profite d'une part du fait que les noyaux soient séparables pour réduire la complexité arithmétique, et d'autre part du chevauchement des noyaux pour mémoriser le résultat précédent. Ainsi, au lieu de mémoriser les deux dernières colonnes, on mémorise le résultat du filtrage par le premier filtre 1D pour le réutiliser à l'itération suivante de la boucle. Dans ce cas là; la compléxité arithmétique est la même que celle de la version avec séparation des noyaux, alors que la complexité mémoire est réduite d'avantage.
 Les tableau \ref{tab_sepaover_arith} et \ref{tab_sepaover_mem} donnent la différence en terme de complexité arithmétique et mémoire entre la version de base de l'algorithme est la version tenant compte des deux optimisations combinées.
 \begin{table}
@@ -220,7 +220,7 @@ Les tableau \ref{tab_sepaover_arith} et \ref{tab_sepaover_mem} donnent la différ
 \label{tab_sepaover_mem}
 \caption{Réduction de la complexité mémoire par séparabilité et chevauchement des noyaux}
 \end{table}
-\paragraph{Composition de Fonctions}
+\subsubsection{Composition de Fonctions}
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= \columnwidth]{Chapter2/figures/funccompo}
@@ -306,15 +306,20 @@ D'après les observations ci-dessus, la composition de fonction peut être un bon 
 \label{tab_memall}
 \caption{Tableau récapitulatif de l'optimisation des accès mémoire en combinant l'ensemble des optimisations}
 \end{table}
+\subsection{Optimisation des Transferts Mémoire}
+Dans cette partie, nous abordons des techniques d'optimisations qui sont relatives au transferts de données présents dans l'application. On entend, par transfert de donnée, toute communication qui met en jeu deux mémoires physiques sur Cell. Cela comporte les transferts DMA entre la mémoire principale, et les mémoires locales des SPEs, comme les communications mettant en jeu deux mémoires privées de SPEs. Plusieurs aspects sont mis en avant. D'une part, les caractéristiques internes de l'architecture du réseaux de communications \cite{cellnoc} (\emph{Network On Chip (NoC)}) du Cell et d'autres part la nature des transferts de données imposées par l'algorithme et d'autre part la partition des données à plusieurs niveaux de la hiérarchie mémoire.
+\subsubsection{Optimisation de la Bande-Passante du \emph{NoC}}
+Dans le modèle de programmation utilisé qui est basé sur le \emph{SDK} du Cell et les librairies \emph{libspe}, les données présentes en mémoire centrale sont transférées au mémoires locales des SPEs avant d'être traitées. Ces transferts se font d'une manière explicite dans le logiciel par appel à des fonctions de l'API de gestion du \emph{MFC} et ils sont gérées par le \emph{Noc} au travers de contrôleurs mémoire et de l'arbitre de bus. L'architecture du Bus et la topologie du réseau impose quelques contraintes qui jouent un rôle primordial dans la minimisation des latences des communications point à point.
+\paragraph{Taille du Transfert}
+Le premier paramètre influant sur la bande passante est la taille du bloc de données transféré. 
 
-\subsubsection{Schémas de Parallélisation}
+\subsection{Schémas de Parallélisation}
 \paragraph{SPMD Conventionnel}
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= \columnwidth]{Chapter2/figures/harris-spmd}
   \label{harris-spmd}
 	\caption{Scéma de Parallélisation SPMD Conventionnel}
-
 \end{figure}
 Dans ce schéma de déploiement l'image est divisée en 8 regions de même taille, afin que chacun des 8 SPEs ait une charge de calcul équivalente. Tous les SPEs exécutent le même code. Les opérateurs sont exécutés successivement sur l'image entière l'un après l'autre. A titre d'exemple l'opérateur de multiplication n'est exécuté que lorsque le calcul du filtre de \emph{Sobel} est achevé sur toute l'image. Ce modèle de calcul est dit \emph{data-parallel} car les données sont envoyées en parallèle sur les SPEs et traitées de manière complètement indépendantes les unes des autres. Toutefois, la bande passante sur le bus mémoire centrale vers \emph{locale store} est beaucoup sollicitées car les données sont systématiquement lues et écrites avant et après chaque opérateur.
 \paragraph{Pipeline Conventionnel}
@@ -325,7 +330,7 @@ Dans ce schéma de déploiement l'image est divisée en 8 regions de même taille, a
 	\label{harris-pipeline}
 \end{figure}
 Cette implémentation de l'algorithme consiste à déployer le graphe d'opérateur sous forme de pipeline. L'image n'est pas subdivisée en régions de traitement mais chaque tuile traitée traverse le pipeline avant qu'une nouvelle tuile ne puisse l'être. L'algorithme est par conséquent fortement séquentialisé. Par contre la bande-passante inter-SPEs est bien exploitée car la majorité des transferts se font entre SPEs et par conséquent la pression exercée sur le bus précédemment est atténuée car elle est répartie sur l'ensemble de l'anneau.
-\paragraph{Chaînage d'opérateur par paires}
+\subsubsection{Chaînage d'opérateur par paires}
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= \columnwidth]{Chapter2/figures/harris-hchain}
@@ -333,8 +338,7 @@ Cette implémentation de l'algorithme consiste à déployer le graphe d'opérateur s
 	\label{harris-pipeline}
 \end{figure}
 Dans cette version deux opérateurs successifs sont placés sur le même SPE. Ainsi, les opérateur \emph{Sobel} et \emph{Mul} sont placé sur un même SPE et \emph{Gauss} et \emph{Coarsity} sont placés sur un autre SPE. Le nombre de SPEs dans un processeur Cell étant de 8, ce schéma permet d'avoir 4 regions de l'image traitées en parallèle. Si l'on compare cette version à la précédente, on notera que la pression sur le bus d'interconnexion est plus importantes car les transferts concurrents sont plus nombreux et par conséquent le risque de contention du bus est plus probable.
-\paragraph{Chaînage et fusion d'opérateur par paires}
-\paragraph{Chaînage d'opérateur par paires}
+\subsubsection{Chaînage et fusion d'opérateur par paires}
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= 0.6\columnwidth]{Chapter2/figures/harris-hchainhpipe}
@@ -342,7 +346,7 @@ Dans cette version deux opérateurs successifs sont placés sur le même SPE. Ainsi
 	\label{harris-pipeline}
 \end{figure}
 Cette version est une variante de celle qui la précède. L'idée étant de fusionner les opérateurs présent sur un même SPE, et ce afin d'éliminer les instructions de \texttt{LOAD} et \texttt{STORE} présent à la sortie de du premier et à l'entrée du second. De ce fait, le nombre de cycles peut être considérablement réduit, surtout lorsque l'on sait que la latence des instructions mémoire est de 6 cycles sur les SPE \cite{cell_handbook}.
-\paragraph{Chaînage entier et fusion d'opérateur par paires}
+\subsubsection{Chaînage entier et fusion d'opérateur par paires}
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= 0.6\columnwidth]{Chapter2/figures/harris-hchainfpipe}
