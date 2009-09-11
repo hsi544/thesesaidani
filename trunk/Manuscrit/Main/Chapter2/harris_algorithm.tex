@@ -311,7 +311,14 @@ Dans cette partie, nous abordons des techniques d'optimisations qui sont relativ
 \subsubsection{Optimisation de la Bande-Passante du \emph{NoC}}
 Dans le modèle de programmation utilisé qui est basé sur le \emph{SDK} du Cell et les librairies \emph{libspe}, les données présentes en mémoire centrale sont transférées au mémoires locales des SPEs avant d'être traitées. Ces transferts se font d'une manière explicite dans le logiciel par appel à des fonctions de l'API de gestion du \emph{MFC} et ils sont gérées par le \emph{Noc} au travers de contrôleurs mémoire et de l'arbitre de bus. L'architecture du Bus et la topologie du réseau impose quelques contraintes qui jouent un rôle primordial dans la minimisation des latences des communications point à point.
 \paragraph{Taille du Transfert}
-Le premier paramètre influant sur la bande passante est la taille du bloc de données transféré. 
+\begin{figure}[!htb]
+	\centering
+  \includegraphics[width= 0.8\columnwidth]{Chapter2/figures/grapheBW}
+  \label{graphbw}
+	\caption{Bande-passante cumulée }
+\end{figure}
+Le premier paramètre influant sur la bande passante est la taille du bloc de données transféré. D'une part, il y a des contraintes imposées par l'API de transfert qui limitent les tailles d'un bloc transféré par une commande DMA à 1, 2, 4, 8 octets ou tout multiple de 16 \emph{bytes} et la taille de données maximale transférée en une seule commande est de 16 \emph{KB}. Des plus les adresses doivent obligatoirement être alignées sur 16 \emph{bytes} et un alignement sur 128 \emph{bytes} est préférable à cause de la taille de la ligne de cache sur la mémoire locale du SPE qui est de 128 \emph{bytes}. D'autre part l'espace mémoire disponible sur les SPEs pour stocker données et instructions est limité à 256 KB. Toutes ces contraintes, imposent une attention des contraintes fortes en termes de taille de bloc transféré et d'alignement des données qui en sont pas du ressort du développeur dans les architectures à mémoire partagée. Plusieurs \emph{benchmarks} ont été effectués dans \cite{cellnoc} et \cite{cell_bw02} et qui démontrent la relation entre taille et à la fois le débit et la latence des transferts sur le Cell. Le graphe \ref{graphbw} donne les résultats sur un benchmark de bande-passante que nous avons effectué sur une BladeCenter QS20 et démontrent que celle ci est proportionnelle à la taille des données transférées. Ceci s'explique par le fait que la \emph{latence} du transfert qui représente le temps d'initialisation d'un transfert, cette durée étant la même quelque soit la taille du paquet jusqu'à 16 KB.
+
 
 \subsection{Schémas de Parallélisation}
 \paragraph{SPMD Conventionnel}
