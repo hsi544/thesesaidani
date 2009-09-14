@@ -221,13 +221,14 @@ Les tableau \ref{tab_sepaover_arith} et \ref{tab_sepaover_mem} donnent la différ
 \caption{Réduction de la complexité mémoire par séparabilité et chevauchement des noyaux}
 \end{table}
 \subsubsection{Composition de Fonctions}
+\label{sectioncompo}
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= \columnwidth]{Chapter2/figures/funccompo}
   	\label{fig_compo}
 	\caption{Règle de composition de fonctions.\textbf{(a)} composition de deux opérateurs point à point \textbf{(b)} composition d'un noyaux de convolution suivi d'un opérateur point à point \textbf{(c)} composition d'un opérateur point à point  suivi d'un noyaux de convolution \textbf{(d)} composition de deux noyaux de convolution successifs}
-
 \end{figure}
+
 Cette technique d'optimisation s'avère très efficace surtout dans les codes ou les instructions mémoire sont prépondérantes. En effet, le fait de composer deux fonctions de calcul pour en faire une seule qui effectue les deux calculs réduit considérablement le nombre d'accès mémoire puisque les opérations de sauvegarde et de chargement intermédiaires entre les deux fonctions initiales sont supprimées, et la transaction se fait au niveaux des registres. De plus, le coût de l'appel de fonction (taille de la pile, et branchement) est également réduit, car le résultat de la composition de fonctions et une seule fonction. Dans les cas les plus simples, la mise en oeuvre de cette technique n'est pas difficile. Toutefois, lorsqu'il s'agit d'opérateurs de convolution comme dans notre cas, des nouvelles contraintes apparaissent afin de garantir la validité du résultat du calcul. Ainsi, des règles de composition s'imposent en fonction de l'ordre dans lequel s'enchaînent les fonctions. Ces règles sont illustrées sur la figure \ref{fig_compo}. On peut alors constater qu'il existe plusieurs règles de composition des fonctions selon d'une part : la nature des opérateurs mis en jeu et d'autre part l'ordre dans lequel il s'enchaînent. En terme d'apport de cette technique en terme de performances nous observons deux aspects distincts:
 \begin{itemize}
 \item \textbf{Complexité mémoire} : on observe en effet que ceux ci sont systématiquement réduits, car les opérations de \texttt{LOAD/STORE} intermédiaires sont supprimés, sauf dans le cas de la composition de deux noyaux de convolution (cas \textbf{(d)} sur la figure \ref{fig_compo})ou la présence de bords supplémentaires augmente considérablement le nombre des accès mémoire.
@@ -307,38 +308,50 @@ D'après les observations ci-dessus, la composition de fonction peut être un bon 
 \caption{Tableau récapitulatif de l'optimisation des accès mémoire en combinant l'ensemble des optimisations}
 \end{table}
 \subsection{Optimisation des Transferts Mémoire}
-Dans cette partie, nous abordons des techniques d'optimisations qui sont relatives au transferts de données présents dans l'application. On entend, par transfert de donnée, toute communication qui met en jeu deux mémoires physiques sur Cell. Cela comporte les transferts DMA entre la mémoire principale, et les mémoires locales des SPEs, comme les communications mettant en jeu deux mémoires privées de SPEs. Plusieurs aspects sont mis en avant. D'une part, les caractéristiques internes de l'architecture du réseaux de communications \cite{cellnoc} (\emph{Network On Chip (NoC)}) du Cell et d'autres part la nature des transferts de données imposées par l'algorithme et d'autre part la partition des données à plusieurs niveaux de la hiérarchie mémoire.
-\subsubsection{Optimisation de la Bande-Passante du \emph{NoC}}
-Dans le modèle de programmation utilisé qui est basé sur le \emph{SDK} du Cell et les librairies \emph{libspe}, les données présentes en mémoire centrale sont transférées au mémoires locales des SPEs avant d'être traitées. Ces transferts se font d'une manière explicite dans le logiciel par appel à des fonctions de l'API de gestion du \emph{MFC} et ils sont gérées par le \emph{Noc} au travers de contrôleurs mémoire et de l'arbitre de bus. L'architecture du Bus et la topologie du réseau impose quelques contraintes qui jouent un rôle primordial dans la minimisation des latences des communications point à point.
-\paragraph{Taille du Transfert}
-\begin{figure}[!htb]
-	\centering
-  \includegraphics[width= 0.8\columnwidth]{Chapter2/figures/grapheBW}
-  \label{graphbw}
-	\caption{Bande-passante cumulée }
-\end{figure}
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= \columnwidth]{Chapter2/figures/cellnoc}
   \label{fignoc}
 	\caption{Réseau d'interconnection du Cell}
 \end{figure}
-
-Le premier paramètre influant sur la bande passante est la taille du bloc de données transféré. D'une part, il y a des contraintes imposées par l'API de transfert qui limitent les tailles d'un bloc transféré par une commande DMA à 1, 2, 4, 8 octets ou tout multiple de 16 \emph{bytes} et la taille de données maximale transférée en une seule commande est de 16 \emph{KB}. Des plus les adresses doivent obligatoirement être alignées sur 16 \emph{bytes} et un alignement sur 128 \emph{bytes} est préférable à cause de la taille de la ligne de cache sur la mémoire locale du SPE qui est de 128 \emph{bytes}. D'autre part l'espace mémoire disponible sur les SPEs pour stocker données et instructions est limité à 256 KB. Toutes ces contraintes, imposent une attention des contraintes fortes en termes de taille de bloc transféré et d'alignement des données qui en sont pas du ressort du développeur dans les architectures à mémoire partagée. Plusieurs \emph{benchmarks} ont été effectués dans \cite{cellnoc} et \cite{cell_bw02} et qui démontrent la relation entre taille et à la fois le débit et la latence des transferts sur le Cell. Le graphe \ref{graphbw} donne les résultats sur un benchmark de bande-passante que nous avons effectué sur une BladeCenter QS20 et démontrent que celle ci est proportionnelle à la taille des données transférées. Ceci s'explique par le fait que la \emph{latence} du transfert qui représente le temps d'initialisation d'un transfert, cette durée étant la même quelque soit la taille du paquet jusqu'à 16 KB.
-\paragraph{Nombre de Transferts Concurrents}
-Les second facteur qui influe sur l'efficacité du réseau lors des transferts est le nombre de transferts s'exécutante en parallèle. En effet, l'architecture du réseau dont la topologie est tu type \emph{token ring} contient qautre anneaux d'une largeur de 128-bit : deux dans le sens d'une aiguille d'une montre et les deux autres dans le sens contraire \ref{fignoc}
-\begin{figure}[!htb]
+Dans cette partie, nous abordons des techniques d'optimisations qui sont relatives au transferts de données présents dans l'application. On entend, par transfert de donnée, toute communication qui met en jeu deux mémoires physiques sur Cell. Cela comporte les transferts DMA entre la mémoire principale, et les mémoires locales des SPEs, comme les communications mettant en jeu deux mémoires privées de SPEs. Plusieurs aspects sont mis en avant. D'une part, les caractéristiques internes de l'architecture du réseaux de communications \cite{cellnoc} (\emph{Network On Chip (NoC)}) du Cell et d'autres part la nature des transferts de données imposées par l'algorithme et d'autre part la partition des données à plusieurs niveaux de la hiérarchie mémoire.
+\subsubsection{Optimisation de la Bande-Passante du \emph{NoC}}
+Dans le modèle de programmation utilisé qui est basé sur le \emph{SDK} du Cell et les librairies \emph{libspe}, les données présentes en mémoire centrale sont transférées au mémoires locales des SPEs avant d'être traitées. Ces transferts se font d'une manière explicite dans le logiciel par appel à des fonctions de l'API de gestion du \emph{MFC} et ils sont gérées par le \emph{Noc} au travers de contrôleurs mémoire et de l'arbitre de bus. L'architecture du Bus et la topologie du réseau impose quelques contraintes qui jouent un rôle primordial dans la minimisation des latences des communications point à point.
+\paragraph{Taille du Transfert}
+\begin{figure}[htb]
   \centering
   \includegraphics[width= 0.8\columnwidth]{Chapter2/figures/bwsize}
   \label{figbwsize}
-  \caption{Réseau d'interconnection du Cell}
+  \caption{Influence de la taille du transfert DMA sur la bande-passante}
 \end{figure}
-\begin{figure}[!htb]
+%\begin{figure}[!htb]
+%	\centering
+%  \includegraphics[width= 0.8\columnwidth]{Chapter2/figures/grapheBW}
+%  \label{graphbw}
+%	\caption{Bande-passante cumulée }
+%\end{figure}
+
+Le premier paramètre influant sur la bande passante est la taille du bloc de données transféré. D'une part, il y a des contraintes imposées par l'API de transfert qui limitent les tailles d'un bloc transféré par une commande DMA à 1, 2, 4, 8 octets ou tout multiple de 16 \emph{bytes} et la taille de données maximale transférée en une seule commande est de 16 \emph{KB}. Des plus les adresses doivent obligatoirement être alignées sur 16 \emph{bytes} et un alignement sur 128 \emph{bytes} est préférable à cause de la taille de la ligne de cache sur la mémoire locale du SPE qui est de 128 \emph{bytes}. D'autre part l'espace mémoire disponible sur les SPEs pour stocker données et instructions est limité à 256 KB. Toutes ces contraintes, imposent une attention des contraintes fortes en termes de taille de bloc transféré et d'alignement des données qui en sont pas du ressort du développeur dans les architectures à mémoire partagée. Plusieurs \emph{benchmarks} ont été effectués dans \cite{cellnoc} et \cite{cell_bw02} et qui démontrent la relation entre taille et à la fois le débit et la latence des transferts sur le Cell. Le graphe \ref{graphbw} donne les résultats sur un benchmark de bande-passante que nous avons effectué sur une BladeCenter QS20 et démontrent que celle ci est proportionnelle à la taille des données transférées. Ceci s'explique par le fait que la \emph{latence} du transfert qui représente le temps d'initialisation d'un transfert, cette durée étant la même quelque soit la taille du paquet jusqu'à 16 KB.
+\paragraph{Nombre de Transferts Concurrents}
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width= 0.8\columnwidth]{Chapter2/figures/bwcontention}
+  \label{figbwncontention}
+  \caption{Influence du nombre de transferts dans le cas d'une communication LS<->LS}
+\end{figure}
+
+\begin{figure}[htb]
   \centering
   \includegraphics[width= 0.8\columnwidth]{Chapter2/figures/bwnspes}
   \label{figbwnspes}
-  \caption{Réseau d'interconnection du Cell}
+  \caption{Influence du nombre de transferts dans le cas d'une communication MS<->LS}
 \end{figure}
+
+Les second facteur qui influe sur l'efficacité du réseau lors des transferts est le nombre de transferts s'exécutante en parallèle. En effet, l'architecture du réseau dont la topologie est tu type \emph{token ring} contient quatre anneaux d'une largeur de 128-bit : deux dans le sens d'une aiguille d'une montre et les deux autres dans le sens contraire. En observant la topologie du réseau ainsi que le sens de circulation des données sur les anneaux du bus, il s'avère évident qu'il peut y avoir collision entre deux transferts s'exécutant de manière concurrente (\ref{fignoc}). Sachant qu'un anneau peut gérer 3 transferts concurrents tant que ceux-ci n'entrent pas en collision. Ce risque est d'autant plus important si le nombre de transferts concurrents augmente (au-delà de 12). Lorsqu'un tel conflit est détecté l'arbitre de bus le résout avant un surcoût qui divise globalement la bande-passante par deux. La courbe sur le figure \ref{figbwncontention} permet de constater l'influence du nombre de transferts concurrents, on peut ainsi observer que la courbe perd sa linéarité quand au delà de 4 SPEs et ceci car le nombre de transferts devient trop important pour ne pas provoquer de collisions sur le bus.\\
+\indent Dans le cas d'une communication du PPE vers le SPE, la bande passante maximale qui peut être atteinte est de 25.6 GB/s. Dans le cas où plusieurs SPEs font une requête vers la mémoire principale les transferts ne peuvent être que sérialisés car il existe q'une seule liaison vers le MS (\emph{Main Storage}). On observe alors que le graphique de la figure \ref{bwnspes} que la bande passante n'est atteinte que lorsqu'au moins 4 SPEs font un transfert de la mémoire centrale vers leurs mémoires privée. 
+
+\subsubsection{Optimisation de la localité temporelle par chaînage des opérateurs}
+Le but visé par cette technique est de rapprocher le plus possible les données des unités de traitement. En effet, les coûts liés au transfert des données de la mémoire centrale vers les mémoires locales étant important, il est pertinent de garder les données en mémoire locale après chaque traitement au lieu de multiplier les lectures/écritures vers la mémoire centrale. Les règles de chaînage des opérateurs, sont les mêmes que pour la composition des opérateurs citée dans la section \ref{sectioncompo}.
 
 
 \subsection{Schémas de Parallélisation}
