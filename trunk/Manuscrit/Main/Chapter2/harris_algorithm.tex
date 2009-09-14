@@ -317,7 +317,28 @@ Dans le modèle de programmation utilisé qui est basé sur le \emph{SDK} du Cell e
   \label{graphbw}
 	\caption{Bande-passante cumulée }
 \end{figure}
+\begin{figure}[!htb]
+	\centering
+  \includegraphics[width= \columnwidth]{Chapter2/figures/cellnoc}
+  \label{fignoc}
+	\caption{Réseau d'interconnection du Cell}
+\end{figure}
+
 Le premier paramètre influant sur la bande passante est la taille du bloc de données transféré. D'une part, il y a des contraintes imposées par l'API de transfert qui limitent les tailles d'un bloc transféré par une commande DMA à 1, 2, 4, 8 octets ou tout multiple de 16 \emph{bytes} et la taille de données maximale transférée en une seule commande est de 16 \emph{KB}. Des plus les adresses doivent obligatoirement être alignées sur 16 \emph{bytes} et un alignement sur 128 \emph{bytes} est préférable à cause de la taille de la ligne de cache sur la mémoire locale du SPE qui est de 128 \emph{bytes}. D'autre part l'espace mémoire disponible sur les SPEs pour stocker données et instructions est limité à 256 KB. Toutes ces contraintes, imposent une attention des contraintes fortes en termes de taille de bloc transféré et d'alignement des données qui en sont pas du ressort du développeur dans les architectures à mémoire partagée. Plusieurs \emph{benchmarks} ont été effectués dans \cite{cellnoc} et \cite{cell_bw02} et qui démontrent la relation entre taille et à la fois le débit et la latence des transferts sur le Cell. Le graphe \ref{graphbw} donne les résultats sur un benchmark de bande-passante que nous avons effectué sur une BladeCenter QS20 et démontrent que celle ci est proportionnelle à la taille des données transférées. Ceci s'explique par le fait que la \emph{latence} du transfert qui représente le temps d'initialisation d'un transfert, cette durée étant la même quelque soit la taille du paquet jusqu'à 16 KB.
+\paragraph{Nombre de Transferts Concurrents}
+Les second facteur qui influe sur l'efficacité du réseau lors des transferts est le nombre de transferts s'exécutante en parallèle. En effet, l'architecture du réseau dont la topologie est tu type \emph{token ring} contient qautre anneaux d'une largeur de 128-bit : deux dans le sens d'une aiguille d'une montre et les deux autres dans le sens contraire \ref{fignoc}
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width= 0.8\columnwidth]{Chapter2/figures/bwsize}
+  \label{figbwsize}
+  \caption{Réseau d'interconnection du Cell}
+\end{figure}
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width= 0.8\columnwidth]{Chapter2/figures/bwnspes}
+  \label{figbwnspes}
+  \caption{Réseau d'interconnection du Cell}
+\end{figure}
 
 
 \subsection{Schémas de Parallélisation}
