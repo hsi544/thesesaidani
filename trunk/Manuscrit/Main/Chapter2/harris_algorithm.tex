@@ -359,21 +359,46 @@ Le \emph{loop tiling} \cite{wolfetiling}ou \emph{loop blocking} est une techniqu
 \paragraph{Taille de la Tuile}
 La taille de la tuile est un paramètre primordial lorsqu'il s'agit de découper les données de manière optimale. Dans le cas du processeur Cell, les contraintes imposées par l'architecture font que le choix de la taille optimale est restreint. En effet, la taille limitée du \emph{local store} pour le code source et les données, impose que la taille de la tuile ne dépasse pas la capacité de stockage qui est de 256 KB. L'autre paramètre dont on doit tenir compte est le nombre d'entrée et de sorties des fonctions de traitement car celui-ci donne le nombre de tuiles. On peut en déduire globalement, que la taille de la tuile est égale à la capacité de stockage restante pour les données, divisée par le nombre de tuiles en entrée et en sortie de la chaîne de traitement mise en jeu. D'autre part, selon ce qui a été vu precedemment, la taille de transfert qui garantit une bande-passante maximale sur le bus est de 16 KB ou un multiple de cette taille.
 \paragraph{Dimensions de la Tuile}
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=\columnwidth]{Chapter2/figures/qreloads}
+  \label{qreloads}
+  \caption{Redondances de données pour un opérateur de convolution $3 \times 3$}
+\end{figure}
 Les tuile que l'on traite dans notre cas sont en général d'une forme rectangulaire. Toutefois, à cause de la présence d'opérateurs de convolution, un nouvel aspect doit être considéré qui sont les dimensions hauteur et largeur de la tuile ($h$ et $w$). En effet, dans le cas d'opérateurs de convolution les bords qui représentent les voisinage des pixels traités augmentent la quantité de données transférées de la mémoire. Cette quantité peut être réduite avec un choix judicieux des dimensions de la Tuile. Comme le montre la figure \ref{qreloads}certains des pixels sont rechargés, nous démontrons dans la suite l'influence des dimensions de la tuile sur ce nombre de pixels redondants.\\
-\indent Si l'on considère une image de hauteur $H$ et de largeur de $W$, une tuile de dimensions $h$ et $w$ et un opérateur de convolution nécessitant un voisinage pour chaque pixel. On suppose pour simplifier le calcul, que la matrice de convolutions est carrée, ce qui fait que les bords des deux côtés sont égaux. La quantité totale de pixels transférées pour le traitement est alors :\\\\
-$Q = (h+2 \times b)\times(w+2\times b)\times nb_{tiles}$\\\\
-où $nb_{tiles}$ est le nombres de tuiles dans l'image.\\\\
-$nb_{tiles} = \frac{H \times W}{h \times w}$\\\\
-Le but étant de trouver à taille de tuile constante $h\times w$ quels sont les dimensions $h$ et $w$ qui minimisent $Q$.\\\\
-$Q = (h+2 \times b)\times(w+2\times b)\times\frac{H \times W}{h \times w}$\\\\
-Posons alors $\lambda = h \times w = C^{te}$, la fonction à minimiser devient alors : \\\\
-$Q = (h+2 \times b)\times(w+2\times b)\times\frac{H \times W}{\lambda}$\\\\
-Calculons alors les dérivées $\frac{\partial Q}{\partial h}$ et $\frac{\partial Q}{\partial w}$\\
+\indent Si l'on considère une image de hauteur $H$ et de largeur de $W$, une tuile de dimensions $h$ et $w$ et un opérateur de convolution nécessitant un voisinage pour chaque pixel. On suppose pour simplifier le calcul, que la matrice de convolutions est carrée, ce qui fait que les bords des deux côtés sont égaux. La quantité totale de pixels transférées pour le traitement est alors :
+\begin{equation}
+Q = (h+2b)\times(w+2b)\times nb_{tiles}\nonumber
+\end{equation}
+où $nb_{tiles}$ est le nombres de tuiles dans l'image.
+\begin{equation}
+nb_{tiles} = \frac{H \times W}{h \times w} \nonumber
+\end{equation}
+Le but étant de trouver à taille de tuile constante $h\times w$ quels sont les dimensions $h$ et $w$ qui minimisent $Q$
+\begin{equation}
+Q = (h+2b)\times(w+2b)\times\frac{H \times W}{h \times w} \nonumber
+\end{equation}
 
-$\frac{\partial Q}{\partial h} = 
+Posons alors $\lambda = h \times w = C^{te}$, la fonction à minimiser devient alors :
+\begin{equation}
+Q = (h+2b)\times(w+2b)\times\frac{H \times W}{\lambda} \nonumber
+\end{equation}
+Calculons alors les dérivées  : \begin{equation}\frac{\partial Q}{\partial h} \mbox{ et } \frac{\partial Q}{\partial w} \nonumber\end{equation}
 
+\begin{equation} Q = \frac{H \times W}{\lambda} (h+2b) \times (\frac{\lambda}{h}+2b) \mbox{  et symétriquement  } Q = \frac{H \times W}{\lambda} (w+2b) \times (\frac{\lambda}{w}+2b) \nonumber\end{equation}
 
+\begin{equation}
+%$\frac{\partial Q}{\partial h} = \frac{H \times W \times 2b}{\lambda \times h^{2}}(h^{2}-\lambda)$
+\frac{\partial Q}{\partial h} = \frac{H \times W \times 2b}{\lambda \times h^{2}}(h^{2}-\lambda) \nonumber \\
+\end{equation}
+\begin{equation}
+\frac{\partial Q}{\partial w} = \frac{H \times W \times 2b}{\lambda \times w^{2}}(w^{2}-\lambda) \nonumber
+\end{equation}
+Le minimum de la fonction $Q$ est atteint lorsque : \begin{equation}\frac{\partial Q}{\partial h} = 0 \mbox{ et } \frac{\partial Q}{\partial w}  = 0\nonumber\end{equation}
 
+ce qui donne \begin{equation}h = w = \sqrt{\lambda} \nonumber \end{equation}
+Ce qui permet de déduire que la forme de la tuile qui minimise la quantité de données transférée et une forme carrée.\\
+\indent Ce résultat nous a permis de démontrer que la forme de la tuile avait une influence sur la quantité de données transférées et par conséquent sur la performance globale de l'application. Cependant, ce découpage n'est pas forcément optimal lorsqu'on passe à l'implémentation. En effet, des tuiles de formes carrées signifies des accès à des zones non-contigues de la mémoire. Ce type d'accès est en général coûteux car il provoque des sauts dans la mémoire. De plus, sur le processeur Cell, ceci se traduit en commandes DMA sur des zones non-contigues de la mémoire ce qui nécessitent des commandes du type \emph{DMA list}. Ces dernières requièrent la création d'une liste qui contient chaque DMA élémentaire et qui est d'autant plus grande que le nombre de transferts est important. Cette liste doit également être mise à jour lors de chaque nouveau transfert. Toutes ces contraintes nous ont poussé dans un premier temps d'adopter un découpage en bandes qui consiste à ce que les tuiles aient une largeur égale à celle de l'image. Ceci permet des accès uniquement à des zones contigues de la mémoire et les transferts peuvent se faire avec une seule commande DMA. Par contre, ce choix induit des limitations en terme de taille d'image pouvant être traitée. En effet, sachant que la taille de la tuile est limitée et que sa largeur est égale celle de l'image, la hauteur de la tuile elle, diminue au fur et à mesure que la largeur de l'image augmente. De ce fait, les accès non-contigus sont nécessaires pour des taille d'images très grandes.
 \subsection{Schémas de Parallélisation}
 \paragraph{SPMD Conventionnel}
 \begin{figure}[!htb]
