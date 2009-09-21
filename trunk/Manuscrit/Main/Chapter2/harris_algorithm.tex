@@ -434,10 +434,31 @@ Dans cette version deux opérateurs successifs sont placés sur le même SPE. Ainsi
 \end{figure}
 Cette version est une variante de celle qui la précède. L'idée étant de fusionner les opérateurs présent sur un même SPE, et ce afin d'éliminer les instructions de \texttt{LOAD} et \texttt{STORE} présent à la sortie de du premier et à l'entrée du second. De ce fait, le nombre de cycles peut être considérablement réduit, surtout lorsque l'on sait que la latence des instructions mémoire est de 6 cycles sur les SPE \cite{cell_handbook}.
 \subsubsection{Chaînage entier et fusion d'opérateur par paires}
-\begin{figure}[!htb]
+\begin{figure}[htb]
 	\centering
   \includegraphics[width= 0.6\columnwidth]{Chapter2/figures/harris-hchainfpipe}
 	\caption{Schéma de Parallélisation Chaînage et fusion d'opérateurs par paires}
 	\label{harris-pipeline}
 \end{figure}
-Dans cette implémentation tous les opérateurs sont exécutés sur le même SPE. D'une part ceci permet d'éviter les transferts DMA entre SPE et minimise donc les transactions sur le bus d'interconnexion. 
+Dans cette implémentation tous les opérateurs sont exécutés sur le même SPE. D'une part ceci permet d'éviter les transferts DMA entre SPE et minimise donc les transactions sur le bus d'interconnexion.
+\subsection{Evaluation des Performances}
+après avoir exposé les différentes techniques d'optimisations nous procédons à la mesure de performance pour les différents modèles de déploiement précédents. Il s'agit ici de comparer les modèles en terme de temps d'exécution sur le processeur Cell. Dans un deuxième temps nous évaluons l'influence des transferts sur la performance globale de chacun des modèles.
+\subsubsection{Métriques de Mesure}
+La métrique que nous avons choisi d'utiliser pour la mesure de performance, est le nombre de cycles moyen par pixel ou $cpp$, \begin{equation}cpp = \frac{nombre_{cyles \mbox{ } cpu}}{nombre_{pixels}} = \frac{nombre_{cyles \mbox{ } cpu}}{H \times W} \nonumber\end{equation}. Les bancs de tests ont été conçus de telle sorte à mesurer d'une part la performance brute ainsi que d'autres métriques spécifiques aux architectures qui sont les métriques de passage à l'échelle \emph{scalability} et qui sont l'accélération
+\emph{speedup} et l'efficacité \emph{efficiency}.
+\subsubsection{Comparaison des Schémas de Parallélisation}
+\begin{figure}[htb]
+	\centering
+  \includegraphics[width= 0.9\columnwidth]{Chapter2/figures/BenchCompareModels}
+	\caption{Comparaison des Modèles}
+	\label{comparemodels}
+\end{figure}
+
+Fig. 12 gives the comparison between the dierent implementation models of the Harris algorithm
+on the Cell processor. The rst observation that can be made is that the conventional pipeline
+version gives the worst performances, which was expected: this version is deliberately serialized
+and does not fully exploit the TLP (Thread Level Parallelism) oered by the target architecture.
+The other observations match our expectations:
+{ Our memory optimization techniques improve global performances as the fastest implemen-
+tation is the Half pipeline+Full chaining version where operators are pipelined and chained
+inside an SPE.
