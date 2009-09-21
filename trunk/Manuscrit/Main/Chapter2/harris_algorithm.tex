@@ -398,21 +398,22 @@ Le minimum de la fonction $Q$ est atteint lorsque : \begin{equation}\frac{\parti
 
 ce qui donne \begin{equation}h = w = \sqrt{\lambda} \nonumber \end{equation}
 Ce qui permet de déduire que la forme de la tuile qui minimise la quantité de données transférée et une forme carrée.\\
-\indent Ce résultat nous a permis de démontrer que la forme de la tuile avait une influence sur la quantité de données transférées et par conséquent sur la performance globale de l'application. Cependant, ce découpage n'est pas forcément optimal lorsqu'on passe à l'implémentation. En effet, des tuiles de formes carrées signifies des accès à des zones non-contigues de la mémoire. Ce type d'accès est en général coûteux car il provoque des sauts dans la mémoire. De plus, sur le processeur Cell, ceci se traduit en commandes DMA sur des zones non-contigues de la mémoire ce qui nécessitent des commandes du type \emph{DMA list}. Ces dernières requièrent la création d'une liste qui contient chaque DMA élémentaire et qui est d'autant plus grande que le nombre de transferts est important. Cette liste doit également être mise à jour lors de chaque nouveau transfert. Toutes ces contraintes nous ont poussé dans un premier temps d'adopter un découpage en bandes qui consiste à ce que les tuiles aient une largeur égale à celle de l'image. Ceci permet des accès uniquement à des zones contigues de la mémoire et les transferts peuvent se faire avec une seule commande DMA. Par contre, ce choix induit des limitations en terme de taille d'image pouvant être traitée. En effet, sachant que la taille de la tuile est limitée et que sa largeur est égale celle de l'image, la hauteur de la tuile elle, diminue au fur et à mesure que la largeur de l'image augmente. De ce fait, les accès non-contigus sont nécessaires pour des taille d'images très grandes.
+\indent Ce résultat nous a permis de démontrer que la forme de la tuile avait une influence sur la quantité de données transférées et par conséquent sur la performance globale de l'application. Cependant, ce découpage n'est pas forcément optimal lorsqu'on passe à l'implémentation. En effet, des tuiles de formes carrées signifies des accès à des zones non-contigues de la mémoire. Ce type d'accès est en général coûteux car il provoque des sauts dans la mémoire. De plus, sur le processeur Cell, ceci se traduit en commandes DMA sur des zones non-contigues de la mémoire ce qui nécessitent des commandes du type \emph{DMA list}. Ces dernières requièrent la création d'une liste qui contient chaque DMA élémentaire et qui est d'autant plus grande que le nombre de transferts est important. Cette liste doit également être mise à jour lors de chaque nouveau transfert. Toutes ces contraintes nous ont poussé dans un premier temps d'adopter un découpage en bandes qui consiste à ce que les tuiles aient une largeur égale à celle de l'image. Ceci permet des accès uniquement à des zones contigues de la mémoire et les transferts peuvent se faire avec une seule commande DMA. De plus, lorsqu'une tuile ne contient pas de bords latéraux comme dans notre cas, les problème d'alignement des transferts est également contourné. Par contre, ce choix induit des limitations en terme de taille d'image pouvant être traitée. En effet, sachant que la taille de la tuile est limitée et que sa largeur est égale celle de l'image, la hauteur de la tuile elle, diminue au fur et à mesure que la largeur de l'image augmente. De ce fait, les accès non-contigus sont nécessaires pour des taille d'images très grandes.
 \subsection{Schémas de Parallélisation}
-\paragraph{SPMD Conventionnel}
+Dans ce qui suit, nous abordons l'optimisation de notre algorithme à un niveau d'abstraction plus haut qui est celui des tâches. L'architecture du Cell permet plusieurs placements possibles du graphe d'opérateurs par la présence de 8 SPEs et la possibilité de mettre en place différents schémas de communication. Dans les figures qui suivent les opérateurs sont représentés par des cercles, les processeurs par des rectangles à coins arrondis, les tuiles sont de forme rectangulaire et peuvent contenir des bords. Les flèches à trait fin représentent des instruction \texttt{LOAD/STORE} dans la mémoire privée du SPE alors que les flèches plus épaisses représentent des commandes DMA inter-SPE ou alors entre la mémoire centrale et le \emph{local store} d'un SPE.
+\subsubsection{SPMD Conventionnel}
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= \columnwidth]{Chapter2/figures/harris-spmd}
   \label{harris-spmd}
-	\caption{Scéma de Parallélisation SPMD Conventionnel}
+	\caption{Schéma de Parallélisation SPMD Conventionnel}
 \end{figure}
 Dans ce schéma de déploiement l'image est divisée en 8 regions de même taille, afin que chacun des 8 SPEs ait une charge de calcul équivalente. Tous les SPEs exécutent le même code. Les opérateurs sont exécutés successivement sur l'image entière l'un après l'autre. A titre d'exemple l'opérateur de multiplication n'est exécuté que lorsque le calcul du filtre de \emph{Sobel} est achevé sur toute l'image. Ce modèle de calcul est dit \emph{data-parallel} car les données sont envoyées en parallèle sur les SPEs et traitées de manière complètement indépendantes les unes des autres. Toutefois, la bande passante sur le bus mémoire centrale vers \emph{locale store} est beaucoup sollicitées car les données sont systématiquement lues et écrites avant et après chaque opérateur.
-\paragraph{Pipeline Conventionnel}
+\subsubsection{Pipeline Conventionnel}
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= \columnwidth]{Chapter2/figures/harris-pipeline}
-	\caption{Scéma de Parallélisation Pipeline}
+	\caption{Schéma de Parallélisation Pipeline}
 	\label{harris-pipeline}
 \end{figure}
 Cette implémentation de l'algorithme consiste à déployer le graphe d'opérateur sous forme de pipeline. L'image n'est pas subdivisée en régions de traitement mais chaque tuile traitée traverse le pipeline avant qu'une nouvelle tuile ne puisse l'être. L'algorithme est par conséquent fortement séquentialisé. Par contre la bande-passante inter-SPEs est bien exploitée car la majorité des transferts se font entre SPEs et par conséquent la pression exercée sur le bus précédemment est atténuée car elle est répartie sur l'ensemble de l'anneau.
@@ -420,7 +421,7 @@ Cette implémentation de l'algorithme consiste à déployer le graphe d'opérateur s
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= \columnwidth]{Chapter2/figures/harris-hchain}
-	\caption{Scéma de Parallélisation Chaînage d'opérateurs par paires}
+	\caption{Schéma de Parallélisation Chaînage d'opérateurs par paires}
 	\label{harris-pipeline}
 \end{figure}
 Dans cette version deux opérateurs successifs sont placés sur le même SPE. Ainsi, les opérateur \emph{Sobel} et \emph{Mul} sont placé sur un même SPE et \emph{Gauss} et \emph{Coarsity} sont placés sur un autre SPE. Le nombre de SPEs dans un processeur Cell étant de 8, ce schéma permet d'avoir 4 regions de l'image traitées en parallèle. Si l'on compare cette version à la précédente, on notera que la pression sur le bus d'interconnexion est plus importantes car les transferts concurrents sont plus nombreux et par conséquent le risque de contention du bus est plus probable.
@@ -428,7 +429,7 @@ Dans cette version deux opérateurs successifs sont placés sur le même SPE. Ainsi
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= 0.6\columnwidth]{Chapter2/figures/harris-hchainhpipe}
-	\caption{Scéma de Parallélisation Chaînage et fusion d'opérateurs par paires}
+	\caption{Schéma de Parallélisation Chaînage et fusion d'opérateurs par paires}
 	\label{harris-pipeline}
 \end{figure}
 Cette version est une variante de celle qui la précède. L'idée étant de fusionner les opérateurs présent sur un même SPE, et ce afin d'éliminer les instructions de \texttt{LOAD} et \texttt{STORE} présent à la sortie de du premier et à l'entrée du second. De ce fait, le nombre de cycles peut être considérablement réduit, surtout lorsque l'on sait que la latence des instructions mémoire est de 6 cycles sur les SPE \cite{cell_handbook}.
@@ -436,7 +437,7 @@ Cette version est une variante de celle qui la précède. L'idée étant de fusionne
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= 0.6\columnwidth]{Chapter2/figures/harris-hchainfpipe}
-	\caption{Scéma de Parallélisation Chaînage et fusion d'opérateurs par paires}
+	\caption{Schéma de Parallélisation Chaînage et fusion d'opérateurs par paires}
 	\label{harris-pipeline}
 \end{figure}
 Dans cette implémentation tous les opérateurs sont exécutés sur le même SPE. D'une part ceci permet d'éviter les transferts DMA entre SPE et minimise donc les transactions sur le bus d'interconnexion. 
