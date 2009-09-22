@@ -457,5 +457,39 @@ La figure \ref{comparemodels} donne une comparaison entre les différents modèle 
 \begin{itemize}
 \item Nos techniques d'optimisations des accés mémoires améliorent sensiblement la performance globale car la versions pla plus rapide est celle ou les fonctions sont composées deux par deux  et ou tous les opérateurs sont exécutés sur le même SPE (remplacement des DMA par des \texttt{LOAD/STORE} ).
 \item Les versions ou les DMA inter-SPE sont utilisés possèdent de bonnes performance : à titre d'exemple la versions sans composition de fonction et en regroupant deux opérateurs par SPE est plus rapide que la versions .
-\item De plus, la version avec composition de fonction ou les paires d'opérateurs sont sur deux SPEs différents est presque aussi rapide que la même versions ou tous les opérateurs sont placés sur le même SPE. Ceci prouve que la bande-passante inter-SPE est comparable à celle des instructions \texttt{LOAD/STORE} sur les mémoires locales
+\item De plus, la version avec composition de fonction ou les paires d'opérateurs sont sur deux SPEs différents est presque aussi rapide que la même versions ou tous les opérateurs sont placés sur le même SPE. Ceci prouve que la bande-passante inter-SPE est comparable à celle des instructions \texttt{LOAD/STORE} sur les mémoires locales.
 \end{itemize}
+Dans ce qui précède nous avons pu constater que le placement optimal d'un graphe de fonctions sur le processeur Cell n'était pas forcément évident lorsqu'il s'agit d'un algorithme de traitement d'image comme dans notre cas. D'une part, l'on a vu que le choix d'un schéma complètement \emph{data parallel} n'était pas forcément optimal, et qu'un schéma mixte avec une partie \emph{pipeline} imbriqués dans un schéma \emph{data parallel} donnait un résultat aussi bon qu'un schéma basé purement sur le parallélisme de données. Ceci est en grande partie possible, grâce à un niveau supplémentaire de parallélisme au niveaux de transferts. En effet, en favorisant les communications inter-SPE on profite pleinement de la bande passante du bus interne (204.8 GB/s) qui peut gérer jusqu'à 12 transferts en parallèle alors que dans un schéma de transferts ou plusieurs SPEs communiquent avec la mémoire centrale est forcément sérialisé et dans ce cas là la bande passante est limitée à 25.6 GB/s. 
+\subsubsection{Influence de la Taille de la Tuile}
+\begin{figure}[htb]
+	\centering
+  \includegraphics[width= \columnwidth]{Chapter2/figures/SizeTile}
+	\caption{Influence de la taille de la tuile sur la performance pour la version chaînage entier et fusion d'opérateur par paires 1 SPU}
+	\label{tilesize}
+\end{figure}
+Comme il est démontré dans \cite{cell_bw02} et \cite{cellnoc} la taille du bloc de données transféré possède une influence sur la bande-passante du bus interne. Dans notre domaine d'application, la bande-passante mémoire est critique pour la performance globale de l'application, car les algorithmes de traitement d'image sont généralement caractérisés par un ratio transfer/calcul important. La figure \ref{tilesize} nous montre que la taille de tuile donnant les meilleures performance est 16KB, et ceci pour deux raisons:
+\begin{itemize}
+\item Une taille de bloc de 16 KB ou multiple de cette taille, grantit une bande-passante maximale sur le bus interne.
+\item Comme nous l'avons vu dans la discussion sur la forme de la tuile, il est démontré que plus la taille de tuile est grande moins il y a de pixels redondants, et la quantité de données totale transférées est minimisée en ce qui concerne les noyaux de convolution.
+\end{itemize}
+\subsubsection{Analyse des Résultats}
+\begin{table}
+\begin{tabular}{|c||c|c|c|}
+\hline
+\textbf{Modèle} & \textbf{Opérateur} & \textbf{Nombre de Cycles} & \textbf{Speedup} \\
+\hline
+\hline
+\textbf{Halfchain} & Sobel+Mul+\texttt{LOAD/STORE}&119346&x \\
+\hline
+\textbf{Halfchain+Halfpipe} & Gauss+Coarsity+\texttt{LOAD/STORE}&188630&x \\
+\hline
+\textbf{Halfchain} & (Sobel $\circ$ Mul)+\texttt{LOAD/STORE}&16539& 7.2 \\
+\hline
+\textbf{Halfchain+Halfpipe} &(Gauss $\circ$ Coarsity)+\texttt{LOAD/STORE}&504309& 3.5 \\
+\hline
+\end{tabular}
+\caption{Apport de la composition de fonction à la performance}
+\label{tabspuperf}
+\end{table}
+
+La comparaison de la performance gloable des différents schémas d'implémentation ne suffit pas à prouver que l'optimisation de l'utilisation de la mémoire est le facteur principal de l'amélioration de la performance. Dans le but de donner une analyse plus précise et donc plus complète, nous avons effectué des mesures au niveau du SPE ou nous avons mesuré le gain apporté par la composition des fonctions et les transferts DMA inter-SPE. Le tableau \ref{tabspuperf} donne en nombre de cycles \emph{SPU} les versions ou les opérateurs ne sont pas composés deux à deux et celle ou elles le sont. Comme on peut le constater, cette optimisation permet d'avoir une accélération pouvant atteindre $x7.2$. 
