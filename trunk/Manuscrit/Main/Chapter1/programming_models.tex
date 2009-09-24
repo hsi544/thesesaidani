@@ -309,29 +309,12 @@ En plus de permettre au programmeur d'optimiser son implémentation des tâches da
 \subsection{Conclusion}
 \emph{\textbf{Sequoia}} est un modèle de programmation qui tente d'allier la portabilité avec la performance pour le portage d'algorithmes sur des architectures parallèles. La performance est assurée par l'octroi à l'utilisateur d'une grande liberté dans l'optimisation du code de calcul qui s'exécute sur les noeuds au plus bas niveau de la hiérarchie mémoire. La portabilité est garantie par le fait que l'expression de l'algorithme est découplée de l'implémentation. L'expression explicite des communications, du mouvement des données au travers de la hiérarchie mémoire, du calcul parallèle et la définition d'un ensemble de travail isolé sont effectués grâce à une seule abstraction, la \emph{tâche}. \emph{\textbf{Sequoia}} fournit des primitives de structuration des calcul en tant que hiérarchie de tâches afin d'améliorer la localité et laisse au programmeur le soin d'optimiser la tâche pour une architecture donnée. Toutefois il existe des limitations, en l'occurrence pour le type de parallélisme qui doit être SIMD ce qui limite le schéma de déploiement et le champ d'applications. Aussi, le mapping des applications est fait de manière manuelle et n'est pas contenue dans le code source.
 
-%======================Conclusion Générale ==================================
-\section{Conclusion Générale}
-Dans ce qui précède nous avons décrit les différents outils ou modèle de programmation pour le processeur Cell. Ce chapitre, qui n'est pas une étude exhaustive, fait état des principaux outils qui ont fait objet de publications et d'évaluation significatives. Les outils diffèrent par leur mise en oeuvre et leur difficulté d'utilisation. Les plus simples à utiliser, qui sont les approches à base d'annotation de code (OpenMP, CellSS), laissent le soin au compilateur de faire le travail de parallélisation et d'optimisation du code. De l'autre côté RapidMind et Sequoia adoptent une approche qui définit un langage spécifique accompagné d'un \emph{runtime} et d'un compilateur, mais une bonne partie du travail d'optimisation est laissée à la charge du programmeur. Enfin, l'approche de programmation la plus fastidieuse et celle des \emph{Pthreads} qui sont un outil de programmation parallèle très bas niveaux qui laisse une grande liberté au programmeur pour ce qui est du déploiement de son code sur le Cell. Un code à base de \emph{threads }  est de ce fait long à mettre en oeuvre est difficile à maintenir, mais il permet d'un autre  côté d'avoir un contrôle total sur son implémentation. Ceci a un intérêt en cas de contraintes fortes en termes de temps d'exécution et de prédictabilité de comportement.  
-On notera que la mise en oeuvre à nécessité un grand effort de la part des concepteurs pour deux raisons principales: (1) la mémoire distribuée du Cell qui impose la gestion explicite des transferts mémoire à partir de et vers la mémoire centrale (2) Le PPE et les SPEs possèdent un jeux d'instructions différents ce qui rend difficile l'étape de génération de code.
 \section{Squelettes Algorithmiques pour le Cell}
 La programmation parallèle structurée qu'on appelle programmation par squelettes algorithmiques \cite{skeletons_cole} restraint l'expression du parallèlisme à la composition d'un nombre prédéfini de \emph{patterns} nommés squelettes. Les squelettes algorithmiques sont des briques de base génériques, portables et réutilisables pour lesquelles une implémentation parallèle peut exister. Ils sont issues des langages de programmation fonctionnelle. Un système de programmation basé sur les squelettes fournit un ensemble fixe et relativement limité de squelettes. Chaque squelette représente une manière unique d'exploiter le parallélisme dans une organisation spécifique du calcul, tels que le parallélisme de données, de tâches, le \emph{divide-and-conquer} parallèle ou encore le pipeline. En combinant ces \emph{patterns} le développeur peut construire une spécification haut-niveau de son programme parallèle. Le système peut ainsi exploiter cette spécification pour la transformation de code, l'exploitant efficace des ressources ou encore le placement.\\
 La composition des squelettes peut se faire d'une manière non-hiérarchique en mettant en séquence les différents blocs en en utilisant des variables temporaires pour sauvegarder les résultats intermédiaires, ou alors de manière hiérarchique en imbriquant les fonctions squelette et ce en construisant une fonction composée dans laquelle le code de plusieurs squelettes est passé en paramètre d'un autre squelette. Ceci présente une manière élégante d'exprimer le parallélisme multi-niveau.\\
 Dans un environnement de programmation declarative, comme dans les langages fonctionnels ou alors dans la programmation par squelettes, la composition hiérarchique procure au générateur de code plus de liberté de choix pour les transformations automatiques et l'utilisation efficace des ressources, comme par exemple le nombre de processeurs utilisé en parallèle dans un niveau particulier de la hiérarchie. les squelettes ne pouvant pas être imbriqués  sont généralement implémentées avec juste une librairie générique alors que les squelettes nichés requièrent un pré-traitement qui déroule la hiérarchie du squelette en utilisant par exemple les templates C++ ou les macros de preprocesseur en C.
-\section{Le Squelette \textbf{Pardo}}
-\section{Le Squelette \textbf{Pipeline}}
-\section{Le Squelette \textbf{Sequence}}
-\section{Le Squelette \textbf{Chain}}
-
-
-
-pardo,pipe,seq et chain
-%=====
-%\section{The Divide \& Conquer Skeleton (Fixed Degree}
-%Ce type de squelette provient de la célèbre technique du \emph{divide and conquer}. Cette technique peut s'appliquer lorsque la solution à un problème peut être définie récursivement comme une collections de sous-problèmes qui sont des instances plus petites du problème original. Les algorithmes de ce type offrent un bon potentiel de parallélisation. En effet, si l'on arrive à exprimer un problème sous forme de sous-problèmes définis récursivement  on imagine bien que ces derniers peuvent être exécutées de manière concurrente sur plusieurs processeurs. L'exécution des algorithmes du type \emph{divide and conquer} se résume à l'évaluation d'un arbre de processus évoluant dynamiquement, le processus représentant un sous-problème généré. Le défi étant de s'assurer que les déploiement de cet arbre virtuel se fait de la manière la plus efficace possible sur une vraie machine. 
-%\section{The Iterative Combination Skeleton}
-%\section{The Cluster Skeleton}
-%\section{The Task Queue Skeleton}=======
-\section{Modèle de Programmation}
+%pardo,pipe,seq et chain
+\subsection{Modèle de Programmation}
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= 0.8\columnwidth]{Chapter1/figures/skeleton_example}
@@ -343,7 +326,7 @@ Dans le modèle de programmation parallèle par squelettes algorithmiques, une app
 \item Le système d'équilibrage de charge \textbf{(A)} qui utilise $k$ processeurs qui traite les données fournies par le processus \emph{Distrib}, ces dernières étant regroupées par le processus \emph{Collect}. Il faudra noter que le flux alimente le processeurs de manière dynamique dès qu'il trouve un processus libre.
 \item Le mécanisme de contrôle \textbf{(A)} qui permet de séquencer les traitement dans l'ordre donnée par le graphe. Ce mécanisme assure que les données, une fois traitées (fonction $F_{i}$) par le processeur $P_{i}$, sont transmises au processus $P_{i+1}$. On pourra noter que le schéma d'exécution dans ce cas là est du type \emph{pipeline}.
 \end{itemize}
-Le modèle de programmation parallèle par squelettes algorithmiques repose sur l'extraction de tels schémas récurrents. Un squelette est ainsi défini comme étant un schéma générique paramètré par une liste de fonctions qu'il est possible d'instancier et de composer. Fonctionnellement, les squelettes algorithmiques sont des \textbf{fonctions d'ordre supérieur}, c'est à dire des fonctions prenant une ou plusieurs fonctions comme arguments et retournant une fonction comme résultat. La programmation par squelettes devient permet au programmeur d'utiliser un modèle haut-niveau pour décrire son application, sans se soucier de certains détails complexes comme l'ordonnancement ou le placement. Il peut alors définir une application parallèle comme suit:
+Le modèle de programmation parallèle par squelettes algorithmiques repose sur l'extraction de tels schémas récurrents. Un squelette est ainsi défini comme étant un schéma générique paramétré par une liste de fonctions qu'il est possible d'instancier et de composer. Fonctionnellement, les squelettes algorithmiques sont des \textbf{fonctions d'ordre supérieur}, c'est à dire des fonctions prenant une ou plusieurs fonctions comme arguments et retournant une fonction comme résultat. La programmation par squelettes devient permet au programmeur d'utiliser un modèle haut-niveau pour décrire son application, sans se soucier de certains détails complexes comme l'ordonnancement ou le placement. Il peut alors définir une application parallèle comme suit:
 \begin{itemize}
 \item Instancier des squelettes en spécifiant les fonctions qui les définissent.
 \item Exprimer la composition des ces squelettes.
@@ -355,12 +338,11 @@ L’expression de la compositions peut se faire en encodant cette dernière sous la
 	\caption{Arbre représentant le squelette en Figure \ref{skelexple}}
 	\label{fig_tree}
 \end{figure}
-
 Dans la figure \ref{fig_tree}, le squelette \textbf{Pipeline} décrit le schéma générique correspondant à la section \textbf{B} du graphe de processus communiquant initial. Le squelette \textbf{Farm} représente quant à lui la partie \textbf{A} de ce même schéma. Les fonctions $F_{i}$ apparaissent aux feuilles de l'arbre, c'est à dire en argument des squelettes. On note aussi que les fonctions \textbf{Distrib} et Collect n'apparaissent plus explicitement, car elles font partie intégrante du squelette \textbf{Farm}. Cette représentation met en avant un des aspects les plus importants de l'approche
 à base de squelettes algorithmiques : à partir d'un nombre restreint de squelettes (classiquement moins d'une dizaine), il est possible de définir des applications complexes. Ceci suppose toutefois que l'on ait formalisé le type d'application que l'on va chercher à paralléliser, de définir précisément le jeu de squelettes que l'on désire mettre à disposition du développeur et de spécifier leurs sémantiques fonctionnelles et opérationnelles. Il existe plusieurs classifications des squelettes. Toutefois, on peut les répartir en trois groupes : les squelettes dédiés au parallélisme de contrôle, les squelettes dédiés au parallélisme de données et les squelettes dédiés à la structuration séquentielle de l’application.
-\subsection{Squelettes dédiés au parallélisme de contrôle}
+\subsubsection{Squelettes dédiés au parallélisme de contrôle}
 %pardo,pipe,seq et chain
-\subsubsection{Le Squelette Pipeline}
+\paragraph{Le Squelette Pipeline}
 Ce squelette couvre les situations dans laquelle une liste de fonction qui doivent s'exécuter en série, est répartie sur un ensemble de processeurs différents. En régime permanent l'exécution de la fonction $F_{i}$ sur les données $D_{i+1}$ se fait alors en parallèle avec celle de la fonction $F_{i+1}$ sur les données $D_{i}$. La figure \ref{skell-pipe} illustre ce fonctionnement en régime permanent.
 \begin{figure}[!htb]
 	\centering
@@ -369,7 +351,7 @@ Ce squelette couvre les situations dans laquelle une liste de fonction qui doive
 	\label{skell-pipe}
 \end{figure}
 Le parallélisme résulte du fait que l'évaluation des différents fonctions du \textbf{Pipeline} sur des éléments différents du flux ($D_{0}$, $D_{1}$ par exemple sur la figure \ref{skell-pipe}) se fait de manière indépendante. Deux grandeurs caractérisent alors le \textbf{Pipeline} : (1)la latence qui est la durée de traitement d'un élément de flux par tous les étages du pipeline, (2) le débit, qui mesure le nombre de résultats fournis par unités de temps et qui est déterminé par l'étage le plus lent du \textbf{Pipeline}.
-\subsubsection{Le Squelette Pardo}
+\paragraph{Le Squelette Pardo}
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= 0.2\columnwidth]{Chapter1/figures/skell-pardo}
@@ -377,12 +359,147 @@ Le parallélisme résulte du fait que l'évaluation des différents fonctions du \te
 	\label{skell-pardo}
 \end{figure}
 Le squelette \textbf{Pardo} permet de placer de manière \emph{ad hoc} $N$  fonctions sur $N$ processeurs (Fig. \ref{skell-pardo}). Le schéma de communication est alors implicite. Ce type de squelette est fait pour faciliter la mise en oeuvre d'applications qui ne correspondent pas à un squelette bien défini. Le squelette \textbf{Pardo} est notamment utilisé pour rassembler plusieurs fonctions indépendantes opérant sur un flux de données. Le temps d'exécution d'un tel schéma est alors celui de la fonction qui prend le plus de temps à s'exécuter. 
-%\subsection{Squelettes dédiés au parallélisme de données}
-%\subsubsection{Le Squelette Farm}
-%\subsubsection{Le squelette SCM}
 \subsection{Squelettes dédiés à la structuration de l’application}
 \subsubsection{Le Squelette Sequence}
 \subsubsection{Le Squelette Select}
+\subsection{Modèle de Programmation \texttt{SKELL\_BE}}
+Dans le modèle de programmation \texttt{SKELL\_BE} \cite{skellbepact}, le processeur Cell est considéré comme une machine asymétrique. Le modèle inclue deux codes source, un pour le PPE et un autre pour le SPE. Du point de vue du PPE une application peut appeler un \emph{kernel} de calcul qui est compilé et exécuté sur le SPE comme dans une application de \emph{stream processing} (\ref{skellbe01}.
+%===============================Listing PPEKERNEL =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+numbers=left,                   % where to put the line-numbers
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = Exemple d'un appel à un kernel PPE dans \texttt{SKELL\_BE},
+label = skellbe01
+}
+\lstinputlisting{Chapter1/Code/ppekernel.c}
+%===================================================================================
+Un \emph{kernel} est défini par la macro \texttt{SKELL\_KERNEL} comme un prototype de fonction dans lequel les arguments passés par référence sont considérés comme des sorties du \emph{kernel}, alors que les arguments passées par valeur ou par référence contante sont les entrées su \emph{kernel}. La ligne 9 du listing \ref{skellbe01} montre un exemple d'appel de \emph{kernel} au \emph{runtime}, l'initialisation du processeur Cell qui est effectuée par un appel à \texttt{skell:environment} démarre un groupe de \emph{threads} SPE et les mets en attente d'un appel à un \emph{kernel} ce qui réduit le surcoût de création de \emph{threads} à chaque fois. La terminaison des \emph{threads} est effectuée de la même manière à la fin de la portée de la fonction \emph{main}.\\
+\indent Du point de vue des SPEs, chacun d'eux est un neoud de \emph{cluster} qui supporte la communication point-à-point. Les applications sont conçus à base d'une  composition de squelettes instanciées avec des fonctions définies par l'utilisateur qui considèrent la mémoire centrale comme un mémoire distante à partir de laquelle peuvent être lues ou écrite de manière asynchrone au travers des commandes DMA de la librairie standard ou à des fonctions fournies par \texttt{SKELl\_BE} \ref{skellbe02}.
+
+%===============================Listing SPEKERNEL =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+numbers=left,                   % where to put the line-numbers
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = Exemple de définition d'un kernel SPE dans \texttt{SKELL\_BE},
+label = skellbe02
+}
+\lstinputlisting{Chapter1/Code/spekernel.c}
+%======================Conclusion Générale ==================================
+Ce dernier code source illustre plusieurs aspects :
+\begin{itemize}
+\item la macro \texttt{SKELL\_BE} génère le \emph{stub} de la fonction \texttt{main} et l'introspection de code requise par \texttt{SKELL\_BE}.
+\item la fonction \texttt{run} qui est utilisée dans la foncion de \emph{kernel} pour construire une aplication en utilisant les constructeurs de squelettes \texttt{pardo} et \texttt{seq}.
+\item l'objet \texttt{argN\_} qui fournit un accès transparent au $N^{ième}$ argument du \emph{kernel} stocké dans la mémoire centrale.
+\item les fonction \texttt{pull} et \texttt{push} qui permettent un accès asynchrone à la mémoire principale adressée par le PPE. Ces fonctions déduisent la meilleurs manière de rapatrier les données à partir de leurs arguments et utilisent un découpage statique des données à partir du nombre de SPEs impliquées et de la taille de leur mémoire privée. 
+\item La fonction \texttt{terminate} déclenche la terminaison du \emph{kernel}. Celle-ci n'est appelée qu'une fois per \emph{kernel}, dés que toutes les données transférées de la mémoire centrale on été traitées.
+\end{itemize}
+Le tableau \ref{skellbeapi} résume les principales fonctions de l'interface utilisateur (API) de \texttt{SKELL\_BE}.
+\begin{table}
+\centering
+%\begin{tabular}{ll}
+\begin{tabularx}{\columnwidth}{lX}
+\hline
+\hline
+\textbf{Gestion de l'Application} & \\
+\hline
+\hline
+\texttt{environement(argc,argv)} & Démarrage de l'application\\
+\hline
+\texttt{rank()}      & retourne l'indentifiant PID su SPE courant \\
+\hline
+\texttt{terminate()} & Signale la fin du flux de données et termine l'application\\
+\hline
+\texttt{run(skeleton)}      & Execute une application squelette\\
+\hline
+\hline
+\textbf{Constructeurs de Squelettes}& \\
+\hline
+\hline
+\texttt{seq(f)} & Transforme une fonction utilisateur en une tâche squelette\\
+\hline
+\texttt{operator,(s$_1$,s$_2$)}       & \\
+\texttt{chain(s$_1$,$\ldots$,s$_n$)}  & Constructeur de composition séquentielle\\
+\texttt{chain<N>(s)}                  & \\
+\hline
+\texttt{operator|(s$_1$,s$_2$)}          & \\
+\texttt{pipeline(s$_1$,$\ldots$,s$_n$)}  & Constructeur de \emph{Pipeline}\\
+\texttt{pipeline<N>(s)}                  & \\
+\hline
+\texttt{operator\&(s$_1$,s$_2$)}       & \\
+\texttt{pardo(s$_1$,$\ldots$,s$_n$)}  & Constructeur de \emph{Pardo}\\
+\texttt{pardo<N>(s)}   		      & \\
+\hline
+\hline
+\textbf{Transfert de Données} & \\
+\hline
+\hline
+\texttt{pull(arg$_N$,v,sz=0,o=0)}   & Récupère $sz$ éléments de la  $N^{ième}$ donnée de la mémoire centrale
+                                      et les sauvegarde dans $v$ avec un \emph{offset} $o$\\
+\hline
+\texttt{push(arg$_N$,v,sz=0,o=0))}  & Envoie $sz$ éléments de la donnée $v$ à la  $N^{ième}$ donnée dans la mémoire
+                                      centrale avec un \emph{offset} $o$\\
+\hline
+\hline
+%\end{tabular}
+\end{tabularx}
+\caption{Interface utilisateur \texttt{SKELL\_BE}}
+\label{skellbeapi}
+\end{table}
+
+\subsection{Détails de l'Implémentation}
+Le développement d'une librairie de calcul parallèle à base squelettes algorithmiques à la fois efficace et expressive est une tâche complexe. Plusieurs tentavies ont montré que le compromis entre expressivité et efficacité était déterminant pour le succès d'une telle librairie. Le polymorphisme est à première vue une bonne solution pour exprimer la relation entre les squelettes et les objets fonctions, l'expérience démontre que l'\emph{overhead} induit par son \emph{runtime} affecte considérablement la performance globale d'une application. Dans le cas des squelette le polymorphisme au runtime n'est pas vraiment nécessaire : par conception, la structure d'une application exprimée sous forme de squelettes imbriqués est connue à la compilation. Il suffit juste de trouver une manière propre d'exploiter cette information disponible à la compilation d'une manière judicieuse.\\
+\indent Considérons les constructeurs de squelettes comme des mots-clés d'un petit langage déclaratif \emph{domain-specific}\footnote{en opposition à un langage \emph{general-purpose}}. L'information sur l'application à générer est donnée par la sémantique opérationnelle de ces constructeurs. Dans notre cas, le défi était de trouver une manière de définir un tel langage comme une extension de C++ qui définit un EDSL (\emph{Embedded Domain Specific Language}), sans construire une nouvelle variation d'un compilateur mais seulement en utilisant la méta-programmation.\\
+La méta-programmation est un ensemble de techniques héritées de la programmation générative qui permet la manipulation, la génération et l'introspection de fragments de code dans un langage. A titre comparatif, lorsqu'une fonction est exécutée au \emph{runtime} pour produire des valeurs à l'exécution, une méta-fonction opère à la compilation sur des fragments de code pour générer des fragments de code plus spécialisés qui seront compilés. l'exécution d'un tel code se fait par conséquent en deux passes. En C++, un tel système est mis en oeuvre par les classes et les fonctions \emph{template}. En utilisant la flexibilité de la surcharge d'opérateur et de fonctions en C++ et le fait que les \emph{templates} C++ peuvent effectuer des calculs arbitraires à la compilation, on peut évaluer la structure d'une application parallèle décrite par une combinaison de squelettes \textbf{à la compilation}. Pour ce faire, la structure extraite de la définition de l'application doit être transformée en une représentation intermédiaire basée sur un réseau de \emph{processes} séquentiels. Dans le cas de \texttt{SKELL\_BE} la difficulté fut d'enfouir les constructeur de squelettes dans des éléments de langage, de générer le code sur les SPEs et d'effectuer le transfert d'arguments entre le PPE et les SPEs.
+\subsection{Génération de Code pour les SPEs}
+L'implémentation d'un \emph{EDSL} en C++ impose d'avoir une méthode pour trouver de manière adéquate des informations non-triviales à partir de l'arbre de syntaxe abstraite d'une expression (\emph{AST}). Ceci est effectué en général à l'aide d'une technique connue sous le nom de \emph{Expression Templates} \cite{exp_tpl}. Les \emph{Expression Templates} utilisent la surcharge de fonctions et d'opérateurs pour construire une représentation simplifiée de l'arbre de syntaxe abstraite d'une expression. La structure arbre est un type template complexe structuré comme une représentation linéaire de l'arbre. Les information sur les terminaux de l'expression sont sauvegardées en tant que références dans l'objet \emph{AST}. Cet objet temporaire peut alors être passé comme un argument à d'autres fonctions qui analysent son type est extraient les informations requises pour la tâche en effectuant ce que l'on appelle une \textbf{évaluation partielle} \cite{parteval}.\\
+\indent Pour transformer un \emph{AST} en un code exploitable, il faut transformer l'arbre en un réseau de \emph{process}. Afin d'y parvenir, la sémantique opérationnelle définie dans \cite{falcousem} est transformé en méta-programme capable de générer une liste statique de processes. Chacune des constructeurs de squelettes de \texttt{SKELL\_BE} génére un objet sans état dont le type encode le structure du squelette. a titre d'exemple, le code de l'opérateur \texttt{pipe} est donné dans le listing \ref{pipecode}. On notera qu'aucun calcul n'est effectué à cette étape mais que la structure du squelette est elle même enfouie dans le type de retour.
+%===============================Listing PIPECODE =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+%numbers=left,                   % where to put the line-numbers
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = L'opérateur \texttt{pipe},
+label = pipecode
+}
+\lstinputlisting{Chapter1/Code/pipecode.c}
+
+\section{Conclusion Générale}
+Dans ce qui précède nous avons décrit les différents outils ou modèle de programmation pour le processeur Cell. Ce chapitre, qui n'est pas une étude exhaustive, fait état des principaux outils qui ont fait objet de publications et d'évaluation significatives. Les outils diffèrent par leur mise en oeuvre et leur difficulté d'utilisation. Les plus simples à utiliser, qui sont les approches à base d'annotation de code (OpenMP, CellSS), laissent le soin au compilateur de faire le travail de parallélisation et d'optimisation du code. De l'autre côté RapidMind et Sequoia adoptent une approche qui définit un langage spécifique accompagné d'un \emph{runtime} et d'un compilateur, mais une bonne partie du travail d'optimisation est laissée à la charge du programmeur. Enfin, l'approche de programmation la plus fastidieuse et celle des \emph{Pthreads} qui sont un outil de programmation parallèle très bas niveaux qui laisse une grande liberté au programmeur pour ce qui est du déploiement de son code sur le Cell. Un code à base de \emph{threads }  est de ce fait long à mettre en oeuvre est difficile à maintenir, mais il permet d'un autre  côté d'avoir un contrôle total sur son implémentation. Ceci a un intérêt en cas de contraintes fortes en termes de temps d'exécution et de prédictabilité de comportement.  
+On notera que la mise en oeuvre à nécessité un grand effort de la part des concepteurs pour deux raisons principales: (1) la mémoire distribuée du Cell qui impose la gestion explicite des transferts mémoire à partir de et vers la mémoire centrale (2) Le PPE et les SPEs possèdent un jeux d'instructions différents ce qui rend difficile l'étape de génération de code.
+
+
 
 %On trouve dans la littérature plusieurs jeux de squelettes algorithmiques répondant à divers besoins [45, 22, 5, 88, 119, 54]. Au sein de QUAFF, 
 %\section{The Divide \& Conquer Skeleton (Fixed Degree}
