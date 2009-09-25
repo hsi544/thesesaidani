@@ -559,11 +559,74 @@ caption = Code source génére,
 label = finalcode
 }
 \lstinputlisting{Chapter1/Code/finalcode.c}
+
 La structure SPMD des instructions \texttt{if} chaînées montrent la nature itérative du générateur de code. Chacun des ces blocs effectue les même opérations. En premier lieu, les types de entrées/sorties sont récupérées de l'analyse du type de fonction. Ces types sont ensuite instanciés sous forme d'un tuple. Le code du du \emph{process} est ensuite exécuté dans une boucle qui se met dans une boucle en attente d'un signal de terminaison. Dans cette boucle, chacune des macro-instructions qui apparaissent dans la description du type  réseau de \emph{process} génère un appel concret à soit un transfert DMA ou à un proxy d'appels de fonctions qui extraie les données d'un tuple, alimente une fonction définie par l'utilisateur et retourne un tuple de résultats. Une grande partie de ce processus est facilité par les librairies Boost telles que Proto qui gère la génération des règles de sémantique méta-programmées et Fusion qui gère la transition entre les comportement à la compilation et au \emph{runtime} \cite{falcouboost}.\\
 \indent Le processus de génération permet de mieux comprendre pourquoi \texttt{SKELL\_BE} est plus performant que d'autre solution à base de C++. Dans le code généré, toutes les fonctions et le code dépendant des squelettes sont résolues statiquement. Tous les types de données sont concrets et tous les appels de fonctions sont directs. Il n'y a pas donc pas de polymorphisme au \emph{runtime} et le compilateur est capable d'\emph{inliner}  plus de code et d'effectuer plus d'optimisation.
+\subsection{Communications PPE/SPEs}
+L'autre difficulté dans la conception d'une librairie de parallélisation de code pour le Cell, est son architecture mémoire distribuée qui requiert une gestion explicite des transfert de données entre la mémoire centrale et les mémoire locale des SPEs. Le but étant de trouver une manière de transférer les données de la mémoire centrale vers les SPEs d'une manière transparente du point de vue de l'utilisateur. Une stratégie usuelle passe par le transfert au début du programme, d'une structure appelée \emph{control block} qui contient les informations communes au SPEs et nécessaires à l'exécution du \emph{kernel}. En général, cette structure dépend de l'application et contient toutes les données dont le \emph{kernel} a besoin. Dans notre cas, ces données sont fournies comme arguments de l'appel de fonction du \emph{kernel} principal. Il est ensuite nécessaire de construire à la compilation la structure \emph{control block} appropriée. Ceci est rendu possible en utilisant la méta-pogrammation \emph{template} qui parse le prototype de la fonction pour extraire une liste des types de ces arguments. Le \emph{control block} contiendra ainsi l'adresse de base de l'espace mémoire de chaque SPE et un tuple en utilisant sur l'algorithme suivant.
+\begin{itemize}
+\item Les entrées de types natifs sont stockés par valeurs.
+\item Les sorties de types natifs sont stockés dans une paire contenant leur adresse et une valeur statique contenant leur taille.
+\item Les tableaux sont stockés dans une paire contenant l'adresse de leurs éléments et une valeur statique contenant leur taille.
+\item Les types définis par l'utilisateur  sont stockés dans une paire contenant l'adresse de l'objet et sa taille.
+\end{itemize}
+
+Cette structure est ensuite remplie avec les vraies valeurs des données passées en arguments de l'appel du \emph{kernel} avant de lancer les \emph{threads} SPE. A titre d'exemple le prototype de fonction suivant :
+\begin{center}
+\texttt{void f( int, int[5], float\& );}
+\end{center}
+
+est transformé en une structure : 
+
+%===============================Listing transstruct =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+%numbers=left,                   % where to put the line-numbers
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = Code source génére,
+label = transstruct
+}
+\lstinputlisting{Chapter1/Code/transstruct.c}
+
+La fonction suivante est ensuite générée pour la remplire : 
+%===============================Listing transfill =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+%numbers=left,                   % where to put the line-numbers
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = Code source génére,
+label = transfill
+}
+\lstinputlisting{Chapter1/Code/transfill.c}
+
+Du côté du SPE, les objets \texttt{argN} fournissent un opérateur de cast \emph{template} implicite qui récupère les valeurs du $N^{ième}$ élément du tuple au travers d'une commande DMA, ainsi qu'un opérateur d'affectation qui transfert une valeur à la données correspondante dans l'espace d'adressage du PPE. La déduction automatique des arguments \emph{template} permet une syntaxe à la fois compacte et intuitive de telle sorte à ce que le compilateur puisse appeler la bonne primitive de transfert DMA en se basant sur l'index des arguments et le type de la valeur.
+
+\subsection{Résultats Expérimentaux}
+Nous avons mené une campagne de mesure qui a pour but de prouver que SKELL BE ne provoque pas de pertes importante au niveau de la performance. Pour ce faire, nous avons effectué plusieurs tests. La première vise à créer des applications synthétiques à bas de squelettes afin d'évaluer l'\emph{overhead} des méta-programmes. Le deuxième test consiste en l'évaluation de la performance d'algorithmes numériques et de l'algorithme Harris pour la detection de point d'intérêt traité plus en détail par la suite. Les test on été effectué sur une lame IBM QS20 et la compilation s'est faite à l'aide avec la chaîne \texttt{gcc} et la métrique temporelle utilisée est le nombre de cycles moyen par point traité.
+\subsubsection{Benchmarks Synthétiques}
 
 \section{Conclusion Générale}
-Dans ce qui précède nous avons décrit les différents outils ou modèle de programmation pour le processeur Cell. Ce chapitre, qui n'est pas une étude exhaustive, fait état des principaux outils qui ont fait objet de publications et d'évaluation significatives. Les outils diffèrent par leur mise en oeuvre et leur difficulté d'utilisation. Les plus simples à utiliser, qui sont les approches à base d'annotation de code (OpenMP, CellSS), laissent le soin au compilateur de faire le travail de parallélisation et d'optimisation du code. De l'autre côté RapidMind et Sequoia adoptent une approche qui définit un langage spécifique accompagné d'un \emph{runtime} et d'un compilateur, mais une bonne partie du travail d'optimisation est laissée à la charge du programmeur. Enfin, l'approche de programmation la plus fastidieuse et celle des \emph{Pthreads} qui sont un outil de programmation parallèle très bas niveaux qui laisse une grande liberté au programmeur pour ce qui est du déploiement de son code sur le Cell. Un code à base de \emph{threads }  est de ce fait long à mettre en oeuvre est difficile à maintenir, mais il permet d'un autre  côté d'avoir un contrôle total sur son implémentation. Ceci a un intérêt en cas de contraintes fortes en termes de temps d'exécution et de prédictabilité de comportement.  
+Dans ce qui précède nous avons décrit les différents outils ou modèle de programmation pour le processeur Cell. Ce chapitre, qui n'est pas une étude exhaustive, fait état des principaux outils qui ont fait objet de publications et d'évaluation significatives. Les outils diffèrent par leur mise en oeuvre et leur difficulté d'utilisation. Les plus simples à utiliser, qui sont les approches à base d'annotation de code (OpenMP, CellSS), laissent le soin au compilateur de faire le travail de parallélisation et d'optimisation du code. De l'autre côté RapidMind et Sequoia adoptent une approche qui définit un langage spécifique accompagné d'un \emph{runtime} et d'un compilateur, mais une bonne partie du travail d'optimisation est laissée à la charge du programmeur. Enfin, l'approche de programmation la plus fastidieuse et celle des \emph{Pthreads} qui sont un outil de programmation parallèle très bas niveaux qui laisse une grande liberté au programmeur pour ce qui est du déploiement de son code sur le Cell. Un code à base de \emph{threads }  est de ce fait long à mettre en oeuvre est difficile à maintenir, mais il permet d'un autre  côté d'avoir un contrôle total sur son implémentation. Ceci a un intérêt en cas de contraintes fortes en termes de temps d'exécution et de prédictibilité de comportement.  
 On notera que la mise en oeuvre à nécessité un grand effort de la part des concepteurs pour deux raisons principales: (1) la mémoire distribuée du Cell qui impose la gestion explicite des transferts mémoire à partir de et vers la mémoire centrale (2) Le PPE et les SPEs possèdent un jeux d'instructions différents ce qui rend difficile l'étape de génération de code.
 
 
