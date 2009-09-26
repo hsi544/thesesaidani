@@ -308,6 +308,7 @@ Les instances de tâches \emph{Inner} correspondant à la mémoire principale sont 
 En plus de permettre au programmeur d'optimiser son implémentation des tâches dans \emph{\textbf{Sequoia}}, certaines optimisations qui à utiliser efficacement la mémoire sont utilisées, notamment l'optimisation des transferts au niveau d'un même niveau la hiérarchie mémoire, ou les copies inutiles sont détectées et supprimées. D'autres optimisation incluant le \emph{software-pipelining} et le déplacement des invariants de boucle sont effectués de manière statique à la compilation.
 \subsection{Conclusion}
 \emph{\textbf{Sequoia}} est un modèle de programmation qui tente d'allier la portabilité avec la performance pour le portage d'algorithmes sur des architectures parallèles. La performance est assurée par l'octroi à l'utilisateur d'une grande liberté dans l'optimisation du code de calcul qui s'exécute sur les noeuds au plus bas niveau de la hiérarchie mémoire. La portabilité est garantie par le fait que l'expression de l'algorithme est découplée de l'implémentation. L'expression explicite des communications, du mouvement des données au travers de la hiérarchie mémoire, du calcul parallèle et la définition d'un ensemble de travail isolé sont effectués grâce à une seule abstraction, la \emph{tâche}. \emph{\textbf{Sequoia}} fournit des primitives de structuration des calcul en tant que hiérarchie de tâches afin d'améliorer la localité et laisse au programmeur le soin d'optimiser la tâche pour une architecture donnée. Toutefois il existe des limitations, en l'occurrence pour le type de parallélisme qui doit être SIMD ce qui limite le schéma de déploiement et le champ d'applications. Aussi, le mapping des applications est fait de manière manuelle et n'est pas contenue dans le code source.
+%=================SECTION SKELL BE==================================================================
 
 \section{Squelettes Algorithmiques pour le Cell}
 La programmation parallèle structurée qu'on appelle programmation par squelettes algorithmiques \cite{skeletons_cole} restraint l'expression du parallèlisme à la composition d'un nombre prédéfini de \emph{patterns} nommés squelettes. Les squelettes algorithmiques sont des briques de base génériques, portables et réutilisables pour lesquelles une implémentation parallèle peut exister. Ils sont issues des langages de programmation fonctionnelle. Un système de programmation basé sur les squelettes fournit un ensemble fixe et relativement limité de squelettes. Chaque squelette représente une manière unique d'exploiter le parallélisme dans une organisation spécifique du calcul, tels que le parallélisme de données, de tâches, le \emph{divide-and-conquer} parallèle ou encore le pipeline. En combinant ces \emph{patterns} le développeur peut construire une spécification haut-niveau de son programme parallèle. Le système peut ainsi exploiter cette spécification pour la transformation de code, l'exploitant efficace des ressources ou encore le placement.\\
@@ -562,6 +563,7 @@ label = finalcode
 
 La structure SPMD des instructions \texttt{if} chaînées montrent la nature itérative du générateur de code. Chacun des ces blocs effectue les même opérations. En premier lieu, les types de entrées/sorties sont récupérées de l'analyse du type de fonction. Ces types sont ensuite instanciés sous forme d'un tuple. Le code du du \emph{process} est ensuite exécuté dans une boucle qui se met dans une boucle en attente d'un signal de terminaison. Dans cette boucle, chacune des macro-instructions qui apparaissent dans la description du type  réseau de \emph{process} génère un appel concret à soit un transfert DMA ou à un proxy d'appels de fonctions qui extraie les données d'un tuple, alimente une fonction définie par l'utilisateur et retourne un tuple de résultats. Une grande partie de ce processus est facilité par les librairies Boost telles que Proto qui gère la génération des règles de sémantique méta-programmées et Fusion qui gère la transition entre les comportement à la compilation et au \emph{runtime} \cite{falcouboost}.\\
 \indent Le processus de génération permet de mieux comprendre pourquoi \texttt{SKELL\_BE} est plus performant que d'autre solution à base de C++. Dans le code généré, toutes les fonctions et le code dépendant des squelettes sont résolues statiquement. Tous les types de données sont concrets et tous les appels de fonctions sont directs. Il n'y a pas donc pas de polymorphisme au \emph{runtime} et le compilateur est capable d'\emph{inliner}  plus de code et d'effectuer plus d'optimisation.
+
 \subsection{Communications PPE/SPEs}
 L'autre difficulté dans la conception d'une librairie de parallélisation de code pour le Cell, est son architecture mémoire distribuée qui requiert une gestion explicite des transfert de données entre la mémoire centrale et les mémoire locale des SPEs. Le but étant de trouver une manière de transférer les données de la mémoire centrale vers les SPEs d'une manière transparente du point de vue de l'utilisateur. Une stratégie usuelle passe par le transfert au début du programme, d'une structure appelée \emph{control block} qui contient les informations communes au SPEs et nécessaires à l'exécution du \emph{kernel}. En général, cette structure dépend de l'application et contient toutes les données dont le \emph{kernel} a besoin. Dans notre cas, ces données sont fournies comme arguments de l'appel de fonction du \emph{kernel} principal. Il est ensuite nécessaire de construire à la compilation la structure \emph{control block} appropriée. Ceci est rendu possible en utilisant la méta-pogrammation \emph{template} qui parse le prototype de la fonction pour extraire une liste des types de ces arguments. Le \emph{control block} contiendra ainsi l'adresse de base de l'espace mémoire de chaque SPE et un tuple en utilisant sur l'algorithme suivant.
 \begin{itemize}
@@ -624,6 +626,132 @@ Du côté du SPE, les objets \texttt{argN} fournissent un opérateur de cast \emph{
 \subsection{Résultats Expérimentaux}
 Nous avons mené une campagne de mesure qui a pour but de prouver que SKELL BE ne provoque pas de pertes importante au niveau de la performance. Pour ce faire, nous avons effectué plusieurs tests. La première vise à créer des applications synthétiques à bas de squelettes afin d'évaluer l'\emph{overhead} des méta-programmes. Le deuxième test consiste en l'évaluation de la performance d'algorithmes numériques et de l'algorithme Harris pour la detection de point d'intérêt traité plus en détail par la suite. Les test on été effectué sur une lame IBM QS20 et la compilation s'est faite à l'aide avec la chaîne \texttt{gcc} et la métrique temporelle utilisée est le nombre de cycles moyen par point traité.
 \subsubsection{Benchmarks Synthétiques}
+Cette mesure a pour but de prouver que le surcoût induit par la couche de méta-programmation d'un squelette est négligeable. Pour ce faire, nous avons évalué le temps d'exécution d'un squelette SKELL BE synthétique en augmentant le nombre de SPEs mis en jeu avec un code source similaire écrit à la main.  Les premiers résultats permettent de constater que l'exécution d'une fonction au travers des opérateur CHAIN ou SEQ , n'induit pas un \emph{overhead} important. L'examen du code source assembleur généré démontre que la seule différence entre l'appel direct et la version squelette est une indirection de pointeur qui permet de retrouver l'adresse de la fonction à partir de l'objet adaptateur de fonction utilisé en interne.\\
+\indent Le test pour le squelette PIPE construit un \emph{pipeline} de 2 jusqu'à 8 SPEs dans lequel la quantité de transfert de données est négligeable. Chaque étage de ces \emph{pipeline} exécutent dont la durée est comprise entre 10 $ms$ et 200 $ms$. Les mêmes tests ont été effectués pour le squelette PARDO. Les figures \ref{overheadpipe} et \ref{overheadpardo} illustrent les résultats de mesures. On peut ainsi constater que le surcoût ne dépasse jamais 1.5 \%.
+\subsubsection{Benchmarks de \emph{Scalability}}
+L'évaluation qui suit mesure la \emph{scalability} (passage à l'echelle) de notre outil SKELL BE et fait une comparaison avec d'une part un code équivalent écrit à la main ou alors un code \emph{OpenMP} compilé avec \emph{XLC single source compiler} pour le Cell. La mesure s'est faite sur des noyaux de calculs de l'API \emph{BLAS}  \emph{Basic Linear Algebra Subprograms}. L'évaluation de la \emph{scalability }se fait en mesurant un \emph{speedup} relatif en comparaison avec l'exécution sur un SPE.
+\paragraph{Le noyau \texttt{DOT}}
+\begin{table}
+\centering
+\begin{tabular}{|c||c|c|c|c|}
+\hline
+\textbf{SPE} & \textbf{OMP} & \textbf{Manual} & \textbf{SKELL BE} & \textbf{\emph{overhead}}\\
+\hline
+\hline
+1 & 219.7 & 65.9 & 67.9 & 3.1 \%\\
+\hline
+2 & 263.7 & 32.9 & 34.5 & 4.7 \%\\
+\hline
+4 & 131.9 & 16.5 & 17.3 & 4.78 \%\\
+\hline
+8 & 66.1 & 8.3 & 8.7 & 4.9 \%\\
+\hline
+\end{tabular}
+\caption{Benchmark \texttt{DOT}}\label{scaldot}
+\end{table}
+
+Dans ce programme nous effectuons le produit scalaire de deux tableaux de $10^{9}$ élements flottants simple-précision. La versions OpenMP utilise une directive de réduction alors que les versions écrite à la main et SKELL BE collectent explicitement les résultats partiels pour les additionner.  Dans ce cas là le $cpp$ minimum pour la version OpenMP est de 66 donnant un \emph{speedup} maximal relatif de $\times 3.32$ lorsque la version manuelle donne elle, un \emph{speedup} de7.98. La version OpenMP est limitée par le surcoût induit par la gestion implicite des communication et de la synchronisation. Dans la même situation SKELL BE fournit un accélération maximale de $\times 7.85$ ce qui représente un \emph{overhead} de 5\% par rapport à la version écrite à la main. 
+\paragraph{Le noyau \texttt{CONVO}}
+\begin{table}
+\centering
+\begin{tabular}{|c||c|c|c|c|}
+\hline
+\textbf{SPE} & \textbf{OMP} & \textbf{Manual} & \textbf{SKELL BE} & \textbf{\emph{overhead}}\\
+\hline
+\hline
+1 & 2402 & 649 & 672 & 3.6\%\\
+\hline
+2 & 4289 & 391 & 411 & 5.0 \%\\
+\hline
+4 & 2146 & 172 & 181 & 45.2 \%\\
+\hline
+8 & 1073 &   98 &  103 & 5.4\%\\
+\hline
+\end{tabular}
+\caption{Benchmark \texttt{CONVO}}\label{scalconvo}
+\end{table}
+
+Dans ce deuxième opérateur testé, nous effectuons un produit de convolution sur des images de taille $4096 \times 4096$ avec un masque de taille $3 \times 3$ Dans toutes les versions le masque est dupliqué dans chaque SPE.  Les versions manuelles atteignenent jusqu'à $ \times 6.54$ comparativement au \emph{speedup} OpenMP de 2.24 et celui de SKELL BE mesuré à 6.52. L'\emph{overhead} quand à lui a augmenté à cause notamment de la gestion des transfert non-alignés (qui se fait au \emph{runtime}) du noyaux de convolution, il est autour de 5\%. 
+
+\paragraph{Le noyau \texttt{SGEMV}}
+\begin{table}
+\centering
+\begin{tabular}{|c||c|c|c|c|}
+\hline
+\textbf{SPE} & \textbf{OMP} & \textbf{Manual} & \textbf{SKELL BE} & \textbf{\emph{overhead}}\\
+\hline
+\hline
+1 & 200.7 & 179.8& 187.9 & 4.6\%\\
+\hline
+2 & 208.5 & 79.9 & 83.9 & 4.9 \%\\
+\hline
+4 & 104.3 & 42.2 & 44.5 & 5.5 \%\\
+\hline
+8 & 52.2 &   23.6 &  25.0 & 5.9\%\\
+\hline
+\end{tabular}
+\caption{Benchmark \texttt{SGEMV}}\label{scalsgemv}
+\end{table}
+Dans ce benchmark, un produit  entre une matrice $4096 \times 4096$ et un vecteur $4096 \times 1$. On remarque la même chose que dans ce qui précède, c'est à dire une bonne \emph{scalability} de SKELL BE avec un \emph{overhead} toujours autour de 5\%.
+
+\subsubsection{Algorithme de Harris}
+Cette application est plus complexe que celle étudiées précédemment car elle comporte plusieurs opérateurs, à la fois point-à-point et noyaux de convolution. Ce benchmark a pour but de prouver que SKELL BE est également adapté pour notre domaine d'application. Plusieurs schémas de parallélisation sont possible pour cet algorithmes, ils sont traités avec plus de détails dans le chapitre suivant. Nous avons choisi ici trois versions de déploiement :  une version complètement chaînée où tous les opérateurs sont regourpés au sein d'un seul et même SPE et répliqués 8 fois; la versions chaînée à moitié, ou les opérateurs sont chaînés deux à deux sur un SPE, un \emph{pipeline} est ensuite formé entre deux SPEs ce qui permet de répliquer 4 fois; Et enfin une version ou chaque opérateur occupe un SPE,  ce qui permet de répliquer 2 fois. Le listing \ref{harrisskell} représente les \emph{kernels} SPE des différentes versions.  Le chaînage y est représenté par une virgule (\textbf{,}) et le \emph{pipeline} par un opérateur \textbf{\textbar}.
+%===============================Listing transfill =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+%numbers=left,                   % where to put the line-numbers
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = Les \emph{kernels SPE des implémentations de l'opérateur de Harris},
+label = harrisskell
+}
+\lstinputlisting{Chapter1/Code/harrisskell.c}
+
+On compare les différentes versions en terme de nombre de cycles par pixel avec des implémentations manuelles de l'algorithme sur des images $512 \times 512$ (Tableau \ref{tabharrisskell}). L'\emph{overhead} est également de 5\% ce qui valide notre approche car le compromis \emph{overhead} rapidité de mise en oeuvre est très bon. 
+\begin{table}[htb]
+\begin{tabular}{|c||c|c|c|}
+\hline
+\textbf{Manual} & \textbf{Full-Chain}  & \textbf{Half-Chain}  & \textbf{No-Chainl}  \\
+\hline
+\hline
+\textbf{Manual} & 11.26 & 8.36 & 9.97 \\
+\hline
+\textbf{SKELL BE} & 11.86 & 8.64 & 10.43 \\
+\hline
+\textbf{\emph{Overhead}} & 5.33 \%&  3.35 \% &  4.61 \% \\
+\hline
+\end{tabular}
+\caption{Benchmarks de l'algorithme de Harris}\label{tabharrisskell}
+\end{table}
+\subsubsection{Impact sur la Taille de l'Exécutable}
+La méta-programmation est souvent blâmée pa-ce-qu'elle produit des exécutables trop grands à cause de la réplication de code. Sur le processeur Cell, ce problème devient critique à cause de la taille limitée des \emph{local store} (256 KB) et doit par conséquent rester sous contrôle. Pour évaluer l'impact de la méta-programmation sur la taille du code source nous avons comparé la taille des codes générés par SKELL BE avec ceux écrits à la main. 
+\begin{table}[htb]
+\begin{tabular}{|c||c|c|c|c|}
+\hline 
+\textbf{Opérateur} & \textbf{\texttt{DOT}}& \textbf{\texttt{CONVO}} & \textbf{\texttt{SGEMV}}& \textbf{\texttt{HARRIS}} \\
+\hline
+\hline
+\textbf{Code écrit à la main} & 1.1 KB & 1.2 KB & 2.3 KB & 5.3 KB \\
+\hline
+\textbf{Code Généré par SKELL BE} & 12.6 KB & 14.5 KB & 22.7 KB & 49.4 KB \\
+\hline
+\end{tabular}
+\caption{Benchmarks de l'algorithme de Harris}\label{codesize}
+\end{table}
+De manière générale, le code SKELL BE tiens largement dans les 256 KB du \emph{local store} mais celui-ci est 10 fois plus grand qu'un code équivalent écrit à la main. Ceci est principalement du au fait que SKELL BE génère par défaut un code SPMD contenant une structure du type \emph{switch}  qui englobe le code de tous les SPEs, ce qui donne approximativement un code 8 fois plus gros. Une des solutions dans ce cas là serait de passer le PID du SPE comme symbole au pré-processeur et de ne faire compiler que le code propre à ce même SPE.
+\subsubsection{Impact sur la Temps de Compilation}
+L'autre problème s'agissant de la méta-programmation est le temps de compilation. En effet, le temps de compilation d'un programme SKELL BE peut être décomposé en deux étapes principales : une première étape durant 1.5 s qui englobe les directives du preprocesseur qui gère les fonction définies par l'utilisateur; une deuxième étape proportionnelle au nombre de types de squelettes utilisés. Dans le pire des cas, qui est celui du squelette Half-Pipe la compilation prend 10s. 
+\subsection{Conclusion}
+SKELL BE est une solution à base de langage spécifique au domaine enfouis dans C++. Il est basé sur les squelettes algorithmiques ,un modèle de programmation parallèle très flexible. Il est très adapté au processeur Cell car le placement du graphe d'application y est primordial pour la performance. Les résultats qui précèdent tendent à prouver que l'on obtient de bonne performance tant au niveau temporel brut qu'au niveau de la /\emph{scalability}. Les mesures sur les benchmarks simples ont prouvé que l'\emph{overhead} induit est négligeable comparativement à un code écrit à la main. Le déploiement de l'agorithme de Harris sur le Cell à l'aide de SKELL BE et selon plusieurs schémas de parallélisation,  permettent d'apprécier la flexibilité et l'expressivité fournies par l'outil. Les performances obtenus sur l'algorithme prouvent l'efficacité de l'outil.
 
 \section{Conclusion Générale}
 Dans ce qui précède nous avons décrit les différents outils ou modèle de programmation pour le processeur Cell. Ce chapitre, qui n'est pas une étude exhaustive, fait état des principaux outils qui ont fait objet de publications et d'évaluation significatives. Les outils diffèrent par leur mise en oeuvre et leur difficulté d'utilisation. Les plus simples à utiliser, qui sont les approches à base d'annotation de code (OpenMP, CellSS), laissent le soin au compilateur de faire le travail de parallélisation et d'optimisation du code. De l'autre côté RapidMind et Sequoia adoptent une approche qui définit un langage spécifique accompagné d'un \emph{runtime} et d'un compilateur, mais une bonne partie du travail d'optimisation est laissée à la charge du programmeur. Enfin, l'approche de programmation la plus fastidieuse et celle des \emph{Pthreads} qui sont un outil de programmation parallèle très bas niveaux qui laisse une grande liberté au programmeur pour ce qui est du déploiement de son code sur le Cell. Un code à base de \emph{threads }  est de ce fait long à mettre en oeuvre est difficile à maintenir, mais il permet d'un autre  côté d'avoir un contrôle total sur son implémentation. Ceci a un intérêt en cas de contraintes fortes en termes de temps d'exécution et de prédictibilité de comportement.  
@@ -636,4 +764,4 @@ On notera que la mise en oeuvre à nécessité un grand effort de la part des conce
 %Ce type de squelette provient de la célèbre technique du \emph{divide and conquer}. Cette technique peut s'appliquer lorsque la solution à un problème peut être définie récursivement comme une collections de sous-problèmes qui sont des instances plus petites du problème original. Les algorithmes de ce type offrent un bon potentiel de parallélisation. En effet, si l'on arrive à exprimer un problème sous forme de sous-problèmes définis récursivement  on imagine bien que ces derniers peuvent être exécutées de manière concurrente sur plusieurs processeurs. L'exécution des algorithmes du type \emph{divide and conquer} se résume à l'évaluation d'un arbre de processus évoluant dynamiquement, le processus représentant un sous-problème généré. Le défi étant de s'assurer que les déploiement de cet arbre virtuel se fait de la manière la plus efficace possible sur une vraie machine. 
 %\section{The Iterative Combination Skeleton}
 %\section{The Cluster Skeleton}
-%\section{The Task Queue Skeleton}>>>>>>> .r54
+	%\section{The Task Queue Skeleton}>>>>>>> .r54
