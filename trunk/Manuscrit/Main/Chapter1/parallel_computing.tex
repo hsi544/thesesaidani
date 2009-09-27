@@ -117,8 +117,15 @@ Le traitement d'images est une discipline du traitement du signal dont l'entrée 
 \subsection{Le Partitionnement}
 La première tâche lors de la parallélisation d'une application de traitement d'image est le choix du type partitionnement à adopter. Ce principe prend ça source du fait qu'il y a plusieurs ressources et que le but est de repartir la charge de travail sur ces ressources sous formes de morceaux qui peuvent être distribués sur plusieurs tâches. Il existe deux méthodes basique pour le partitionnement la décomposition de domaine (\emph{domain decomposition}) et la décomposition fonctionnelle (\emph{functionnal decomposition})
 \subsubsection{Décomposition de Domaine}
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.8\columnwidth]{Chapter1/figures/domaindecomp}
+	\caption{Partitonnement par décomposition du domaine}
+	\label{figdomain}
+\end{figure}
+
 Dans ce type de partitionnement, les données associées au problème sont décomposées. Chaque tâche parallèle travaille donc sur une portion des données.
-In this type of partitioning, the data associated with a problem is decomposed. Each parallel task then works on a portion of of the data. Il existe alors plusieurs manières de décomposer les données. 
+In this type of partitioning, the data associated with a problem is decomposed. Each parallel task then works on a portion of of the data. Il existe alors plusieurs manières de décomposer les données. En traitement d'images, les données sont en 2 dimensions les décompositions possibles sont illustrées en figure \ref{decomp2D}.
 
 
 

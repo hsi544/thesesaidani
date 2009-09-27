@@ -446,15 +446,15 @@ Cette version est une variante de celle qui la précède. L'idée étant de fusionne
 	\label{harris-pipeline}
 \end{figure}
 Dans cette implémentation tous les opérateurs sont exécutés sur le même SPE. D'une part ceci permet d'éviter les transferts DMA entre SPE et minimise donc les transactions sur le bus d'interconnexion.
-\subsection{Evaluation des Performances}
+\section{Evaluation des Performances}
 après avoir exposé les différentes techniques d'optimisations nous procédons à la mesure de performance pour les différents modèles de déploiement précédents. Il s'agit ici de comparer les modèles en terme de temps d'exécution sur le processeur Cell. Dans un deuxième temps nous évaluons l'influence des transferts sur la performance globale de chacun des modèles.
-\subsubsection{Métriques de Mesure}
+\subsection{Métriques de Mesure}
 La métrique que nous avons choisi d'utiliser pour la mesure de performance, est le nombre de cycles moyen par pixel ou $cpp$, \begin{equation}cpp = \frac{nombre_{cyles \mbox{ } cpu}}{nombre_{pixels}} = \frac{nombre_{cyles \mbox{ } cpu}}{H \times W} \nonumber\end{equation}. Les bancs de tests ont été conçus de telle sorte à mesurer d'une part la performance brute ainsi que d'autres métriques spécifiques aux architectures qui sont les métriques de passage à l'échelle \emph{scalability} et qui sont l'accélération
 \emph{speedup} et l'efficacité \emph{efficiency}.
-\subsubsection{Méthode et Plateforme de Mesure}
+\subsection{Méthode et Plateforme de Mesure}
 La plate-forme sur laquelle a été menée l'evaluation des performance est un Blade QS20 d'IBM cadencé à 3.2 GHz. Cette lame contient deux processeurs Cell, chacun relié à une mémoire de 512 MB, ce qui donne au total 1 GB de \emph{RAM} disponible. Le timer utilisé pour mesure la performance est appelé \emph{timebase} et il est cadencé à 14.318 $Mhz$. L'OS installé est un Linux, distribution Fedora 7. Le developpement à été réalisé grâce au \emph{Cell SDK 3.0} et les compilateurs utilisés sont \emph{ppu-gcc} et {spu-gcc}, ce qui implique une compilation du type \emph{dual-source} un pour le SPE et un pour le PPE.\\
 \indent La méthodologie de mesure adoptée est en accord avec les système de vision par ordinateur. Nous avons simulé le cas d'un flux d'images continu, et avons mesure le temps d'exécution moyen pour une image. Ceci permet de négliger l'\emph{overhead} induit par la création et la synchronisation des \emph{threads}. L'interface utilisateur permet de faire varier plusieurs paramètres, notamment la taille de l'image, la taille de la tuile et le nombre de SPEs.
-\subsubsection{Comparaison des Schémas de Parallélisation}
+\subsection{Comparaison des Schémas de Parallélisation}
 \begin{figure}[htb]
 	\centering
   \includegraphics[width= 0.8\columnwidth]{Chapter2/figures/BenchCompareModels}
@@ -468,7 +468,7 @@ La figure \ref{comparemodels} donne une comparaison entre les différents modèle 
 \item De plus, la version avec composition de fonction ou les paires d'opérateurs sont sur deux SPEs différents est presque aussi rapide que la même versions ou tous les opérateurs sont placés sur le même SPE. Ceci prouve que la bande-passante inter-SPE est comparable à celle des instructions \texttt{LOAD/STORE} sur les mémoires locales.
 \end{itemize}
 Dans ce qui précède nous avons pu constater que le placement optimal d'un graphe de fonctions sur le processeur Cell n'était pas forcément évident lorsqu'il s'agit d'un algorithme de traitement d'image comme dans notre cas. D'une part, l'on a vu que le choix d'un schéma complètement \emph{data parallel} n'était pas forcément optimal, et qu'un schéma mixte avec une partie \emph{pipeline} imbriqués dans un schéma \emph{data parallel} donnait un résultat aussi bon qu'un schéma basé purement sur le parallélisme de données. Ceci est en grande partie possible, grâce à un niveau supplémentaire de parallélisme au niveaux de transferts. En effet, en favorisant les communications inter-SPE on profite pleinement de la bande passante du bus interne (204.8 GB/s) qui peut gérer jusqu'à 12 transferts en parallèle alors que dans un schéma de transferts ou plusieurs SPEs communiquent avec la mémoire centrale est forcément sérialisé et dans ce cas là la bande passante est limitée à 25.6 GB/s. 
-\subsubsection{Influence de la Taille de la Tuile}
+\subsection{Influence de la Taille de la Tuile}
 \begin{figure}[htb]
 	\centering
   \includegraphics[width= \columnwidth]{Chapter2/figures/SizeTile}
@@ -480,7 +480,7 @@ Comme il est démontré dans \cite{cell_bw02} et \cite{cellnoc} la taille du bloc 
 \item Une taille de bloc de 16 KB ou multiple de cette taille, grantit une bande-passante maximale sur le bus interne.
 \item Comme nous l'avons vu dans la discussion sur la forme de la tuile, il est démontré que plus la taille de tuile est grande moins il y a de pixels redondants, et la quantité de données totale transférées est minimisée en ce qui concerne les noyaux de convolution.
 \end{itemize}
-\subsubsection{Analyse des Résultats}
+\subsection{Analyse des Résultats}
 \begin{table}
 \begin{tabular}{|c||c|c|c|}
 \hline
@@ -501,7 +501,7 @@ Comme il est démontré dans \cite{cell_bw02} et \cite{cellnoc} la taille du bloc 
 \end{table}
 
 La comparaison de la performance gloable des différents schémas d'implémentation ne suffit pas à prouver que l'optimisation de l'utilisation de la mémoire est le facteur principal de l'amélioration de la performance. Dans le but de donner une analyse plus précise et donc plus complète, nous avons effectué des mesures au niveau du SPE ou nous avons mesuré le gain apporté par la composition des fonctions et les transferts DMA inter-SPE. Le tableau \ref{tabspuperf} donne en nombre de cycles \emph{SPU} les versions ou les opérateurs ne sont pas composés deux à deux et celle ou elles le sont. Comme on peut le constater, cette optimisation permet d'avoir une accélération pouvant atteindre $\times 7.2$. Cette techniques, permet une utilisation maximale des registres au détriment de la mémoire et par conséquent elle est limitée par la taille du banc de registres du processeur (128 registres pour le SPU. D'autre part l'optimisation de la localité des données en chaînant les opérateurs d'une même SPE est cert bénéfique, mais elle est limitée par le niveau de hiérarchie mémoire juste au dessus des registres qui est le \emph{local store}, limité lui à 256 KB.
-\subsubsection{Mesure des Métriques de Passage à l'Echelle}
+\subsection{Mesure des Métriques de Passage à l'Echelle}
 
 \begin{figure}[htb]
 	\centering
