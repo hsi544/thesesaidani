@@ -111,3 +111,16 @@ f well to the increasingly common hardware environment of networked SMP machines
 Dans le modèle \emph{SPMD} est un modèle haut niveau qui peut être construit sur la base d'une combinaison des modèles cités précédemment. Un seul programme est exécuté par toutes les tâche simultanément. A n'importe quel instant les tâchent peuvent exécuter des instructions différentes ou similaires du même programme.Un programme \emph{SPMD} peut toutefois contenir des branchement qui permettent à une tâche de n'exécuter qu'une portion du code et toutes les tâches peuvent utiliser différentes données.
 \paragraph{Modèle Multiple Program Multiple Data}
 Tout comme le modèle \emph{SPMD}, le modèle \emph{MPMD} est haut-niveau et peut englober l'ensemble des modèles citées précédemment. Les programmes \emph{MPMD} ont typiquement plusieurs objets exécutables. Lors de l'exécution parallèle du programme une tâche peut exécuter le même programme ou un programme différent et toutes les tâches peuvent utilier des données différentes.
+
+\section{Traitement d'Images et Parallélisme}
+Le traitement d'images est une discipline du traitement du signal dont l'entrée est une image. Les techniques de traitement du signal sont appliquées à un signal de 2 dimensions pour donner en sortie soit une image, soit une certaine caractéristique de l'image. Dans notre cas on s'intéresse au traitement d'images de bas niveau, ou les opérateurs sont souvent des opérateurs point-à-point ou des noyaux de convolution. Ce type de calcul est bien adapté aux machines parallèles car il n'y a généralement pas de dépendances de données et les algorithmes de bas-niveau sont majoritairement des opérations de calcul pur. Toutefois, pour des applications de moyen-niveau, par exemple la segmentation, il existe une forte dépendance de données et les algorithmes sont souvent des imbrications de structures conditions. Ceci rend la tâche de parallélisation pour ce types d'algorithmes fastidieuse, et les accélérations sont souvent médiocres en comparaison avec l'effort fournit pour l'adaptation de l'algorithme série. La conception d'une version parallèle d'un algorithme devient une tâche fastidieuse et qui dépend de plusieurs facteurs. Il est alors important d'accorder de l'importance à plusieurs aspects déterminants pour la performance.
+\subsection{Le Partitionnement}
+La première tâche lors de la parallélisation d'une application de traitement d'image est le choix du type partitionnement à adopter. Ce principe prend ça source du fait qu'il y a plusieurs ressources et que le but est de repartir la charge de travail sur ces ressources sous formes de morceaux qui peuvent être distribués sur plusieurs tâches. Il existe deux méthodes basique pour le partitionnement la décomposition de domaine (\emph{domain decomposition}) et la décomposition fonctionnelle (\emph{functionnal decomposition})
+\subsubsection{Décomposition de Domaine}
+Dans ce type de partitionnement, les données associées au problème sont décomposées. Chaque tâche parallèle travaille donc sur une portion des données.
+In this type of partitioning, the data associated with a problem is decomposed. Each parallel task then works on a portion of of the data. Il existe alors plusieurs manières de décomposer les données. 
+
+
+
+
+
