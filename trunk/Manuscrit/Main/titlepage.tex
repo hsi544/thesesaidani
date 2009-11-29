@@ -1,3 +1,18 @@
+%%%% debut macro %%%%
+\makeatletter
+\def\hlinewd#1{%
+\noalign{\ifnum0=`}\fi\hrule \@height #1 %
+\futurelet\reserved@a\@xhline}
+\makeatother
+%%%% fin macro %%%%
+
+Même chose pour les lignes verticales.
+%%%% debut macro %%%%
+
+%%%% fin macro %%%%
+
+
+
 \noindent N$^{\circ}$ D'ORDRE
 \pagestyle{empty}
 \begin{figure}[htb]
@@ -5,9 +20,10 @@
 	\includegraphics[width=\columnwidth]{./header}
 \end{figure}
 \begin{center}
-\begin{tabular}{||c||}
-\hline\hline
-\large{THÈSE DE DOCTORAT}\\\hline\hline
+%\begin{tabular}{||c||}
+\begin{tabular}{@{\,\vrule width 3pt\,}c@{\,\vrule width 3pt\,}}
+\hlinewd{3pt}
+\large{THÈSE DE DOCTORAT}\\\hlinewd{3pt}
 \end{tabular}
 
 \vfill
