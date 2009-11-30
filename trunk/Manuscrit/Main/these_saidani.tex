@@ -20,9 +20,6 @@
 \usepackage{graphicx}
 \usepackage{a4wide}
 \linespread{1.25}
-\pagestyle{fancy}
-%\fancyhead{}
-\fancyhead[RO,LE]{}
 \begin{document}	
 \input{./titlepage.tex}
 
@@ -32,6 +29,10 @@
 \listoftables
 %defining a shade of gray
 \definecolor{light-gray}{gray}{0.95}
+
+\pagestyle{fancy}
+\fancyhead[RO,LE]{}
+
 \chapter{Introduction}
 \input{Chapter1/parallel_computing}
 \input{Chapter1/cell_architecture}
