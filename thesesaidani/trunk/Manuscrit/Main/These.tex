@@ -1,0 +1,379 @@
+\documentclass[twoside,french,a4,12pt,openright]{MYbook}
+
+\usepackage{psfig,epsf,epsfig,eepic,epic}
+\usepackage[french]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{fancybox}
+\usepackage{amsmath,amssymb,amsbsy}
+\usepackage{euscript,bm}
+\usepackage{theorem}
+\usepackage{array,longtable}
+\usepackage{times}
+\usepackage[gen]{eurosym}
+\usepackage{graphicx,graphics}
+\usepackage{fancyhdr}
+\usepackage{cite}
+\usepackage{subfigure}
+\usepackage{placeins}
+\usepackage{float}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{aeguill}
+\usepackage{pdfpages}
+\usepackage{verbatim}
+\usepackage[Lenny]{fncychap}
+
+%Sonny, Lenny, Glenn, Conny, Rejne and Bjarne
+%\usepackage{acronym}
+%\usepackage[tight]{minitoc}
+%\usepackage{glosstex}
+%============ Les fonts ===============================
+%\usepackage{bookman}
+%\usepackage{helvet}
+%\usepackage{lmodern}
+%\usepackage{mathptmx}
+\usepackage{pandora}
+%\usepackage{fourier}
+%\usepackage[adobe-utopia]{mathdesign}
+
+
+%=======================================================
+% *******************************
+\newtheorem{Lemma}{\em \bf Lemme}[chapter]
+% *******************************
+\newtheorem{theorem}{\em \bf Théorème}[chapter]
+% *******************************
+\newtheorem{Proposition}{\em \bf Proposition}[chapter]
+% *******************************
+\newtheorem{Definition}{\em \bf Définition}[chapter]
+% *******************************
+\newtheorem{assumption}{\em \bf Hypothèse}[chapter]
+% *******************************
+
+%========== Style du document=========================
+
+\textwidth 16cm
+
+\textheight 23cm
+
+\oddsidemargin 0.5cm
+
+\evensidemargin 0.5cm
+
+\topmargin -1.5cm
+
+\headsep 1cm
+
+\pagestyle{fancy}
+
+\renewcommand{\headrulewidth}{0.4pt}  %Trace un trait de séparation de largeur 0,4 point. Mettre 0pt pour supprimer le trait.
+\renewcommand{\footrulewidth}{0.4pt}
+
+\linespread{1.25}  % l'espacement entre les lignes
+
+%====================================================
+
+
+%\newcommand{\del}{\stackrel{\rm def}{=}}
+\newcommand{\del}{\triangleq}
+\newcommand{\av}{{\bm a}}
+\newcommand{\bv}{{\bm b}}
+\newcommand{\cv}{{\bm c}}
+\newcommand{\ev}{{\bm e}}
+\newcommand{\fv}{{\bm f}}
+\newcommand{\hv}{{\bm h}}
+\newcommand{\rv}{{\bm r}}
+\newcommand{\sv}{{\bm s}}
+\newcommand{\uv}{{\bm u}}
+\newcommand{\vv}{{\bm v}}
+\newcommand{\wv}{{\bm w}}
+\newcommand{\xv}{{\bm x}}
+\newcommand{\yv}{{\bm y}}
+\newcommand{\zv}{{\bm z}}
+
+\newcommand{\Av}{{\bm A}}
+\newcommand{\Bv}{{\bm B}}
+\newcommand{\Cv}{{\bm C}}
+\newcommand{\Dv}{{\bm D}}
+\newcommand{\Ev}{{\bm E}}
+\newcommand{\Gv}{{\bm G}}
+\newcommand{\Hv}{{\bm H}}
+\newcommand{\Iv}{{\bm I}}
+\newcommand{\Mv}{{\bm M}}
+\newcommand{\Pv}{{\bm P}}
+\newcommand{\Qv}{{\bm Q}}
+\newcommand{\Rv}{{\bm R}}
+\newcommand{\Sv}{{\bm S}}
+\newcommand{\Tv}{{\bm T}}
+\newcommand{\Uv}{{\bm U}}
+\newcommand{\Vv}{{\bm V}}
+\newcommand{\Wv}{{\bm W}}
+\newcommand{\Xv}{{\bm X}}
+\newcommand{\Zv}{{\bm Z}}
+
+\newcommand{\Cc}{\mathcal{C}}
+\newcommand{\Dc}{\mathcal{D}}
+\newcommand{\Ec}{\mathcal{E}}
+\newcommand{\Fc}{\mathcal{F}}
+\newcommand{\Gc}{\mathcal{G}}
+\newcommand{\Hc}{\mathcal{H}}
+\newcommand{\Jc}{\mathcal{J}}
+\newcommand{\Kc}{\mathcal{K}}
+\newcommand{\Lc}{\mathcal{L}}
+\newcommand{\Mc}{\mathcal{M}}
+\newcommand{\Nc}{\mathcal{N}}
+\newcommand{\Oc}{\mathcal{O}}
+\newcommand{\Rc}{\mathcal{R}}
+\newcommand{\Qc}{\mathcal{Q}}
+\newcommand{\Sc}{\mathcal{S}}
+\newcommand{\Wc}{\mathcal{W}}
+\newcommand{\Xc}{\mathcal{X}}
+
+
+\newcommand{\Ccv}{\boldsymbol{\mathcal{C}}}
+\newcommand{\Dcv}{\boldsymbol{\mathcal{D}}}
+\newcommand{\Ecv}{\boldsymbol{\mathcal{E}}}
+\newcommand{\Hcv}{\boldsymbol{\mathcal{H}}}
+\newcommand{\Mcv}{\boldsymbol{\mathcal{M}}}
+\newcommand{\Pcv}{\boldsymbol{\mathcal{P}}}
+\newcommand{\Qcv}{\boldsymbol{\mathcal{Q}}}
+\newcommand{\Rcv}{\boldsymbol{\mathcal{R}}}
+\newcommand{\Scv}{\boldsymbol{\mathcal{S}}}
+\newcommand{\Ucv}{\boldsymbol{\mathcal{U}}}
+\newcommand{\Vcv}{\boldsymbol{\mathcal{V}}}
+\newcommand{\Xcv}{\boldsymbol{\mathcal{X}}}
+\newcommand{\Ycv}{\boldsymbol{\mathcal{Y}}}
+\newcommand{\Zcv}{\boldsymbol{\mathcal{Z}}}
+
+\newcommand{\Cf}{\mathfrak{C}}
+\newcommand{\Ff}{\mathfrak{F}}
+\newcommand{\Gf}{\mathfrak{G}}
+\newcommand{\Jf}{\mathfrak{J}}
+\newcommand{\Kf}{\mathfrak{K}}
+
+\newcommand{\DELTA}{\boldsymbol{\Delta}}
+\newcommand{\Epsilon}{\boldsymbol{\epsilon}}
+\newcommand{\Lamb}{\boldsymbol{\Lambda}}
+\newcommand{\Gam}{\boldsymbol{\gamma}}
+\newcommand{\GAM}{\boldsymbol{\Gamma}}
+\newcommand{\Rho}{\boldsymbol{\rho}}
+\newcommand{\PI}{\boldsymbol{\Pi}}
+\newcommand{\PHI}{\boldsymbol{\Phi}}
+\newcommand{\PSI}{\boldsymbol{\Psi}}
+\newcommand{\SIGM}{\boldsymbol{\Sigma}}
+\newcommand{\XI}{\boldsymbol{\Xi}}
+
+\newcommand{\Es}{\mathbb{E}}
+
+\newcommand{\diag}{{\rm diag}}
+\newcommand{\trace}{{\rm trace}}
+\newcommand{\off}{{\rm off}}
+\newcommand{\rang}{{\rm Range}}
+
+\newcommand{\reffig}[1]     {figure~\ref{#1}}
+\newcommand{\reftab}[1]     {tableau~\ref{#1}}
+
+
+\newcommand{\myline}{\hspace*{-1cm} \rule[1cm]{17cm}{0.5mm}}
+%\newcommand{\myline}{\vspace{-3cm} \hrule height 4pt}
+\newcommand{\mylineH}{\vspace{-3cm} \hrule height 4pt}
+\newcommand{\mylineB}{\vspace{2.5cm} \hrule height 4pt}
+
+\setlength{\parindent}{0cm}
+
+%\newcommand{\clearemptydoublepage}{%
+%=================================================================
+\begin{document}
+
+%---- Page de titre en français ----
+\input{Titre}
+
+\pagestyle{empty}
+%=================================================================
+%=========  Page de garde ========================================
+%=================================================================
+%\begin{titlepage}
+%%\vspace{-5.0cm}
+%\itshape{
+%
+%\vspace{0.5cm} \centerline{\textbf{ÉCOLE NATIONALE SUPÉRIEURE DES
+%TÉLÉCOMMUNICATIONS}} \vspace{0.5cm} \centerline{\textbf{DÉPARTEMENT
+%TRAITEMENT DU SIGNAL ET DES IMAGES}}
+%
+%\vspace{0.5cm}
+%\begin{figure}[htbp]
+%%\hspace{-1.0cm}\includegraphics[width=3.0cm]{univ_paris.eps}\hfill
+%\hspace{6.6cm}\includegraphics[width=2.5cm]{./figures/logo}\hfill
+%%\hspace{0.2cm}\includegraphics[width=4.0cm]{wavecom.eps}
+%\end{figure}}
+
+
+%\vspace{0.2cm} %\centerline{Rapport Bibliographique sur}
+%%\centerline{les méthodes de séparation aveugle de sources}
+%%\centerline{Dans le cadre de la thèse intitulée} %\centerline{des Etudes Approfondies}
+%%\vspace{0.3cm} \centerline{\large{\textbf{Automatique et Traitement du Signal}}}
+%\vspace{1.8cm} {\begin{center} \shadowbox{\LARGE
+%\begin{tabular}{ccc} Séparation aveugle de sources audio
+%\end{tabular}} \end{center}}
+%\vspace{2.0cm}
+%\hspace{-0.6cm}Dirigé par: \hspace{5.4cm} Fait par:\\
+%\large{Karim ABED-MERAIM} \hspace{2.6cm} \large{Abdeldjalil AISSA-EL-BEY}\\
+%\large{Yves GRENIER}
+%
+%\vspace{4.0cm}\centerline{Juin 2007}
+%
+%
+%\end{titlepage}
+
+%=================================================================
+%=========  Fin de la Page de garde ==============================
+%=================================================================
+
+%%%%%%%%%%%%%% Page Blanche %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\strut  ~  \mbox{}  \null
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pagestyle{fancy}
+
+
+\lhead{} \chead{} \lfoot{ENST} \cfoot{\thepage} \rfoot{}
+\sloppy
+\noindent
+%\indent
+
+%\newpage{\pagestyle{empty}\cleardoublepage}}
+%=========================================
+\setcounter{page}{1}
+\frontmatter
+
+\tableofcontents
+
+\listoffigures
+
+\listoftables
+
+
+%==========================================================
+\include{abbreviation}
+
+\include{Notations}
+
+
+
+\setcounter{page}{1}
+\mainmatter
+%==========================================================
+%   Chapitre : Introduction générale
+%==========================================================
+%\newpage{\pagestyle{empty}\cleardoublepage}}
+\include{Intro}
+%==========================================================
+
+%==========================================================
+%   Chapitre 1 Séparation de sources audio
+%==========================================================
+%\newpage{\pagestyle{empty}\cleardoublepage}}
+\include{Chapt01}
+%==========================================================
+
+%==========================================================
+%   Chapitre 2 Séparation de sources audio sous-déterminé
+%==========================================================
+%\newpage{\pagestyle{empty}\cleardoublepage}}
+\include{Chapt02}
+%==========================================================
+
+
+\include{Part01}
+%==========================================================
+%   Chapitre 3 La SAS Audio utilisant la
+%   Décomposition Modale: Mélanges Instantanés
+%==========================================================
+%\newpage{\pagestyle{empty}\cleardoublepage}}
+\include{Chapt03}
+%==========================================================
+
+%==========================================================
+%   Chapitre 4 La SAS Audio utilisant la
+%   Décomposition Modale: Mélanges Convolutifs
+%==========================================================
+%\newpage{\pagestyle{empty}\cleardoublepage}}
+\include{Chapt04}
+%==========================================================
+
+\include{Part02}
+%==========================================================
+%   Chapitre 5 La SAS Audio utilisant la
+%   représentation temps-fréquence :
+%   Mélanges Instantanés
+%==========================================================
+%\newpage{\pagestyle{empty}\cleardoublepage}}
+\include{Chapt05}
+%==========================================================
+
+%==========================================================
+%   Chapitre 6 La SAS Audio utilisant la
+%   représentation temps-fréquence :
+%   Mélanges Convolutifs
+%==========================================================
+%\newpage{\pagestyle{empty}\cleardoublepage}}
+\include{Chapt06}
+%==========================================================
+
+\include{Part03}
+%==========================================================
+%   Chapitre 7 La SAS Audio utilisant la
+%   parcimonie temporelle
+%==========================================================
+%\newpage{\pagestyle{empty}\cleardoublepage}}
+\include{Chapt07}
+%==========================================================
+
+%==========================================================
+%   Chapitre 8 La SAS Audio utilisant les
+%   statistiques d'ordre deux
+%==========================================================
+%\newpage{\pagestyle{empty}\cleardoublepage}}
+\include{Chapt08}
+%==========================================================
+
+%==========================================================
+%   Chapitre : Conclusion générale
+%==========================================================
+%\newpage{\pagestyle{empty}\cleardoublepage}}
+\include{Conclusion}
+%==========================================================
+
+\appendix
+
+%==========================================================
+%   Annexe A : Identifiabilité au second ordre
+%==========================================================
+%\newpage{\pagestyle{empty}\cleardoublepage}}
+\include{AppendixA}
+%==========================================================
+
+%==========================================================
+%   Annexe B : Démonstration des théorèmes
+%==========================================================
+%\newpage{\pagestyle{empty}\cleardoublepage}}
+\include{AppendixB}
+%==========================================================
+%\includepdf[pages=1-11]{04099541}
+%=========================================
+%   Bibliographie
+%=========================================
+
+\rhead{BIBLIOGRAPHIE}
+\addcontentsline{toc}{chapter}{Bibliographie}
+%\bibliographystyle{IEEEtran}
+%\bibliographystyle{unsrt}
+\bibliographystyle{IEEE}
+
+\bibliography{These_biblio}
+
+%=========================================
+
+\end{document}

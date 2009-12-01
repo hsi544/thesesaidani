@@ -1,0 +1,1019 @@
+This is pdfTeX, Version 3.141592-1.40.4 (MiKTeX 2.7) (preloaded format=pdflatex 2008.2.26)  1 DEC 2009 19:10
+entering extended mode
+**C:/Documents*and*Settings/Tarik*Saidani/Mes*documents/Tarik/ManuscritThese/th
+esesaidani/trunk/Manuscrit/Main/these_saidani.tex
+
+("C:/Documents and Settings/Tarik Saidani/Mes documents/Tarik/ManuscritThese/th
+esesaidani/trunk/Manuscrit/Main/these_saidani.tex"
+LaTeX2e <2005/12/01>
+Babel <v3.8h> and hyphenation patterns for english, dumylang, nohyphenation, ge
+rman, ngerman, french, loaded.
+("C:\Program Files\MiKTeX 2.7\tex\latex\base\report.cls"
+Document Class: report 2005/09/16 v1.4f Standard LaTeX document class
+("C:\Program Files\MiKTeX 2.7\tex\latex\base\size12.clo"
+File: size12.clo 2005/09/16 v1.4f Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@chapter=\count80
+\c@section=\count81
+\c@subsection=\count82
+\c@subsubsection=\count83
+\c@paragraph=\count84
+\c@subparagraph=\count85
+\c@figure=\count86
+\c@table=\count87
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+("C:\Program Files\MiKTeX 2.7\tex\generic\babel\babel.sty"
+Package: babel 2005/11/23 v3.8h The Babel package
+
+*************************************
+* Local config file bblopts.cfg used
+*
+("C:\Program Files\MiKTeX 2.7\tex\latex\00miktex\bblopts.cfg"
+File: bblopts.cfg 2006/07/31 v1.0 MiKTeX 'babel' configuration
+)
+("C:\Program Files\MiKTeX 2.7\tex\generic\babel\frenchb.ldf"
+Language: french 2005/02/06 v1.6g French support from the babel system
+
+("C:\Program Files\MiKTeX 2.7\tex\generic\babel\babel.def"
+File: babel.def 2005/11/23 v3.8h Babel common definitions
+\babel@savecnt=\count88
+\U@D=\dimen103
+)
+Package babel Info: Making : an active character on input line 219.
+Package babel Info: Making ; an active character on input line 220.
+Package babel Info: Making ! an active character on input line 221.
+Package babel Info: Making ? an active character on input line 222.
+LaTeX Font Info:    Redeclaring font encoding T1 on input line 299.
+\parindentFFN=\dimen104
+\std@mcc=\count89
+\dec@mcc=\count90
+
+*************************************
+* Local config file frenchb.cfg used
+*
+("C:\Program Files\MiKTeX 2.7\tex\generic\babel\frenchb.cfg")))
+("C:\Program Files\MiKTeX 2.7\tex\latex\fancyhdr\fancyhdr.sty"
+\fancy@headwidth=\skip43
+\f@ncyO@elh=\skip44
+\f@ncyO@erh=\skip45
+\f@ncyO@olh=\skip46
+\f@ncyO@orh=\skip47
+\f@ncyO@elf=\skip48
+\f@ncyO@erf=\skip49
+\f@ncyO@olf=\skip50
+\f@ncyO@orf=\skip51
+)
+("C:\Program Files\MiKTeX 2.7\tex\latex\listings\listings.sty"
+("C:\Program Files\MiKTeX 2.7\tex\latex\graphics\keyval.sty"
+Package: keyval 1999/03/16 v1.13 key=value parser (DPC)
+\KV@toks@=\toks14
+)
+\lst@mode=\count91
+\lst@gtempboxa=\box26
+\lst@token=\toks15
+\lst@length=\count92
+\lst@currlwidth=\dimen105
+\lst@column=\count93
+\lst@pos=\count94
+\lst@lostspace=\dimen106
+\lst@width=\dimen107
+\lst@newlines=\count95
+\lst@lineno=\count96
+\lst@maxwidth=\dimen108
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\listings\lstmisc.sty"
+File: lstmisc.sty 2007/02/22 1.4 (Carsten Heinz)
+\c@lstnumber=\count97
+\lst@skipnumbers=\count98
+\lst@framebox=\box27
+)
+("C:\Program Files\MiKTeX 2.7\tex\latex\listings\listings.cfg"
+File: listings.cfg 2007/02/22 1.4 listings configuration
+))
+Package: listings 2007/02/22 1.4 (Carsten Heinz)
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\fncychap\fncychap.sty"
+Package: fncychap 2007/07/30 v1.34 LaTeX package (Revised chapters)
+\RW=\skip52
+\mylen=\skip53
+\myhi=\skip54
+\px=\skip55
+\py=\skip56
+\pyy=\skip57
+\pxx=\skip58
+)
+("C:\Program Files\MiKTeX 2.7\tex\latex\lm\lmodern.sty"
+Package: lmodern 2007/01/14 v1.3 Latin Modern Fonts
+LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
+(Font)                  OT1/cmr/m/n --> OT1/lmr/m/n on input line 13.
+LaTeX Font Info:    Overwriting symbol font `letters' in version `normal'
+(Font)                  OML/cmm/m/it --> OML/lmm/m/it on input line 14.
+LaTeX Font Info:    Overwriting symbol font `symbols' in version `normal'
+(Font)                  OMS/cmsy/m/n --> OMS/lmsy/m/n on input line 15.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `normal'
+(Font)                  OMX/cmex/m/n --> OMX/lmex/m/n on input line 16.
+LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
+(Font)                  OT1/cmr/bx/n --> OT1/lmr/bx/n on input line 17.
+LaTeX Font Info:    Overwriting symbol font `letters' in version `bold'
+(Font)                  OML/cmm/b/it --> OML/lmm/b/it on input line 18.
+LaTeX Font Info:    Overwriting symbol font `symbols' in version `bold'
+(Font)                  OMS/cmsy/b/n --> OMS/lmsy/b/n on input line 19.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
+(Font)                  OMX/cmex/m/n --> OMX/lmex/m/n on input line 20.
+LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
+(Font)                  OT1/cmr/bx/n --> OT1/lmr/bx/n on input line 22.
+LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
+(Font)                  OT1/cmss/m/n --> OT1/lmss/m/n on input line 23.
+LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
+(Font)                  OT1/cmr/m/it --> OT1/lmr/m/it on input line 24.
+LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
+(Font)                  OT1/cmtt/m/n --> OT1/lmtt/m/n on input line 25.
+LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `bold'
+(Font)                  OT1/cmr/bx/n --> OT1/lmr/bx/n on input line 26.
+LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
+(Font)                  OT1/cmss/bx/n --> OT1/lmss/bx/n on input line 27.
+LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
+(Font)                  OT1/cmr/bx/it --> OT1/lmr/bx/it on input line 28.
+LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
+(Font)                  OT1/cmtt/m/n --> OT1/lmtt/m/n on input line 29.
+)
+("C:\Program Files\MiKTeX 2.7\tex\latex\base\fontenc.sty"
+Package: fontenc 2005/09/27 v1.99g Standard LaTeX package
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\base\t1enc.def"
+File: t1enc.def 2005/09/27 v1.99g Standard LaTeX file
+LaTeX Font Info:    Redeclaring font encoding T1 on input line 43.
+))
+("C:\Program Files\MiKTeX 2.7\tex\latex\psnfss\charter.sty"
+Package: charter 2005/04/12 PSNFSS-v9.2a (P.Dyballa) 
+)
+("C:\Program Files\MiKTeX 2.7\tex\latex\graphics\color.sty"
+Package: color 2005/11/14 v1.0j Standard LaTeX Color (DPC)
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\00miktex\color.cfg"
+File: color.cfg 2007/01/18 v1.5 color configuration of teTeX/TeXLive
+)
+Package color Info: Driver file: pdftex.def on input line 130.
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\graphics\pdftex.def"
+File: pdftex.def 2007/06/12 v0.04h Graphics/color for pdfTeX
+\Gread@gobject=\count99
+))
+("C:\Program Files\MiKTeX 2.7\tex\latex\amsmath\amsmath.sty"
+Package: amsmath 2000/07/18 v2.13 AMS math features
+\@mathmargin=\skip59
+
+For additional information on amsmath, use the `?' option.
+("C:\Program Files\MiKTeX 2.7\tex\latex\amsmath\amstext.sty"
+Package: amstext 2000/06/29 v2.01
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\amsmath\amsgen.sty"
+File: amsgen.sty 1999/11/30 v2.0
+\@emptytoks=\toks16
+\ex@=\dimen109
+))
+("C:\Program Files\MiKTeX 2.7\tex\latex\amsmath\amsbsy.sty"
+Package: amsbsy 1999/11/29 v1.2d
+\pmbraise@=\dimen110
+)
+("C:\Program Files\MiKTeX 2.7\tex\latex\amsmath\amsopn.sty"
+Package: amsopn 1999/12/14 v2.01 operator names
+)
+\inf@bad=\count100
+LaTeX Info: Redefining \frac on input line 211.
+\uproot@=\count101
+\leftroot@=\count102
+LaTeX Info: Redefining \overline on input line 307.
+\classnum@=\count103
+\DOTSCASE@=\count104
+LaTeX Info: Redefining \ldots on input line 379.
+LaTeX Info: Redefining \dots on input line 382.
+LaTeX Info: Redefining \cdots on input line 467.
+\Mathstrutbox@=\box28
+\strutbox@=\box29
+\big@size=\dimen111
+LaTeX Font Info:    Redeclaring font encoding OML on input line 567.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 568.
+\macc@depth=\count105
+\c@MaxMatrixCols=\count106
+\dotsspace@=\muskip10
+\c@parentequation=\count107
+\dspbrk@lvl=\count108
+\tag@help=\toks17
+\row@=\count109
+\column@=\count110
+\maxfields@=\count111
+\andhelp@=\toks18
+\eqnshift@=\dimen112
+\alignsep@=\dimen113
+\tagshift@=\dimen114
+\tagwidth@=\dimen115
+\totwidth@=\dimen116
+\lineht@=\dimen117
+\@envbody=\toks19
+\multlinegap=\skip60
+\multlinetaggap=\skip61
+\mathdisplay@stack=\toks20
+LaTeX Info: Redefining \[ on input line 2666.
+LaTeX Info: Redefining \] on input line 2667.
+)
+("C:\Program Files\MiKTeX 2.7\tex\latex\multirow\multirow.sty"
+\bigstrutjot=\dimen118
+)
+("C:\Program Files\MiKTeX 2.7\tex\latex\tools\tabularx.sty"
+Package: tabularx 1999/01/07 v2.07 `tabularx' package (DPC)
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\tools\array.sty"
+Package: array 2005/08/23 v2.4b Tabular extension package (FMi)
+\col@sep=\dimen119
+\extrarowheight=\dimen120
+\NC@list=\toks21
+\extratabsurround=\skip62
+\backup@length=\skip63
+)
+\TX@col@width=\dimen121
+\TX@old@table=\dimen122
+\TX@old@col=\dimen123
+\TX@target=\dimen124
+\TX@delta=\dimen125
+\TX@cols=\count112
+\TX@ftn=\toks22
+)
+("C:\Program Files\MiKTeX 2.7\tex\latex\graphics\graphicx.sty"
+Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\graphics\graphics.sty"
+Package: graphics 2006/02/20 v1.0o Standard LaTeX Graphics (DPC,SPQR)
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\graphics\trig.sty"
+Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
+)
+("C:\Program Files\MiKTeX 2.7\tex\latex\00miktex\graphics.cfg"
+File: graphics.cfg 2007/01/18 v1.5 graphics configuration of teTeX/TeXLive
+)
+Package graphics Info: Driver file: pdftex.def on input line 90.
+)
+\Gin@req@height=\dimen126
+\Gin@req@width=\dimen127
+)
+("C:\Program Files\MiKTeX 2.7\tex\latex\ltxmisc\a4wide.sty"
+Package: a4wide 1994/08/30
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\ntgclass\a4.sty"
+Package: a4 2004/04/15 v1.2g A4 based page layout
+))
+
+LaTeX Warning: Unused global option(s):
+    [a4].
+
+(these_saidani.aux
+
+LaTeX Warning: Label `harris-pipeline' multiply defined.
+
+
+LaTeX Warning: Label `harris-pipeline' multiply defined.
+
+
+LaTeX Warning: Label `harris-pipeline' multiply defined.
+
+)
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for T1/lmr/m/n on input line 23.
+LaTeX Font Info:    Try loading font information for T1+lmr on input line 23.
+ ("C:\Program Files\MiKTeX 2.7\tex\latex\lm\t1lmr.fd"
+File: t1lmr.fd 2007/01/14 v1.3 Font defs for Latin Modern
+)
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Try loading font information for T1+bch on input line 23.
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\psnfss\t1bch.fd"
+File: t1bch.fd 2004/10/18 font definitions for T1/bch.
+)
+LaTeX Info: Redefining \dots on input line 23.
+\c@lstlisting=\count113
+
+("C:\Program Files\MiKTeX 2.7\tex\context\base\supp-pdf.tex"
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count114
+\scratchdimen=\dimen128
+\scratchbox=\box30
+\nofMPsegments=\count115
+\nofMParguments=\count116
+\MPscratchCnt=\count117
+\MPscratchDim=\dimen129
+\MPnumerator=\count118
+\everyMPtoPDFconversion=\toks23
+)
+("C:\Documents and Settings\Tarik Saidani\Mes documents\Tarik\ManuscritThese\th
+esesaidani\trunk\Manuscrit\Main\titlepage.tex"
+LaTeX Font Info:    Try loading font information for OT1+lmr on input line 9.
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\lm\ot1lmr.fd"
+File: ot1lmr.fd 2007/01/14 v1.3 Font defs for Latin Modern
+)
+LaTeX Font Info:    Try loading font information for OML+lmm on input line 9.
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\lm\omllmm.fd"
+File: omllmm.fd 2007/01/14 v1.3 Font defs for Latin Modern
+)
+LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 9.
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\lm\omslmsy.fd"
+File: omslmsy.fd 2007/01/14 v1.3 Font defs for Latin Modern
+)
+LaTeX Font Info:    Try loading font information for OMX+lmex on input line 9.
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\lm\omxlmex.fd"
+File: omxlmex.fd 2007/01/14 v1.3 Font defs for Latin Modern
+)
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <12> on input line 9.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <8> on input line 9.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <6> on input line 9.
+
+<./header.pdf, id=1, 591.81747pt x 102.42957pt>
+File: ./header.pdf Graphic file (type pdf)
+ <use ./header.pdf>
+Underfull \hbox (badness 10000) in paragraph at lines 32--34
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 44--45
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 44--45
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 46--53
+
+ []
+
+) [1
+
+{C:/Documents and Settings/All Users/Application Data/MiKTeX/2.7/pdftex/config/
+pdftex.map} <C:/Documents and Settings/Tarik Saidani/Mes documents/Tarik/Manusc
+ritThese/thesesaidani/trunk/Manuscrit/Main/header.pdf
+
+pdfTeX warning:  (file C:/Documents and Settings/Tarik Saidani/Mes documents/Ta
+rik/ManuscritThese/thesesaidani/trunk/Manuscrit/Main/header.pdf): PDF inclusion
+: Page Group detected which pdfTeX can't handle. Ignoring it.
+>] [2
+
+] (these_saidani.toc [3]
+LaTeX Font Info:    Try loading font information for T1+lmtt on input line 86.
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\lm\t1lmtt.fd"
+File: t1lmtt.fd 2007/01/14 v1.3 Font defs for Latin Modern
+)
+Overfull \hbox (1.41595pt too wide) detected at line 119
+ []\T1/bch/m/n/12 103
+ []
+
+
+Overfull \hbox (1.41595pt too wide) detected at line 125
+ []\T1/bch/m/n/12 107
+ []
+
+
+Overfull \hbox (1.41595pt too wide) detected at line 126
+ []\T1/bch/m/n/12 108
+ []
+
+
+Overfull \hbox (1.41595pt too wide) detected at line 127
+ []\T1/bch/m/n/12 108
+ []
+
+
+Overfull \hbox (1.41595pt too wide) detected at line 128
+ []\T1/bch/m/n/12 108
+ []
+
+
+Overfull \hbox (1.41595pt too wide) detected at line 129
+ []\T1/bch/m/n/12 110
+ []
+
+
+Overfull \hbox (1.41595pt too wide) detected at line 130
+ []\T1/bch/m/n/12 111
+ []
+
+[4]
+Overfull \hbox (1.41595pt too wide) detected at line 131
+ []\T1/bch/m/n/12 112
+ []
+
+)
+\tf@toc=\write3
+ [5] [6
+
+] (these_saidani.lof [7]
+Overfull \hbox (1.41595pt too wide) detected at line 31
+ []\T1/bch/m/n/12 100
+ []
+
+
+Overfull \hbox (1.41595pt too wide) detected at line 32
+ []\T1/bch/m/n/12 102
+ []
+
+
+Overfull \hbox (1.41595pt too wide) detected at line 33
+ []\T1/bch/m/n/12 104
+ []
+
+
+Overfull \hbox (1.41595pt too wide) detected at line 34
+ []\T1/bch/m/n/12 104
+ []
+
+
+Overfull \hbox (1.41595pt too wide) detected at line 35
+ []\T1/bch/m/n/12 105
+ []
+
+
+Overfull \hbox (1.41595pt too wide) detected at line 36
+ []\T1/bch/m/n/12 106
+ []
+
+
+Overfull \hbox (1.41595pt too wide) detected at line 37
+ []\T1/bch/m/n/12 107
+ []
+
+
+Overfull \hbox (1.41595pt too wide) detected at line 38
+ []\T1/bch/m/n/12 109
+ []
+
+
+Overfull \hbox (1.41595pt too wide) detected at line 39
+ []\T1/bch/m/n/12 110
+ []
+
+
+Overfull \hbox (1.41595pt too wide) detected at line 40
+ []\T1/bch/m/n/12 112
+ []
+
+
+Overfull \hbox (1.41595pt too wide) detected at line 41
+ []\T1/bch/m/n/12 113
+ []
+
+)
+\tf@lof=\write4
+ [8] (these_saidani.lot
+Overfull \hbox (1.41595pt too wide) detected at line 18
+ []\T1/bch/m/n/12 111
+ []
+
+)
+\tf@lot=\write5
+ [9
+
+]
+
+Package Fancyhdr Warning: \headheight is too small (12.0pt): 
+ Make it at least 14.49998pt.
+ We now make it that large for the rest of the document.
+ This may cause the page layout to be inconsistent, however.
+
+[10
+
+]
+Chapitre 1.
+LaTeX Font Info:    Try loading font information for OT1+phv on input line 36.
+("C:\Program Files\MiKTeX 2.7\tex\latex\psnfss\ot1phv.fd"
+File: ot1phv.fd 2001/06/04 scalable font definitions for OT1/phv.
+)
+LaTeX Font Info:    Try loading font information for OT1+ptm on input line 36.
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\psnfss\ot1ptm.fd"
+File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
+)
+(Chapter1/parallel_computing.tex
+Underfull \vbox (badness 3138) has occurred while \output is active []
+
+ [11]
+<Chapter1/figures/vonneumann.pdf, id=189, 443.6575pt x 344.28625pt>
+File: Chapter1/figures/vonneumann.pdf Graphic file (type pdf)
+
+<use Chapter1/figures/vonneumann.pdf> [12 <Chapter1/figures/vonneumann.pdf>]
+[13] <Chapter1/figures/SMUMA.pdf, id=228, 557.08125pt x 372.39125pt>
+File: Chapter1/figures/SMUMA.pdf Graphic file (type pdf)
+
+<use Chapter1/figures/SMUMA.pdf>
+<Chapter1/figures/SMNUMA.pdf, id=229, 499.8675pt x 218.8175pt>
+File: Chapter1/figures/SMNUMA.pdf Graphic file (type pdf)
+
+<use Chapter1/figures/SMNUMA.pdf> [14] [15 <Chapter1/figures/SMUMA.pdf> <Chapte
+r1/figures/SMNUMA.pdf>]
+<Chapter1/Figures/DMEM.pdf, id=356, 474.77374pt x 229.85875pt>
+File: Chapter1/Figures/DMEM.pdf Graphic file (type pdf)
+
+<use Chapter1/Figures/DMEM.pdf> [16 <Chapter1/Figures/DMEM.pdf>]
+<Chapter1/figures/HMEM.pdf, id=402, 514.92375pt x 219.82124pt>
+File: Chapter1/figures/HMEM.pdf Graphic file (type pdf)
+
+<use Chapter1/figures/HMEM.pdf> [17 <Chapter1/figures/HMEM.pdf>] [18] [19]
+[20] [21]
+<Chapter1/figures/domaindecomp.pdf, id=509, 341.43282pt x 170.7169pt>
+File: Chapter1/figures/domaindecomp.pdf Graphic file (type pdf)
+
+<use Chapter1/figures/domaindecomp.pdf>
+<Chapter1/figures/decomp2D.pdf, id=510, 426.79175pt x 284.52783pt>
+File: Chapter1/figures/decomp2D.pdf Graphic file (type pdf)
+
+<use Chapter1/figures/decomp2D.pdf>) (Chapter1/cell_architecture.tex
+<Chapter1/figures/cell_fig01_bw.pdf, id=511, 735.74875pt x 345.29pt>
+File: Chapter1/figures/cell_fig01_bw.pdf Graphic file (type pdf)
+
+<use Chapter1/figures/cell_fig01_bw.pdf>
+Overfull \hbox (17.50978pt too wide) in paragraph at lines 17--18
+ [][] 
+ []
+
+[22 <Chapter1/figures/domaindecomp.pdf
+
+pdfTeX warning:  (file Chapter1/figures/domaindecomp.pdf): PDF inclusion: Page 
+Group detected which pdfTeX can't handle. Ignoring it.
+>]
+Underfull \vbox (badness 1147) has occurred while \output is active []
+
+ [23 <Chapter1/figures/decomp2D.pdf
+
+pdfTeX warning:  (file Chapter1/figures/decomp2D.pdf): PDF inclusion: Page Grou
+p detected which pdfTeX can't handle. Ignoring it.
+>]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [24]
+[25 <Chapter1/figures/cell_fig01_bw.pdf>] [26]) [27] [28
+
+]
+Chapitre 2.
+(Chapter2/programming_models.tex
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <10> on input line 4.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <7> on input line 4.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <5> on input line 4.
+ [29]
+Underfull \hbox (badness 10000) in paragraph at lines 13--14
+
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+
+Package Fancyhdr Warning: \headheight is too small (14.49998pt): 
+ Make it at least 15.56403pt.
+ We now make it that large for the rest of the document.
+ This may cause the page layout to be inconsistent, however.
+
+[30] ("C:\Program Files\MiKTeX 2.7\tex\latex\listings\lstlang1.sty"
+File: lstlang1.sty 2004/09/05 1.3 listings language file
+)
+("C:\Program Files\MiKTeX 2.7\tex\latex\listings\lstmisc.sty"
+File: lstmisc.sty 2007/02/22 1.4 (Carsten Heinz)
+) [31]
+(Chapter2/Code/pthreadexample.c
+LaTeX Font Info:    Try loading font information for OMS+bch on input line 5.
+
+("C:\Program Files\MiKTeX 2.7\tex\latex\psnfss\omsbch.fd"
+File: omsbch.fd 
+)
+LaTeX Font Info:    Font shape `OMS/bch/m/n' in size <10> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 5.
+)
+Underfull \vbox (badness 2856) has occurred while \output is active []
+
+ [32]
+<Chapter2/figures/cell_compilation_process.pdf, id=635, 559.08875pt x 627.34375
+pt>
+File: Chapter2/figures/cell_compilation_process.pdf Graphic file (type pdf)
+ <use Chapter2/figures/cell_compilation_process.pdf> [33] [34]
+Underfull \hbox (badness 10000) in paragraph at lines 65--67
+
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [35 <Chapter2/figures/cell_compilation_process.pdf>] [36] [37]
+Underfull \hbox (badness 10000) in paragraph at lines 81--99
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 81--99
+
+ []
+
+(Chapter2/Code/rapidmindexample.c [38]) [39]
+Underfull \hbox (badness 10000) in paragraph at lines 108--110
+
+ []
+
+[40] <Chapter2/figures/reduction.pdf, id=680, 312.97984pt x 142.26392pt>
+File: Chapter2/figures/reduction.pdf Graphic file (type pdf)
+
+<use Chapter2/figures/reduction.pdf>
+Overfull \hbox (15.56702pt too wide) in paragraph at lines 120--121
+[]\T1/bch/m/n/12 L'implémentation de Ra-pid-Mind pour le Cell pos-sède cer-tain
+es par-ti-cu-la-ri-tés qui tiennent
+ []
+
+[41 <Chapter2/figures/reduction.pdf
+
+pdfTeX warning:  (file Chapter2/figures/reduction.pdf): PDF inclusion: Page Gro
+up detected which pdfTeX can't handle. Ignoring it.
+>] [42]
+Underfull \hbox (badness 10000) in paragraph at lines 132--133
+
+ []
+
+(Chapter2/Code/ompexample.c
+LaTeX Font Info:    Font shape `OMS/bch/m/it' in size <10> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 11.
+
+Underfull \vbox (badness 3668) has occurred while \output is active []
+
+ [43])
+Overfull \hbox (6.35141pt too wide) in paragraph at lines 156--160
+\T1/bch/m/n/12 ral-lèles exé-cu-tés sur les SPEs se dé-clare par la va-riable d
+'en-vi-ron-ne-ment \T1/lmtt/m/n/12 OMP_NUM_THREADS\T1/bch/m/n/12 .
+ []
+
+[44]
+Underfull \hbox (badness 10000) in paragraph at lines 161--166
+
+ []
+
+[45] [46] <Chapter2/figures/cellss.pdf, id=731, 540.60269pt x 290.21805pt>
+File: Chapter2/figures/cellss.pdf Graphic file (type pdf)
+
+<use Chapter2/figures/cellss.pdf> [47] [48 <Chapter2/figures/cellss.pdf
+
+pdfTeX warning:  (file Chapter2/figures/cellss.pdf): PDF inclusion: Page Group 
+detected which pdfTeX can't handle. Ignoring it.
+>] (Chapter2/Code/cellssexample.c
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [49])
+[50] [51] [52]
+<Chapter2/figures/Sequoia_fig1.pdf, id=782, 597.23125pt x 421.575pt>
+File: Chapter2/figures/Sequoia_fig1.pdf Graphic file (type pdf)
+
+<use Chapter2/figures/Sequoia_fig1.pdf>
+<Chapter2/figures/Sequoia_fig2.pdf, id=783, 597.23125pt x 421.575pt>
+File: Chapter2/figures/Sequoia_fig2.pdf Graphic file (type pdf)
+
+<use Chapter2/figures/Sequoia_fig2.pdf> [53]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [54 <Chapter2/figures/Sequoia_fig1.pdf, page is rotated 90 degrees>]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [55 <Chapter2/figures/Sequoia_fig2.pdf, page is rotated 90 degrees>] [56]
+Underfull \hbox (badness 10000) in paragraph at lines 260--263
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 264--266
+
+ []
+
+
+Overfull \hbox (14.14407pt too wide) in paragraph at lines 266--268
+\T1/bch/m/n/12 ta-bleau mul-ti-di-men-sion-nel A. Chaque bloc est mul-ti-di-men
+-sion-nel de taille \T1/lmtt/m/n/12 len0xlen1x
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 272--274
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 275--277
+
+ []
+
+[57]
+Underfull \hbox (badness 10000) in paragraph at lines 282--285
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 286--287
+
+ []
+
+[58] (Chapter2/Code/sequoia.c [59]) [60] [61]
+<Chapter2/figures/skeleton_example.pdf, id=825, 845.1575pt x 597.23125pt>
+File: Chapter2/figures/skeleton_example.pdf Graphic file (type pdf)
+
+<use Chapter2/figures/skeleton_example.pdf> [62] [63 <Chapter2/figures/skeleton
+_example.pdf, page is rotated 90 degrees>]
+<Chapter2/figures/fig_tree.pdf, id=837, 845.1575pt x 597.23125pt>
+File: Chapter2/figures/fig_tree.pdf Graphic file (type pdf)
+
+<use Chapter2/figures/fig_tree.pdf>
+<Chapter2/figures/skell-pipe.pdf, id=838, 792.9625pt x 295.1025pt>
+File: Chapter2/figures/skell-pipe.pdf Graphic file (type pdf)
+
+<use Chapter2/figures/skell-pipe.pdf> [64 <Chapter2/figures/fig_tree.pdf, page 
+is rotated 90 degrees>]
+<Chapter2/figures/skell-pardo.pdf, id=845, 116.435pt x 381.425pt>
+File: Chapter2/figures/skell-pardo.pdf Graphic file (type pdf)
+
+<use Chapter2/figures/skell-pardo.pdf>
+Underfull \vbox (badness 4752) has occurred while \output is active []
+
+ [65 <Chapter2/figures/skell-pipe.pdf>] (Chapter2/Code/ppekernel.c [66 <Chapter
+2/figures/skell-pardo.pdf>]) (Chapter2/Code/spekernel.c [67])
+Overfull \hbox (5.31752pt too wide) in paragraph at lines 434--486
+\T1/bch/m/n/12 Le ta-bleau 2.1[] ré-sume les prin-ci-pales fonc-tions de l'in-t
+er-face uti-li-sa-teur (API) de \T1/lmtt/m/n/12 SKELL_BE\T1/bch/m/n/12 .
+ []
+
+[68] [69] [70] (Chapter2/Code/pipecode.c)
+Overfull \hbox (20.58261pt too wide) in paragraph at lines 513--514
+\T1/bch/m/n/12 une méta-function qui parse le \T1/bch/m/it/12 tem-plate \T1/bch
+/m/n/12 AST et gé-nère l'ins-ta-tia-tion du type \T1/lmtt/m/n/12 process_networ
+k
+ []
+
+(Chapter2/Code/skellast.c) [71] (Chapter2/Code/processnetwork.c) [72]
+(Chapter2/Code/finalcode.c) [73] [74] (Chapter2/Code/transstruct.c)
+(Chapter2/Code/transfill.c) [75]
+
+LaTeX Warning: Reference `overheadpipe' on page 76 undefined on input line 645.
+
+
+
+LaTeX Warning: Reference `overheadpardo' on page 76 undefined on input line 645
+.
+
+[76] [77] (Chapter2/Code/harrisskell.c) [78] [79] [80]) [81] [82
+
+]
+Chapitre 3.
+(Chapter3/harris_algorithm.tex
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [83]
+Underfull \hbox (badness 10000) in paragraph at lines 32--33
+
+ []
+
+[84]
+Underfull \hbox (badness 10000) in paragraph at lines 38--39
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 39--40
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 47--49
+
+ []
+
+<Chapter3/figures/house1.pdf, id=942, 513.92pt x 513.92pt>
+File: Chapter3/figures/house1.pdf Graphic file (type pdf)
+
+<use Chapter3/figures/house1.pdf>
+<Chapter3/figures/house_harris_map.pdf, id=943, 514.92375pt x 514.92375pt>
+File: Chapter3/figures/house_harris_map.pdf Graphic file (type pdf)
+
+<use Chapter3/figures/house_harris_map.pdf>
+Overfull \hbox (23.99998pt too wide) in paragraph at lines 57--60
+ [][] 
+ []
+
+<Chapter3/figures/harris_NB.pdf, id=944, 413.545pt x 127.47626pt>
+File: Chapter3/figures/harris_NB.pdf Graphic file (type pdf)
+
+<use Chapter3/figures/harris_NB.pdf> [85] [86 <Chapter3/figures/house1.pdf> <Ch
+apter3/figures/house_harris_map.pdf> <Chapter3/figures/harris_NB.pdf>] [87]
+<Chapter3/figures/convolution_sep.pdf, id=973, 595.22375pt x 352.31625pt>
+File: Chapter3/figures/convolution_sep.pdf Graphic file (type pdf)
+
+<use Chapter3/figures/convolution_sep.pdf>
+Overfull \hbox (62.42749pt too wide) in alignment at lines 88--92
+ [][][] []
+ []
+
+
+Underfull \vbox (badness 8113) has occurred while \output is active []
+
+ [88 <Chapter3/figures/convolution_sep.pdf>]
+<Chapter3/figures/convolution_overlap.pdf, id=999, 670.505pt x 368.37625pt>
+File: Chapter3/figures/convolution_overlap.pdf Graphic file (type pdf)
+
+<use Chapter3/figures/convolution_overlap.pdf>
+Underfull \vbox (badness 3536) has occurred while \output is active []
+
+ [89]
+
+LaTeX Warning: Reference `fig_ovelapping' on page 90 undefined on input line 14
+9.
+
+
+Overfull \hbox (65.96616pt too wide) in paragraph at lines 178--197
+ [][] 
+ []
+
+[90 <Chapter3/figures/convolution_overlap.pdf>]
+Overfull \hbox (65.96616pt too wide) in paragraph at lines 202--221
+ [][] 
+ []
+
+<Chapter3/figures/funccompo.pdf, id=1030, 677.53125pt x 459.7175pt>
+File: Chapter3/figures/funccompo.pdf Graphic file (type pdf)
+
+<use Chapter3/figures/funccompo.pdf> [91]
+Underfull \vbox (badness 5203) has occurred while \output is active []
+
+ [92]
+Overfull \hbox (54.4103pt too wide) in paragraph at lines 240--308
+ [][] 
+ []
+
+
+LaTeX Warning: Float too large for page by 21.9633pt on input line 309.
+
+<Chapter3/figures/cellnoc.pdf, id=1038, 795.97375pt x 452.69125pt>
+File: Chapter3/figures/cellnoc.pdf Graphic file (type pdf)
+
+<use Chapter3/figures/cellnoc.pdf>
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [93 <Chapter3/figures/funccompo.pdf>] [94] [95 <Chapter3/figures/cellnoc.pdf>]
+
+<Chapter3/figures/bwsize.pdf, id=1086, 845.1575pt x 597.23125pt>
+File: Chapter3/figures/bwsize.pdf Graphic file (type pdf)
+
+<use Chapter3/figures/bwsize.pdf>
+
+LaTeX Warning: Reference `graphbw' on page 96 undefined on input line 334.
+
+[96 <Chapter3/figures/bwsize.pdf>]
+<Chapter3/figures/bwcontention.pdf, id=1106, 845.1575pt x 597.23125pt>
+File: Chapter3/figures/bwcontention.pdf Graphic file (type pdf)
+
+<use Chapter3/figures/bwcontention.pdf>
+<Chapter3/figures/bwnspes.pdf, id=1107, 845.1575pt x 597.23125pt>
+File: Chapter3/figures/bwnspes.pdf Graphic file (type pdf)
+
+<use Chapter3/figures/bwnspes.pdf>
+
+LaTeX Warning: Reference `bwnspes' on page 97 undefined on input line 351.
+
+[97 <Chapter3/figures/bwcontention.pdf>] [98 <Chapter3/figures/bwnspes.pdf>]
+<Chapter3/figures/qreloads.pdf, id=1147, 518.93875pt x 264.99pt>
+File: Chapter3/figures/qreloads.pdf Graphic file (type pdf)
+
+<use Chapter3/figures/qreloads.pdf> [99] [100 <Chapter3/figures/qreloads.pdf>]
+<Chapter3/figures/meshtile.pdf, id=1654, 845.1575pt x 597.23125pt>
+File: Chapter3/figures/meshtile.pdf Graphic file (type pdf)
+
+<use Chapter3/figures/meshtile.pdf> [101]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [102 <Chapter3/figures/meshtile.pdf, page is rotated 90 degrees>]
+<Chapter3/figures/harris-spmd.pdf, id=1665, 1127.21124pt x 736.7525pt>
+File: Chapter3/figures/harris-spmd.pdf Graphic file (type pdf)
+
+<use Chapter3/figures/harris-spmd.pdf>
+<Chapter3/figures/harris-pipeline.pdf, id=1666, 1032.85875pt x 366.36874pt>
+File: Chapter3/figures/harris-pipeline.pdf Graphic file (type pdf)
+
+<use Chapter3/figures/harris-pipeline.pdf> [103]
+<Chapter3/figures/harris-hchain.pdf, id=1671, 1025.8325pt x 794.97pt>
+File: Chapter3/figures/harris-hchain.pdf Graphic file (type pdf)
+
+<use Chapter3/figures/harris-hchain.pdf>
+Underfull \vbox (badness 8038) has occurred while \output is active []
+
+ [104 <Chapter3/figures/harris-spmd.pdf> <Chapter3/figures/harris-pipeline.pdf>
+]
+<Chapter3/figures/harris-hchainhpipe.pdf, id=1704, 574.145pt x 763.85374pt>
+File: Chapter3/figures/harris-hchainhpipe.pdf Graphic file (type pdf)
+
+<use Chapter3/figures/harris-hchainhpipe.pdf>
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [105 <Chapter3/figures/harris-hchain.pdf>]
+<Chapter3/figures/harris-hchainfpipe.pdf, id=1725, 578.16pt x 766.865pt>
+File: Chapter3/figures/harris-hchainfpipe.pdf Graphic file (type pdf)
+
+<use Chapter3/figures/harris-hchainfpipe.pdf> [106 <Chapter3/figures/harris-hch
+ainhpipe.pdf>]
+Underfull \vbox (badness 4886) has occurred while \output is active []
+
+ [107 <Chapter3/figures/harris-hchainfpipe.pdf>]
+<Chapter3/figures/BenchCompareModels.pdf, id=1764, 845.1575pt x 597.23125pt>
+File: Chapter3/figures/BenchCompareModels.pdf Graphic file (type pdf)
+
+<use Chapter3/figures/BenchCompareModels.pdf> [108]
+Underfull \vbox (badness 1824) has occurred while \output is active []
+
+ [109 <Chapter3/figures/BenchCompareModels.pdf, page is rotated 90 degrees>]
+<Chapter3/figures/SizeTile.pdf, id=1780, 845.1575pt x 597.23125pt>
+File: Chapter3/figures/SizeTile.pdf Graphic file (type pdf)
+
+<use Chapter3/figures/SizeTile.pdf> [110 <Chapter3/figures/SizeTile.pdf, page i
+s rotated 90 degrees>]
+Overfull \hbox (18.89081pt too wide) in paragraph at lines 484--498
+[][] 
+ []
+
+<Chapter3/figures/Speedup.pdf, id=1795, 845.1575pt x 597.23125pt>
+File: Chapter3/figures/Speedup.pdf Graphic file (type pdf)
+
+<use Chapter3/figures/Speedup.pdf>
+<Chapter3/figures/Efficiency.pdf, id=1796, 845.1575pt x 597.23125pt>
+File: Chapter3/figures/Efficiency.pdf Graphic file (type pdf)
+
+<use Chapter3/figures/Efficiency.pdf>
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [111])
+[112 <Chapter3/figures/Speedup.pdf, page is rotated 90 degrees>]
+(these_saidani.bbl [113 <Chapter3/figures/Efficiency.pdf, page is rotated 90 de
+grees>] [114
+
+] [115]) [116] (these_saidani.aux)
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: There were multiply-defined labels.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 4974 strings out of 95340
+ 65793 string characters out of 1184155
+ 247482 words of memory out of 1500000
+ 7944 multiletter control sequences out of 110000
+ 88329 words of font info for 79 fonts, out of 1200000 for 2000
+ 14 hyphenation exceptions out of 8191
+ 40i,13n,49p,2226b,1701s stack positions out of 5000i,500n,10000p,200000b,5000s
+{C:/Program Files/MiKTeX 2.7/fonts/enc/dvips/lm/lm-mathex.enc}{C:/Program Fil
+es/MiKTeX 2.7/fonts/enc/dvips/lm/lm-rm.enc}{C:/Program Files/MiKTeX 2.7/fonts/e
+nc/dvips/lm/lm-mathit.enc}{C:/Program Files/MiKTeX 2.7/fonts/enc/dvips/lm/lm-ec
+.enc}{C:/Program Files/MiKTeX 2.7/fonts/enc/dvips/fontname/8r.enc}{C:/Program F
+iles/MiKTeX 2.7/fonts/enc/dvips/lm/lm-mathsy.enc}<C:/Program Files/MiKTeX 2.7/f
+onts/type1/bitstrea/charter/bchb8a.pfb><C:/Program Files/MiKTeX 2.7/fonts/type1
+/bitstrea/charter/bchbi8a.pfb><C:/Program Files/MiKTeX 2.7/fonts/type1/bitstrea
+/charter/bchr8a.pfb><C:/Program Files/MiKTeX 2.7/fonts/type1/bitstrea/charter/b
+chr8a.pfb><C:/Program Files/MiKTeX 2.7/fonts/type1/bitstrea/charter/bchri8a.pfb
+><C:/Program Files/MiKTeX 2.7/fonts/type1/bluesky/cm/cmsy10.pfb><C:/Program Fil
+es/MiKTeX 2.7/fonts/type1/public/lm/lmex10.pfb><C:/Program Files/MiKTeX 2.7/fon
+ts/type1/public/lm/lmmi12.pfb><C:/Program Files/MiKTeX 2.7/fonts/type1/public/l
+m/lmmi8.pfb><C:/Program Files/MiKTeX 2.7/fonts/type1/public/lm/lmr12.pfb><C:/Pr
+ogram Files/MiKTeX 2.7/fonts/type1/public/lm/lmr8.pfb><C:/Program Files/MiKTeX 
+2.7/fonts/type1/public/lm/lmsy10.pfb><C:/Program Files/MiKTeX 2.7/fonts/type1/p
+ublic/lm/lmsy8.pfb><C:/Program Files/MiKTeX 2.7/fonts/type1/public/lm/lmtk10.pf
+b><C:/Program Files/MiKTeX 2.7/fonts/type1/public/lm/lmtt12.pfb><C:/Program Fil
+es/MiKTeX 2.7/fonts/type1/public/lm/lmtti10.pfb><C:/Program Files/MiKTeX 2.7/fo
+nts/type1/urw/helvetic/uhvr8a.pfb><C:/Program Files/MiKTeX 2.7/fonts/type1/urw/
+times/utmr8a.pfb>
+Output written on these_saidani.pdf (116 pages, 4210078 bytes).
+PDF statistics:
+ 1890 PDF objects out of 2073 (max. 8388607)
+ 0 named destinations out of 1000 (max. 131072)
+ 196 words of extra memory for PDF output out of 10000 (max. 10000000)
+

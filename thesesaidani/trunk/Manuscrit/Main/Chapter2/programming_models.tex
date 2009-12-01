@@ -1,0 +1,782 @@
+Dans ce chapitre on se propose de faire une revue des modèles de programmation pour le processeur Cell. Par modèle de programmation on entend outil de déploiement de code ou de parallélisation conçus pour le Cell. Les approches citées dans ce qui suit sont celles qui nous ont paru pertinentes et assez mures pour pouvoir être utilisées dans notre domaine d'applications. Certaines approches reprennent des outils existants pour les architectures parallèles à mémoire partagée ou distribuée qui ont été adaptés pour l'architecture et la hiérarchie mémoire du Cell.
+%====================================================== THREADS POSIX ======================================================================================================================================
+\section{Les Threads POSIX}
+Les \emph{threads} POSIX\footnote{Portable Operating System Interface for Unix} ou \emph {Pthreads} sont une standardisation\cite{pthreads_std} du modèle de programmation par \emph{threads} pour les systèmes UNIX. Ce modèle est basé sur une API de programmation parallèle qui permet la gestion des \emph{threads} ainsi que la synchronisation par \emph{mutex} ou variables conditionnelles. Historiquement, les concepteur de \emph{hardware} ont développé leurs implémentations propriétaires des \emph{threads}, ceci a rendu la portabilité du code des programmeurs quasi impossible. La nécessité d'une API standard est donc devenue vitale, c'est pour cette raison que la majorité des vendeurs de \emph{hardware} possèdent actuellement leur implémentation standard des \emph{threads} POSIX. Les \emph{Pthreads} sont définis autour d'un ensemble de procédures et de types en langage C contenus dans le fichier d'entête \texttt{"pthread.h"}.\\
+D'une manière générale un \emph{thread} est un flux d'instructions pouvant s'exécuter de manière indépendante sur un OS donné. Du point de vue du programmeur ceci s'apparente à une procédure qui peut s'exécuter indépendamment du programme principal, un programme contenant des procédures de ce type est dit \emph{multi-threaded}. Afin de détailler le principe de fonctionnement des \emph{threads} il est nécessaire de faire un rappel sur les \emph{process} UNIX. Un \emph{process} est créé par l'OS est contient un certain \emph{overhead} qui consiste en certaines ressources nécessaires à son exécution. Les \emph{threads} résident à l'intérieur de ces ressources et sont capables d'être ordonnancés et exécutés en tant qu'entités indépendantes car ils ne dupliquent qu'une partie des ressources qui leurs permettent d'être des morceaux de code exécutables. Le flot de contrôle est rendu indépendant car le \emph{thread} possède ses propres : pointeur de pile, registres, propriétés d'ordonnancement (priorité et politique), ensemble de signaux et données spécifiques. En somme, un \emph{thread} existe dans un \emph{process} dont il utilise les ressources. Il possède son propre flot de contrôle et ne duplique que les ressources nécessaires à son exécution indépendante. Il peut partager les ressources du \emph{process} avec d'autres \emph{threads} et s'exécuter en coordination avec ces derniers. La complexité due à sa création et à sa gestion est légère comparativement à celle du \emph{process} et sa durée de vie est celle de son \emph{process} parent.
+\subsection{l'API Pthread}
+L'API des \emph{threads} POSIX peut être décomposée en trois types de routines:
+\begin{itemize}
+\item \textbf{Les routines de gestion des \emph{threads}} : comprends les tâches de création, propriétés d'exécution et terminaison des \emph{threads}.
+\item \textbf{Les \emph{mutex}} (abréviation de \emph{mutual exclusion}): ils permettent de synchroniser les \emph{threads}, les routines gèrent la création, destruction, réservation et libération des \emph{mutex}.
+\item \textbf{Les variables conditionnelles} : ces dernières gèrent la communication entre des \emph{threads} qui partagent les \emph{mutex}. Elles sont basées sur des conditions fixées par le programmeur, elles incluent des fonctions de création, destruction, attente et signalisation basées sur certaines valeurs de ces variables. 
+\end{itemize}
+\rule{\textwidth}{0.2mm}\\
+\subsubsection{Gestion des Threads}
+\begin{itemize}
+\item \textbf{Création et Terminaison des \emph{threads}}: Initialement le programme contient un seul \emph{thread} qui est le \texttt{main()}. Les autres \emph{threads} doivent être créés explicitement par le programmeur. \texttt{pthread\_create} créé un nouveau \emph{thread} et le rend exécutable, un exemple de code à base de \emph{Pthreads} est donné dans le listing \ref{pthreadcode}. Cette routine peut être appelée autant de fois que l'on veut et à n'importe quel endroit dans le code. Le nombre de \emph{threads} maximal créé par un \emph{process} dépend de l'implémentation. Une fois créés les \emph{threads} peuvent créer à leur tour d'autres \emph{threads} et il n'existe aucune dépendance ni hiérarchie entre les \emph{threads}. Le \emph{thread} est crée avec certains attributs par défaut, ceux-ci pouvant être changés ultérieurement. Il existe plusieurs manières de terminer un \emph{thread} : soit par le \emph{thread} lui même qui le fait par un \texttt{return} de sa routine principale ou par la fonction \texttt{pthread\_exit()}, ou alors par un autre \emph{thread} en utilisant \texttt{pthread\_cancel()} et enfin en cas de terminaison du \emph{process} parent.
+\item \textbf{Passage d'Arguments au \emph{threads}} : On peut passer un argument au \emph{thread} via la routine \texttt{pthread\_create()}. On peut également passer plusieurs arguments en les rassemblant dans une structure et en passant l'adresse de celle-ci.
+\item \textbf{Jonction et Détachement des \emph{threads}} : La jonction est une manière de faire une synchronisation entre les \emph{threads}, la fonction \texttt{pthread\_join()} bloque le \emph{thread} appelant jusqu'a ce que le \emph{thread} appelé termine son exécution. Le caractère joignable ou pas d'un \emph{thread} est spécifié à sa création : s'il est créé en tant que \emph{thread} détaché il ne pourra pas être joignable. La routine \texttt{pthread\_detach()} sert à détacher un \emph{thread} qui était joignable à sa création.
+\item \textbf{Gestion de la Pile} : Le standard ne définit pas la taille par défaut de la pile du \emph{thread}, celle-ci dépend de l'implémentation. Toutefois, le programmeur peut en spécifier la taille ainsi que l'emplacement de la mémoire dans laquelle elle doit être stockée.
+\end{itemize}
+
+\subsubsection{Les Variables \emph{mutex}}
+Les \emph{mutex} sont un des principaux mécanismes de synchronisation de \emph{threads}. Ils permettent par exemple de synchroniser des \emph{threads} ou alors de protéger des données partagées en cas d'écriture simultanée. Un \emph{mutex} peut être réservé (\emph{lock}) par un seul \emph{thread} à un moment donné, le propriétaire du \emph{mutex} est le seul à le posséder : tout autre \emph{thread} qui essaye de réserver ce même \emph{mutex} échoue jusqu'à ce que le propriétaire le libère (\emph{unlock}). Il existe des routines de création et de destruction des \emph{mutex}, la réservation des \emph{mutex} se fait soit par appel à la routine \texttt{pthread\_\emph{mutex}\_lock()} (bloquant), \texttt{pthread\_\emph{mutex}\_trylock()} (non bloquant) et se libère par \texttt{pthread\_\emph{mutex}\_unlock()}. Parmi les exemples d'utilisation des \emph{mutex} on peut citer les cas de \emph{race condition} où plusieurs \emph{threads} essayent de mettre à jour une variable globale, il est nécessaire dans ce genre de situation de protéger cette variable par un \emph{mutex} afin que celle-ci ait la même valeur du point de vue de tous les \emph{threads}. On dit alors que l'on crée une \emph{section critique}.
+%===============================Listing Pthreads =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = Exemple de code \emph{Pthread} basique montrant les routines de création de \emph{threads},
+label = pthreadcode
+}
+\lstinputlisting{Chapter2/Code/pthreadexample.c}
+%===================================================================================
+\subsubsection{Les Variables de Condition}
+Les variables de condition fournissent aux \emph{threads} une autre manière de se synchroniser. Contrairement aux \emph{mutex} qui sont basés sur le contrôle de l'accès à une variable, la synchronisation par variable de condition se fait selon une valeur spécifique. Les variables de condition sont utilisées en conjonction avec les \emph{mutex}. L'appel à la fonction \texttt{pthread\_cond\_wait()} bloque le \emph{thread} appelant jusqu'à ce que la condition spécifiée est signalée. Cette routine doit être appelée tant que le \emph{mutex} est réservé et libère automatiquement le \emph{mutex} quand elle est en attente. Une fois que le signal est reçu, le \emph{thread} est réveillé et le \emph{mutex} est réservé automatiquement pour être utilisé par le \emph{thread}. La responsabilité de libérer le \emph{mutex} est à la charge du programmeur qui le fait une fois que son utilisation n'est plus nécessaire. La fonction \texttt{pthread\_cond\_signal()} est utilisée pour signaler (ou réveiller) un autre \emph{thread} qui est en attente de la variable de condition. Elle doit être appelée après que le \emph{mutex} est réservé et doit libérer le \emph{mutex} dans l'ordre pour permettre à \texttt{pthread\_cond\_wait()} de s'achever. Il existe une routine nommée \texttt{pthread\_cond\_broadcast()} qui met en attente plusieurs \emph{threads} en même temps. 
+
+
+\subsection{Les Threads POSIX sur le Cell}
+Sur un système Linux pour le Cell, le \emph{thread} principal s'exécute sur le PPE, celui-ci pouvant produire un ou plusieurs tâches sur le processeur. Une tâche peut contenir un ou plusieurs \emph{threads} Linux qui peuvent s'exécuter soit sur le PPE soit sur le SPE. Un \emph{thread} qui s'exécute sur le SPE possède son propre contexte incluant un banc de registre de 128 x 128-bit, un compteur de programme et une file d'attente de commandes MFC, et il peut communiquer avec d'autres unités d'exécution au travers de l'interface des canaux MFC. Un \emph{thread} PPE peut interagir directement avec un \emph{thread} SPE via sa mémoire locale ou son espace de \emph{problem state} ou indirectement via la mémoire centrale ou les routines la \emph{SPE Runtime Management Library}. L'OS définit le mécanisme et la politique d'ordonnancement pour les SPE disponibles, il est également responsable de la gestion des priorités entre les tâches, du chargement du programme de la notification des évenemments au SPEs ainsi que du support du \emph{debugger}.
+Une API de gestion des \emph{threads} SPE similaire à la librairie POSIX a été conçue, dans le but de fournir à la fois un environnement de programmation familier et une flexibilité dans la gestion des SPEs. Cette API supporte à la fois la création et la terminaison des tâches SPE ainsi que l'exclusion mutuelle par des primitives de mise à jour atomiques. L'API peut accéder au SPE en utilisant un modèle virtuel dans lequel l'OS affecte dynamiquement les \emph{threads} aux SPEs dans l'ordre de leur disponibilité. Les applications, peuvent spécifier de manière optionnelle un masque d'affinités pour affecter les \emph{threads} a un SPE spécifique. Les dispositifs architecturaux de communication entre les \emph{threads} et de synchronisation (mailbox, signaux, etc...) peuvent être accédés via un ensemble d'appels système ou alors via l'application qui mappe un bloc de contrôle du SPE dans l'espace mémoire de l'application. Sur le Cell il existe trois blocs de contrôle du SPE, un accédé par l'application, un autre par l'OS et un troisième par un superviseur. Une interface accessible à l'utilisateur permet  la communication directe entre les processeurs SPEs ou PPE, ceci permet d'éviter des appels système couteux.\\
+Lorsque l'application fait une requête de création de \emph{threads}, la librairie de \emph{threads} SPE envoie la requête à l'OS pour allouer un SPE et créer un \emph{thread} SPE à partir d'un fichier objet de format ELF (Executable and Linkable Format) intégrée dans un exécutable Cell. Le \emph{miniloader} un programme SPE de 256-bit, télécharge la segment de code à exécuter sur le SPE, l'avantage de cette approche et d'une part d'éviter au PPE d'effectuer cette tâche et d'autre part de profiter du fait que les les transferts PPE-SPE quand il se font du côté SPE, sont nettement plus efficace grâce à une interface qui contient plus de canaux de communications.
+\begin{figure}[!htbf]
+	\centering
+	\includegraphics[scale =0.6]{Chapter2/figures/cell_compilation_process}
+	\caption{Processus \emph{dual source} de génération de code exécutable pour le Cell}
+  \label{fig_compprocess}
+\end{figure}
+\subsection{Processus de Génération de Code}
+Dans le modèle de programmation décrit ci-dessus le processus de génération de code binaire exécutable sur le Cell est dit \emph{dual-source}. En effet, il existe deux code sources distincts, un code pour le SPE (spe.c sur la figure \ref{fig_compprocess})) qui contient le code exécuté sur le SPE. Un deuxième code source qui est celui s'exécutant sur le PPE contient le \emph{\emph{thread}} maitre qui gère les \emph{\emph{threads}} SPE. Le processus de génération de code exécutable est décrit dans la figure \ref{fig_compprocess}. Dans la première étape le code SPE est compilé ce qui donne un binaire exécutable SPE. Celui-ci est par la suite traité par un outils spécifique \emph{spu-embedd} qui permet de transformer ce binaire en bout de code qui peut être enfouis dans l'exécutable du PPE. Cette procédure se fait par l'outil d'édition de lien qui considère alors le code SPE comme une librairie dont le code objet doit être intégré dans l'exécutable final.
+\subsection{conclusion}
+La programmation par \emph{threads} sur le Cell est le modèle de base pour la mise en ouvre de code parallèle sur cette architecture. Il est caractérisé par une API très bas niveau qui permet en même temps de garder un contrôle précis sur le déroulement de son application et d'avoir une grande flexibilité en terme de choix de déploiement d'un algorithme donné. Grâce au dispositifs architecturaux de signalisation et de synchronisation, l'interface est rendue très efficace en terme de performance sur le Cell. Toutefois, du point de vue du programmeur, la mise en oeuvre du code est surement plus laborieuse que pour d'autres modèles de programmation, mais celle-ci peut être justifiée dans le cadre de fortes contraintes sur les temps d'exécution ou dans le cas ou le modèle de calcul SPMD n'est pas adapté à l'application déployée. 
+
+%====================================================== RAPIDMIND ======================================================================================================================================
+
+\section{RapidMind}
+\textbf{RapidMind}\cite{rapidmind} est un modèle de programmation parallèle multi-plateformes, GPU, multi-coeur symétrique et pour le processeur Cell, il relève du modèle de programmation \emph{stream programming} et s'apparente à un langage de programmation enfoui dans C++. Il est basé sur la bibliothèque template C++ et une librairie de \emph{runtime} qui effectue la génération dynamique de code. La librairie template permet l'invocation de code SPE à l'intérieur du code PPE, avec l'ensemble du code SPE écrit en template.\\
+La librairie template de \textbf{RapidMind} fournit un ensemble de types de données, des macros de contrôle, des opérations de réduction et des  fonctions communes qui permettent à la librairie de runtime de capturer une représentation du code SPE (\emph{retained code}). Les types de données ont été spécialement conçus pour exprimer de manière simple les opérations SIMD et les exposer facilement à la librairie \emph{runtime}. Le \emph{runtime} à son tour extrait le parallélisme à partir de ces opérations en vectorisant le code et en divisant les calculs sur les tableaux et les vecteurs sur les différents SPEs. Il peut également effectuer des optimisations de boucle comme les détection des invariants de boucle. \textbf{RapidMind} assigne des tâches aux SPEs dynamiquement et peut effectuer des optimisations à plus haut niveau comme la superposition des calculs et des transferts qui permet de masquer la latence de ces derniers. Enfin, le modèle de calcul est un modèle SPMD, il diffère du modèle SIMD du fait que les programmes peuvent contenir du flot de contrôle et par le fait que celui-ci puisse gérer une certaine forme de parallélisme de tâches même si étant initialement un modèle \emph{data-parallel}. Un exemple de code \emph{RapidMind} est donné dans le listing \emph{rapidmindcode}.\\
+\subsection{Modèle de Programmation et Interface}
+L'interface est basée sur trois types C++ principaux: \textbf{\texttt{Value<N,T>}}, \textbf{\texttt{Array<D,T>}} et \textbf{\texttt{Program}}, tous sont des conteneurs, les deux premiers pour les données et le dernier pour les opérations. Le calcul parallèle est effectué soit en appliquant des \textbf{\texttt{Program}} sur des \textbf{\texttt{Array}} pour créer de nouveaux \textbf{\texttt{Array}}, ou en appliquant une opération collective parallèle qui peut être paramétrée par un objet \textbf{\texttt{Program}} comme la réduction par exemple.\\
+A première vue, les types \textbf{\texttt{Value}} et \textbf{\texttt{Array}} ne sont pas une grande nouveauté. En effet, tout développeur C++ a pour habitude d'utiliser les types N-tuples pour exprimer le calcul numérique sur des vecteurs, et le type \textbf{\texttt{Array}} est une manière usuelle d'encapsuler la vérification des valeurs limites (\emph{boundary checking}). Toutefois ces types constituent une interface pour une machine parallèle puissante basée sur la génération dynamique de code. Ceci est rendu possible grâce au type \textbf{\texttt{Program}} qui est la principale innovation du modèle de programmation \textbf{RapidMind}. Un mode d'exécution symbolique \emph{retained} est utiliser pour collecter dynamiquement des opérations arbitraires sur les \textbf{\texttt{Value}} et les \textbf{\texttt{Array}} dans les objets \textbf{\texttt{Program}}.
+\subsubsection{le type \textbf{\texttt{Value}}}
+le type \textbf{\texttt{Value<N,T>}} est un N-tuple, les instances de ce type contiennent N valeurs de type T, ou T peut être un type numérique de base (un flottant simple ou double précision ou tout autre type entier), les flottants 16-bits sont également supportés. Des notations courtes existent pour certaines tailles usuelle comme le \textbf{\texttt{Value4f}} pour un quartet de floats ou \textbf{\texttt{Value3ub}} pour un triplet d'entiers 8-bits non signés.\\
+Les opérations arithmétiques standard et les opérations logiques sont surchargés pour les types tuples et opèrent composante par composante. Les fonctions de la bibliothèque standard  sont également supportées, comme les fonctions trigonométriques et logarithmiques. En plus des opérations arithmétiques, des opérations de réorganisation des données on été ajoutées au type value: ces opérations permettent la duplication d'une composante ou ou le permutation des composantes. Par exemple, si \textbf{\texttt{a}} est une valeur de type \textbf{\texttt{Value<4, float>}} qui représente une couleur RGBA, a(2,1,0) est l'inverse représentant le triplet BGR.\\
+Les calculs sont exprimés en utilisant les tuples de \textbf{\texttt{Value}} et les opérateurs sur ces types peuvent être utilisés directement pour exprimer du parallélisme SWAR (SIMD Within A Register). \subsubsection{le type \textbf{\texttt{Array}}}
+Le type \textbf{\texttt{Array<D,T>}} est également un conteneur de données. Ce qui le distingue du type \textbf{\texttt{Value}} est le fait qu'il peut avoir plusieurs dimensions et que sa taille est variable. L'entier D représente la dimensionnalité (1,2 ou 3), le type T est le type des éléments du conteneur. Le type des éléments et pour le moment restreint aux instances du type \textbf{\texttt{Value<N,T>}}.\\
+Les instances du type \textbf{\texttt{Array}} supportent les opérateurs "[]" et "()" pour l'accès aléatoire aux données. L'opérateur "[]" utilise des entiers en arguments tandis que l'opérateur "()" utilise des coordonnées réelles comprises dans [0, 1] dans chaque dimension, cette particularité est utile par exemple pour les modes d'interpolation des images.\\
+Les sous-tableaux peuvent être accèdés en utilisant les fonctions \textbf{slice}, \textbf{offset} et \textbf{stride}. Les effets de bords sont gérés en utilisant la fonction membre \textbf{boundary}, qui inclut différents modes de traitement pour les bords. les types \textbf{\texttt{Value}} et \textbf{\texttt{Array}} suivent une sémantique par valeurs qui permet d'éviter l'aliasing de pointeurs et simplifie la programmation et l'optimisation. Il existe également d'autres types de sous-tableaux, les références sur tableaux et les accésseurs.
+\subsubsection{le type \textbf{\texttt{Program}}}
+Un objet \textbf{\texttt{Program}} contient une séquence d'opérations, ces opérations sont spécifiées par le passage en mode \emph{retained} qui est indiqué par la macro mot-clé \textbf{\texttt{BEGIN}}. Normalement, le système fonctionne en mode \emph{immediate}. Dans ce mode les opérations sur un tuple de valeurs s'exécutent à la spécification comme pour une bibliothèque matrice-vecteur classique:  les calculs sont effectués sur la même machine que le programme hôte et le résultat est sauvegardé dans le tuple \textbf{\texttt{Value}} de sortie. En mode \emph{retained} un nouvel objet \textbf{\texttt{Program}} qui est retourné par la macro \textbf{\texttt{BEGIN}} est crée. Les opérations dans ce mode ne sont pas exécutées; elles sont symboliquement évaluées et sauvegardées dans l'objet \textbf{\texttt{Program}}. La sortie du mode \emph{retained} est marquée par la macro \textbf{\texttt{END}}, qui ferme l'objet \textbf{\texttt{Program}} et le marque comme étant prêt à être compilé, étape à la suite de laquelle l'objet \textbf{\texttt{Program}} est utilisé pour le calcul. Les objets \textbf{\texttt{Program}} sont compilés de manière dynamique ce qui permet d'exploiter les caractéristiques bas-niveau de la machine cible.\\
+Il est à noter que même si les types \textbf{RapidMind} sont des classes C++, le compilateur est plutôt assimilable à un compilateur FORTRAN et peut ainsi effectuer les mêmes optimisations agressives. Les fonctionnalités du langage C++ sont utilisées pour structurer les calculs et générer le code mais pas lors de l'exécution.
+\subsection{Evaluation Partielle et Algèbre du Programme}
+Les objets \textbf{\texttt{Program}} sont des conteneurs d'opérations, et ces opérations peuvent être manipulées par le système de manière explicite. Cela permet l'implémentation de plusieurs dispositifs avancés de programmation.\\\\
+%===============================Listing Rapidmind =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = Exemple de parallélisation de code avec \emph{RapidMind},
+label = rapidmindcode
+}
+\lstinputlisting{Chapter2/Code/rapidmindexample.c}
+En premier lieu, les \textbf{\texttt{Program}} peuvent être évalués partiellement. Si un objet \textbf{\texttt{Program}} \textbf{p} ayant \textbf{n} entrées, l'expression \textbf{p(A)} retourne un objet \textbf{\texttt{Program}} avec \textbf{(n-1)} entrées. En d'autres termes les entrées de l'objet \textbf{\texttt{Program}} ne sont pas obligatoirement fournies en une fois. Il est possible de binder toutes les entrés d'un objet \textbf{\texttt{Program}} mais de différer son exécution effective. L'exécution d'un objet \textbf{\texttt{Program}} n'est déclenchée que quand il est affecté à un \emph{bundle}, \textbf{\texttt{Array}} ou \textbf{\texttt{Value}}. L'opérateur \textbf{"()"} est utilisé pour binder les entrées de l'objet \textbf{\texttt{Program}}. Ceci est appelé le \emph{tight binding}. Un changement de l'entrée après un \emph{tight binding}, n'affecte pas les entrées d'un \textbf{\texttt{Program}}, même si son exécution est différée. Dans l'exemple précédent, où l'on crée \textbf{"p(A)"} et on l'affecte à un objet \textbf{\texttt{Program}} \textbf{"q"}, et qu'on modifie ensuite l'entrée \textbf{"A"}. Lors de l'exécution de \textbf{"q"}, celui-ci utilisera la valeur de \textbf{"A"} au moment du binding dans \textbf{"p"}, pas la valeur modifiée. Le \emph{tight binding} permet l'optimisation de l'objet \textbf{\texttt{Program}} basée sur les valeurs effectives dans l'entrée bindée.\\
+Toutefois, le système supporte également le \emph{loose binding}, spécifié par l'opérateur \textbf{"<<"}. L'expression \textbf{"p<<A"} est similaire à \textbf{"p(A)"} sauf que les changements sur \textbf{"A"} sont visibles à l'exécution différée de \textbf{"p<<A"}.\\
+%===================================================================================
+Une entrée à un \textbf{\texttt{Program}} peut être bindée à un \textbf{\texttt{Array}} ou un tuple de \textbf{\texttt{Value}}. Si des arrays de tailles différentes sont bindées à un \textbf{\texttt{Program}} la plus petite entrée est répliquée suivant les conditions aux bords pour avoir la taille de l'entrée de l'entrée la plus grande.\\
+Les \textbf{\texttt{Program}} peuvent être combinés pour créer de nouveaux \textbf{\texttt{Program}} en utilisant deux opérations: la composition fonctionnelle est le \emph{bundling}. Ces opérations forment une algèbre fermée dans l'ensemble des objets \textbf{\texttt{Program}}. L'opérateur de composition fonctionnelle \textbf("<<") quand il est appliqué à deux objets \textbf{\texttt{Program}} \textbf{"p"} et \textbf{"q"} \textbf{"p << q"} transmet toutes les entrées du \textbf{\texttt{Program}} à droite de l'opérateur à l'entrée de celui de gauche, il crée un nouvel objet \textbf{\texttt{Program}} ayant les entrées de \textbf{"q"} et les sorties de \textbf{"p"}. L'opérateur \emph{bundle} quand à lui utilise la fonction \textbf{"bundle"}. Cette fonction concatène toutes les entrées/sorties de ses arguments dans l'ordre et crée un nouvel objet \textbf{\texttt{Program}} équivalent à la concaténation des sources de ces \textbf{\texttt{Program}} d'entrée en séquence.\\
+Ces opérations combinées avec la compilation dynamique permettent une amélioration considérable des performances surtout quand le programme est dominé par des instructions de mémoire.
+
+\subsection{Les Opérations Collectives}
+L'opération de base supportée est l'application parallèle d'un programme sur un tableau de données. Toutefois, d'autres patterns de communication et de calcul sont supportés sous la forme d'opérations collectives. Les patterns de communication irréguliers sont fournis par les opérations de \emph{scatter} et \emph{gather},et l'opération de réduction fournit un pattern de calcul hiérarchique.\\
+L'opération\emph{gather} permet de récupérer des données résidant dans des emplacements non-contigus de la mémoire et l'opération \emph{scatter} l'écriture dans des zones de même nature. L'opération de réduction quand à elle est programmable, elle prend deux entrées et fournit une sortie. Elle permet par exemple de sommer les éléments d'un vecteur d'une manière hiérarchique (Fig. \ref{reduction}).\\
+
+\begin{figure}[!htbf]
+	\centering
+	\includegraphics[width=0.8\columnwidth]{Chapter2/figures/reduction}
+	\caption{Illustration d'une opération collective de réduction }
+  \label{reduction}
+\end{figure}
+
+On pourra noter que l'opérateur impliqué dans la réduction doit être associatif. Parmi les opérateurs qui ont été implémentés on peut citer \textbf{sum}, \textbf{product}, \textbf{min} et \textbf{max}.
+\subsection{Spécificité du Backend pour le Cell de RapidMind}
+L'implémentation de RapidMind pour le Cell possède certaines particularités qui tiennent compte de l'architecture particulière de ce processeur. Le parallélisme SWAR peut être mappé directement sur les registres SIMD du SPE mais les opérations de permutation de données ne sont pas implémentées de manière aussi efficace les unes que les autres. D'autre part la parallélisation qui consiste à appliquer un \textbf{\texttt{Program}} à un tableau permet en théorie de faire des millions de calculs en parallèle, mais le Cell ne possède qu'un nombre limité d'unités de traitement. C'est pour cela que les données sont subdivisée en plusieurs paquets et transférées dans les mémoires locales des SPEs avant d'être traitées. Le triple \emph{buffering} est utilisé pour cacher la latence des transferts DMA. Pour les accès mémoire non réguliers un software-cache est utilisé. Si les programmes incluent un flux de contrôle, des tâches différentes peuvent prendre des temps d'exécution différents et un système de \emph{load balancing} (équilibrage de charge) est mis en place. 
+\subsection{Conclusion}
+La plate-forme de développement RapidMind combine une interface basée sur la compilation dynamique et un modèle de calcul \emph{data-parallel}. Elle peut être considérée soit comme une API de calcul parallèle ou un langage de programmation parallèle enfoui dans C++. Elle supporte plusieurs niveaux de parallélisme notamment le parallélisme SWAR et le parallélisme SPMD. Le modèle de programmation est commun à plusieurs plate-formes GPU, multi-coeur et Cell. C'est un modèle de programmation assez simple à utiliser et qui repose en grande partie sur un compilateur C++ ce qui lui confère une grande popularité auprès des utilisateurs. Au niveau des performances on peut relever de bon résultats dans \cite{rapidmind} mais pour ce qui est de notre domaine d'applications qui est le traitement d'images, une analyse approfondie sera faite par la suite.
+
+%====================================================== OPENMP ======================================================================================================================================
+\section{OpenMP}
+OpenMP pour le Cell\cite{cell_omp} intégré dans le compilateur XL d'IBM est basé sur les transformations du compilateur et une librairie de \emph{runtime}. Le compilateur transforme des \texttt{pragmas} OpenMP en code source intermédiaire qui implémente les constructions OpenMP correspondantes. Ce code inclut des appels aux fonctions de la a la librairie de \emph{runtime} du Cell. Cette dernière fournit des fonctionnalités basiques à OpenMP incluant la gestion des \emph{threads}, la répartition de la charge de travail ainsi que la synchronisation. Un exemple de parallélisation d'une boucle for est donné dans le listing \ref{ompexample}.\\
+Chaque segment de code compris dans une construction parallèle est listé par le compilateur dans une fonction séparée. Le compilateur insère les appels à la librairie de \emph{runtime} OpenMP dans la fonction parente de la fonction listée. Ces appels aux fonctions de la librairie de \emph{runtime} vont ainsi invoquer les fonction listées et gérer leur exécution.\\
+Le \emph{framework} est basé sur le compilateur IBM XL. Ce dernier possède des \emph{front-end} pour C/C++ et FORTRAN, et contient la même infrastructure d'optimisation pour ces langages. Le \emph{framework} d'optimisation se divise en deux composants TPO et TOBEY. TPO est chargé des optimisations haut niveau indépendantes de la machine cible tandis que TOBEY effectue les optimisations bas-niveau spécifiques à l'architecture.\\
+Le compilateur résulte d'une adaptation de versions existantes du compilateur XL supportant OpenMP, mais la spécificité de l'architecture du Cell à posé quelques problématiques qui sont les suivantes:
+\begin{itemize}
+\item \textbf{\emph{threads} et Synchronisation}: les \emph{threads} s'exécutant sur le PPE diffèrent de ceux du SPE en termes de capacité de traitement. Le système à été conçu pour prendre en compte la différence entre les deux architectures.
+\item \textbf{Génération de Code}: Le jeu d'instruction du PPE diffère de celui du SPE. Il en résulte que l'optimisation du code PPE est faite séparément de celle du SPE. L'espace de stockage sur le SPE étant limité, le code SPE s'il excède cette capacité, peut être partitionné en sections binaires (\emph{overlays}) au lieu d'une section monolithique. De plus, les données partagées dans le code SPE nécessitent un transfert DMA de la mémoire centrale vers la mémoire locale. Ceci est fait soit par le compilateur qui insère explicitement des commandes DMA dans le code, soit par un mécanisme de software cache qui fait partie de la librairie de \emph{runtime} du SPE.\\
+\item \textbf{Modèle Mémoire}: le hardware du Cell assure que les transactions DMA sont cohérents, mais ne fournit pas de mécanisme de cohérence pour les données résidant dans la mémoire locale, le modèle mémoire de OpenMP implémenté assure une cohérence de données qui est requise par les spécifications.
+\end{itemize}
+%===============================Listing OMP =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = Exemple de code \emph{OpenMP} où une  boucle for est parallélisée,
+label = ompexample
+}
+\lstinputlisting{Chapter2/Code/ompexample.c}
+%===================================================================================
+Les sections qui suivent décrivent la manière avec laquelle ces problèmes ont été traités.
+\subsection{\emph{threads} et Synchronisation}
+les \emph{threads} peuvent s'exécuter sur le PPE ou les SPE. Le \emph{thread} maître est toujours exécuté sur le PPE. Celui-ci est responsable de la création des autres \emph{threads}, de la répartition et de l'ordonnancement des tâches, et des opérations de synchronisation. L'absence d'OS sur le SPE fait que le PPE gère toutes les requêtes OS. Cette répartition permet au SPE de se consacrer uniquement aux tâches de calcul.\\
+Actuellement, un seul \emph{thread} est sensé s'exécuter sur le PPE, est le nombre de \emph{threads} parallèles exécutés sur les SPEs se déclare par la variable d'environnement \texttt{OMP\_NUM\_THREADS}. La création et synchronisation des \emph{threads} est implémentée à l'aide des librairies du SDK (Software Development Kit). Le \emph{thread} sur le PPE crée des \emph{threads} SPE au \emph{runtime} seulement quand les structures parallèles sont rencontrées pour la première fois.\\
+Pour les niveaux de parallélisme nichés (boucles nichées), chaque \emph{thread} dans la région parallèle la plus externe exécute séquentiellement la région parallèle interne. les itérations de boucles sont divisées en autant de morceaux qu'il y a de \emph{threads}, avec un mécanisme d'ordonnancement et de synchronisation simplifié. Lorsque le \emph{thread} SPE est créé, il effectue des initialisations et entre dans une phase d'attente d'affectation de tâches de la part du PPE, exécute ces tâches et se met en attente d'autres tâches, jusqu'à ce qu'il reçoive un signal de fin de tâche. Une tâche SPE peut être l'exécution d'une région parallèle listée (boucle ou section), ou alors l'exécution d'un flush de cache ou encore la participation à une opération de synchronisation par barrière.\\
+Il existe une file d'attente dans la mémoire système correspondant à chaque \emph{thread}. Quand le \emph{thread} maitre assigne une tâche à un \emph{thread} SPE, il écrit les informations sur cette tâche sur la file d'attente qui lui est consacrée, incluant le type de tâche, les bornes supérieure et inférieure de la boucle parallèle, ainsi que le pointeur de fonction pour la région de code listée qui doit être exécutée. Une fois que le \emph{thread} SPE prend une tâche de la file d'attente, il signale au \emph{thread} maitre que l'espace dans la file d'attente est à nouveau libre. Les mécanismes de synchronisation sont assurés au travers de mailbox qui permettent l'échange de messages bloquant ou non-bloquant entre le \emph{thread} maitre et les \emph{threads} de calcul. Les \emph{locks} OpenMP sont implémentés grâce au commandes DMA atomiques.
+\subsection{Génération de Code}
+En premier lieu, le compilateur sépare chaque région dans le code source qui correspond à une construction OpenMP parallèle, et la liste dans une fonction séparée. La fonction peut prendre des paramètres supplémentaires comme les bornes supérieure et inférieure de la boucle. Le compilateur insère un appel à la librairie de \emph{runtime} OpenMP au niveau de la fonction parente de la fonction listée, et insère un pointeur dans cette fonction de la librairie de \emph{runtime}. Le compilateur insère également des instructions de synchronisation quand c'est nécessaire.\\
+Le fait que l'architecture du Cell soit hétérogène impose que les fonctions listées contenant des tâches parallèles soit clonées afin d'être exécutables aussi bien par le SPE que le PPE. Le clonage est effectué quand le graphe d'appel global est disponible de telle sorte que le sous-graphe d'un appel à une fonction listée puisse être  entièrement cloné. Le clonage permet aussi lors des étapes ultérieures d'effectuer des optimisations qui dépendent de l'architecture comme la vectorisation de code qui ne peut pas se faire dans une étape commune à cause des différences entre les jeux d'instructions SPU et VMX. Une table de mise en correspondance entre les versions PPE et SPE contient les pointeurs des fonctions listées de telle sorte à ce qu'il n'y ai pas de confusion lors de l'exécution.\\
+A la fin de l'étape TPO, les procédures sur les différentes architectures sont séparées en deux unités de compilation différente et celles-ci sont traitées une par une par le \emph{back-end} TOBEY.\\
+L'unité PPE ne requière pas de traitement particulier. Par contre l'unité compilée SPE peut produite un binaire d'une taille importante et qui ne tiens pas dans la mémoire locale. Il existe deux approches pour remédier à ce problème. La première consiste au partitionnement de la section parallèle dans un programme en plusieurs sections de taille moindre et la génération d'un binaire distinct pour chaque sous section. Cette approche est limitée, d'une part par-ce-qu'une sous-section peut avoir une taille pas assez petite pour tenir dans la mémoire locale et d'autre part la complexité générée par la création et la synchronisation de plusieurs \emph{threads} affecte considérablement les performances.\\
+La deuxième approche qui est celle utilisée dans le compilateur IBM XL, est le partitionnement du graphe d'appel et les \emph{overlays} de code. Le code SPE est ainsi partitionné et un code \emph{overlays} est crée pour chaque partition. Ces \emph{overlays} partagent l'espace d'adresses mais n'occupent pas la mémoire locale en même temps. Un poids est affecté à chacun des arcs du graphe représentant la fréquence d'appels de la fonction. Le graphe d'appel est partitionné afin de maximiser cette fréquence d'appel dans une partition en utilisant l'algorithme du \emph{maximum spanning tree}. Le code SPE ainsi  généré est intégré dans le code PPE avant d'être exécuté.\\
+\subsection{Modèle Mémoire}
+OpenMP spécifie un modèle mémoire \emph{relaxed-consistency}, \emph{shared memory}. Ce modèle permet à chaque \emph{thread} d'avoir sa propre vue temporaire de la mémoire. Une valeur écrite dans une variable, ou une valeur lue à partir d'une mémoire peut rester dans la vue temporaire du \emph{thread} jusqu'à ce qu'elle soit obligée de partager la mémoire par une opération de flush OpenMP.\\
+Ce modèle est adapté au Cell car il prend en compte la mémoire limitée des SPEs. Les données privées accèdées dans le code SPE sont allouées en mémoire privée. Les variables partagées sont elles allouées en mémoire centrale et peuvent être accèdées via DMA par les SPEs. Deux mécanismes distincts sont utilisés pour les transferts DMA: le \emph{static-buffering} et le \emph{software-cache} contrôlé par le compilateur. Dans les deux cas, les données globales peuvent avoir une copie dans la mémoire locale SPE.\\
+Certaines références sont considérées comme étant régulières du point de vue du compilateur. Ces références interviennent dans les boucles, les adresses mémoires vers lesquelles elle pointent peuvent être exprimées en utilisant des expressions affines de variables d'induction de la boucle, et la boucle qui les contient ne possède aucune dépendance induite par la boucle (vraie, de sortie ou anti-dépendance) impliquant ces références. Pour ces références régulières aux données partagées, un buffer temporaire est utilisé dans le SPE. Des opération DMA \emph{get} et \emph{put} sont utilisées respectivement pour lire et écrire de et vers ce buffer à partir de la mémoire centrale.  Plusieurs buffers peuvent être utilisés afin de recouvrir les calculs par des transferts mémoire.\\
+Pour les références irrégulières à la mémoire le \emph{software-cache} est utilisé. Le compilateur remplace les \emph{\texttt{LOAD}} et \emph{\texttt{STORE}} de et vers ces zones mémoire par des instructions qui vont chercher les adresses effectives, dans le répertoire du cache. Si une ligne de cache pour l'adresse effective est trouvée (\emph{cache hit}) la valeur dans le cache est utilisée. Dans le cas contraire (\emph{cache miss}) la donnée est récupérée en mémoire via un DMA \emph{get} dans le cas d'une lecture.\\
+La taille de la ligne de cache (128 bytes) et son associativité (4) sont choisies respectivement pour optimiser les transferts DMA et exploiter le jeu d'instructions SIMD pour le calcul des adresses (4x 32-bits). Le système assure également au SPE l'accès à des données qui seraient dans la pile d'une fonction PPE qui appelle une fonction SPE.
+\subsection{Conclusion}
+Le modèle de programmation OpenMP intégré dans le compilateur IBM XL pour le processeur Cell est une approche qui a le mérite de permettre à l'utilisateur de réutiliser son code OpenMP existant, sans se soucier des détails de l'architecture de Cell. Le support d'OpenMP est assuré par des transformations du compilateur couplés à une librairie de \emph{runtime}. Les problématiques qui sont posées pour le portage d'OpenMP sur le Cell sont notamment celles de la synchronisation des \emph{threads}, la génération de code et le modèle mémoire. La solution proposée est innovante car elle propose un compilateur qui permet de générer un seul binaire exécutable qui s'exécute sur des jeux d'instructions différents et sur un espace mémoire distribué. Les performances sur des benchmarks simples ainsi que sur des codes plus complexes donnés dans \cite{cell_omp} démontrent l'efficacité de l'outil en comparaison avec un code optimisé à la main.
+
+%====================================================== CELLSS =============================================================================================================
+
+\section{Cell SuperScalar}
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=\columnwidth]{Chapter2/figures/cellss}
+	\caption{Procédure de génération de code de CellSS}
+  \label{cellss_chain}
+\end{figure}
+CellSS\cite{cellss_sc06} est un environnement qui a pour objectif de fournir à l'utilisateur un outil de programmation simple mais qui donne des exécutables qui exploitent efficacement l'architecture du processeur Cell. Il découle d'un modèle de programmation nommé GRID\cite{bsc_grid} qui assimile un processeur superscalaire à une grille de calcul: les unités fonctionnelles du processeur sont les ressources de la grille, les données contenues dans les registres correspondent aux fichiers dans la grille et les instructions assembleur sont assimilées aux tâches de calcul.\\
+Cell SuperScalar est constitué de deux composantes clés un compilateur \textit{source-to-source} et une librairie de \emph{runtime}. Le processus de génération de code est illustré dans la figure \ref{cellss_chain}. Partant d'un code source séquentiel écrit en langage C, des annotations en CellSS sont insérées dans le code. Le compilateur \textit{source-to-source} est utilisé pour générer deux fichiers C distincts. Le premier correspond au programme principal de l'application, il est compilé par un compilateur PPE qui crée un objet pour ce même processeur. Le deuxième code source correspond à celui exécuté par le SPE sous contrôle du PPE. Cet exécutable est enfouis dans le binaire du PPE pour pouvoir être exécuté. Cette procédure est la même que celle utilisée par le SDK d'IBM qui est basé sur deux compilateurs distincts et une phase d'intégration du code SPE dans celui du PPE.\\
+L'exécution du programme est assurée par le PPE qui assigne les \emph{task} aux SPEs au travers de la librairie de \emph{runtime}. Le \emph{runtime} se charge de créer un noeud qui correspond à la \emph{task} dans un graphe, et vérifie la dépendance avec une autre \emph{task} lancée auparavant et ajoute un arc entre les deux. Si la \emph{task} courante est prête à être exécutée le \emph{runtime} envoie une requête au SPE pour qu'il se charge de l'exécution. Les transferts DMA sont gérés par le \emph{runtime} de manière transparente. Les appels au \emph{runtime} ne sont pas bloquants et de ce fait si une \emph{task} n'est pas prête ou tous les SPEs sont occupés, le programme principal continue son exécution.\\
+On pourra noter que tout le processus (assignation de tâches, analyse des dépendances, transfert de données) sont transparents du point de vue de l'utilisateur, qui écrit un code séquentiel dans lequel il annote la partie à exécuter par les SPEs. Le système peut changer dynamiquement le nombre des SPEs utilisés en prenant en compte le maximum de concurrence contenu dans l'application à chaque phase. Un exemple de code \emph{CellSS}.
+%===============================Listing CellSS =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = Exemple sparse LU avec \emph{CellSS},
+label = cellsscode
+}
+\lstinputlisting{Chapter2/Code/cellssexample.c}
+\subsection{\emph{runtime}}
+Au \emph{runtime}, les appels à une fonction \emph{Execute} seront responsables du comportement de l'application sur le processeur Cell. Pour chaque appel à la fonction \emph{Execute} le \emph{runtime} effectue les actions suivantes:
+\begin{itemize}
+\item L'addition d'un noeud dans un graphe des tâches qui représente la tâche appelée.
+\item L'analyse des dépendances de données de la nouvelle tâche avec les tâches appelées précédemment. Cette analyse prend comme hypothèse que deux paramètres sont les mêmes s'ils ont la même adresse. Le système cherche les types de dépendances de données \emph{RaW}, \emph{WaR} et \emph{WaW} \footnote{Read after Write, Write after Read and Write after Write}.
+\item Le renommage de paramètres similaire au renommage de registres, une technique issue des processeurs superscalaires, le renommage se fait sur les paramètres \emph{output} et \emph{input/output} pour chaque appel de fonction qui possède un paramètre qui va être écrit, au lieu d'écrire dans l'adresse originale de celui-ci, un emplacement mémoire nouveau sera utilisé, celui-ci sera un renommage de l'emplacement du paramètre original. Ceci permet l'exécution de la fonction indépendamment d'un appel précédent à une fonction qui écrit ou lit ce paramètre. Cette technique permet de ce fait de supprimer efficacement toutes les dépendances \emph{WaR} et \emph{WaW} en utilisant de l'espace mémoire supplémentaire et simplifie ainsi le graphe des dépendances et augmente les chances d'extraire du parallélisme.
+\item Enfin, sous certaines conditions, la tâche peut être exécutée.
+\end{itemize}
+Durant l'exécution de l'application le \emph{runtime} maintient une liste des tâches prêtes. Une tâche est étiquetée comme étant prête, à partir du moment où il n'existe aucune dépendance entre cette tâche et d'autres tâches ou alors que ces dépendances ont été résolues (les tâches précédentes dans le graphe ont fini leur exécution). Le graphe de dépendances de tâches ainsi que la liste des tâches prêtes sont mis-à-jour à chaque fois qu'une tâche finit son exécution. Lorsqu'une tâche est terminée le \emph{runtime} reçoit une notification et le graphe de tâche est vérifié pour établir les dépendances qui ont été satisfaites et les tâches dont toutes les dépendances ont été résolues et qui sont ajoutées dans la liste des tâches prêtes.\\
+\'Etant donné une liste de tâches prêtes et une liste de ressources disponibles, le \emph{runtime} choisit la meilleure correspondance entre les tâches et les ressources et soumet les tâches pour l'exécution. La soumission de la tâche comprend toutes les actions nécessaires pour pouvoir exécuter la tâche: le transfert des paramètres et la requête d'exécution de la tâche.
+\subsubsection{Middleware pour le Cell}
+Une application CellSS est composée de deux types de binaires exécutables : le programme principal, qui s'exécute sur le PPE et le programme tâche qui lui s'exécute sur le SPE. Ces binaires sont obtenus par compilation de deux sources générés par le compilateur CellSS et les librairies de \emph{runtime}. Lors du démarrage du programme sur le PPE le programmes de type \emph{task} est lancé sur tous les SPEs durant l'exécution, celui-ci se met en attente de requêtes de la part du programme principal. Lorsque la politique d'ordonnancement choisit une \emph{task} de la liste des tâches prêtes à être lancées et un SPE sur lequel elle va être exécutée, une structure de donnée nommée \emph{task control buffer} est construite. Celle-ci contient des informations telles que l'identifiant de la tâche, l'adresse de chacun des paramètres ainsi que des informations de contrôle. L'identifiant sert à distinguer des tâches déjà présente dans la mémoire des SPEs de celles qui en le sont pas et qui doivent être chargées avant exécution. Les requêtes émanant du programme principal pour exécuter une tâche dans les SPEs se font via mailbox, celle-ci contient l'adresse et la taille du \emph{task control buffer} correspondant à la tâche. L'exécution de la tâche se fait de la manière suivante: le SPE se met en attente d'une requête sur la mailbox, une fois la requête reçue il rapatrie les données et éventuellement le code de la tâche une fois la tâche finie, selon le contenu du \emph{task control buffer} il garde les données dans sa mémoire ou les transfert en mémoire centrale. La synchronisation se fait à la fin de l'exécution et lorsque toutes les données résultantes sont transférées vers la mémoire centrale.
+\subsubsection{Exploitation de la Localité}
+Lorsque le graphe de dépendance de tâches construit par CellSS contient un arc allant d'un noeud vers un autre, il existe une dépendance de données entre les tâches qui impose un transfert de données, le but étant de minimiser la quantité de données transférées entre le PPE et les SPEs et entre SPEs. La politique d'ordonnancement est faite de telle sorte à exploiter la localité et donc à regrouper quand c'est possible les tâche interdépendantes dans le même SPE.
+\subsection{Conclusion}
+CellSS est un modèle de programmation basé sur un compilateur et un \emph{runtime}. Il permet l'exécution d'un code source séquentiel sur une architecture parallèle grâce à l'annotation de ce code par des directives de parallélisation. Le \emph{runtime} construit un graphe de dépendances des fonctions appelées et ordonnances ses fonctions sur le SPE en gérant les transferts mémoire de manière transparente. L'algorithme d'ordonnancement exploite la localité afin de minimiser les transferts mémoire.
+
+%====================================================== SEQUOIA ===========================================================================================================
+
+\section{\emph{Sequoia}}
+\emph{\textbf{Sequoia}}\cite{sequoia_sc06} est un langage de programmation bas-niveau dédié aux machines modernes, que cela soit des processeurs parallèles ou alors superscalaires, et dans lesquels l'allocation de la mémoire et le transfert des données au travers de la hiérarchie mémoire est primordial pour la performance.\emph{\textbf{Sequoia}} est une extension au langage C même si les constructions qu'il permet de faire sont très différentes du modèle de programmation du C. Il est basé sur un modèle de programmation qui assiste l'utilisateur dans la structuration des programmes parallèles efficaces au niveau de la bande passante qui restent portables sur de nouvelles machines. Le modèle de programmation repose sur quelques principes qui sont les suivants:
+\begin{itemize}
+\item La notion de mémoire hiérarchique est directement introduite dans le modèle de programmation ce qui permet un gain de portabilité et de performance. \emph{\textbf{Sequoia}} s'exécute sur des machines qui sont représentées sous forme d'un modèle abstrait en arbre de modules mémoire distincts qui décrit comment les données sont transférées et où elles résident dans la hiérarchie mémoire.
+\item Les \emph{task} sont utilisées comme une abstraction des unités de calcul auto-suffisantes qui incluent la description des communications et de la charge de travail. La \emph{task} isole chaque calcul dans son propre espace mémoire local et contient le parallélisme.
+\item Afin de garantir la portabilité, une stricte séparation est maintenue entre l'expression générique de l'algorithme et les optimisations spécifiques à une machine donnée. Pour minimiser l'impact de cette séparation sur la performance les détails du déploiement sur une machine spécifique sont sous le contrôle de l'utilisateur.
+\end{itemize}
+Ainsi, \emph{\textbf{Sequoia}} adopte une approche pragmatique pour fournir un outil de programmation parallèle portable en fournissant un ensemble limité d'abstractions qui peut être implémenté de manière efficace et sous contrôle de l'utilisateur.
+\subsection{Mémoire Hiérarchique}
+\begin{figure}[!htbf]
+	\centering
+	\includegraphics[scale =0.6]{Chapter2/figures/Sequoia_fig1}
+	\caption{Multiplication de matrices de tailles 1024x1024 structurée en hiérarchie de tâches indépendantes effectuant des multiplications sur des blocs de données plus petits}
+  \label{seq_fig1}
+\end{figure}
+Le principe de mémoire hiérarchique est au coeur de l'outil \emph{\textbf{Sequoia}}, car dans les systèmes modernes contenant plusieurs unités de traitement avec une hiérarchie mémoire à plusieurs niveaux, il est primordial de diviser un calcul de taille importante en des opérations plus petites pour atteindre des bonnes performances car cela permet d'exposer le parallélisme et d'atténuer l'effet de la latence d'accès à la mémoire car les données sont physiquement proches des unités de traitement. Un exemple de découpage pour l'application produit de matrices est donné dans \ref{seq_fig1}, dans cet exemple qui contient du parallélisme imbriqué et où la localité des données est primordiale. \emph{\textbf{Sequoia}} requiert une telle réorganisation hiérarchique dans les programmes, qui a été inspirée de l'idée des \emph{space-limited procedures} qui prône les stratégies \emph{divide-and-conquer} tenant compte de la hiérarchie mémoire. Les \emph{space-limited procedures} requièrent à chaque fonction dans une chaine d'appels d'accepter des arguments occupant beaucoup moins d'espace mémoire que les fonctions appelantes. Un système complet a été implémenté autour de cette abstraction incluant un compilateur et un \emph{runtime} pour le processeur Cell.\\
+L'écriture d'un programme \emph{\textbf{Sequoia}} implique la description abstraite d'une hiérarchie de tâches et le mapping de ces tâches sur la hiérarchie mémoire de la machine cible. Cela impose à l'utilisateur de considerer une machine parallèle comme un arbre de modules mémoire distincts. Les transferts de données entre les niveaux de la hiérarchie se font par blocs éventuellement asynchrones. La logique du programme décrit le transfert des données à tous les niveaux, mais les noyaux de calcul sont contraints de travailler que sur les données qui sont sur les noeuds feuilles (de niveau 0) de l'arbre représentant la machine. La représentation abstraite du processeur Cell (Fig.\ref{seq_fig2}) contient des noeuds correspondants à la mémoire principale ainsi qu'à chaque mémoire locale du SPE.
+\begin{figure}[!htbf]
+	\centering
+	\includegraphics[scale =0.6]{Chapter2/figures/Sequoia_fig2}
+	\caption{Modèle abstrait Sequoia du processeur Cell}
+  \label{seq_fig2}
+\end{figure}
+Un code \emph{\textbf{Sequoia}} ne fait pas de référence explicite à un certain niveau de la hiérarchie et les transferts de données entre les modules mémoire se font de manière implicite. Ainsi, les communications décrites dans \emph{\textbf{Sequoia}} peut se faire au travers d'une instruction de prefetch, un transfert DMA ou un message MPI selon les spécificité de l'architecture cible. Ceci garantit la portabilité de l'application tout en bénéficiant des performances des communications explicites. Il y a certaines machines qui possèdent une topologie qui n'est pas facilement représentable sous forme d'arbre c'est pour cela que la notion de \emph{virtual level} (niveau virtuel) à été introduite dans \emph{\textbf{Sequoia}}, ce niveau ne correspond à aucune mémoire physique. Ce niveau permet par exemple de représenter l'aggrégation des mémoires locales des SPEs sur processeur Cell. Cela permet de ce fait d'encapsuler les communications horizontales inter-noeud tout en gardant le modèle d'abstraction en arbre qui lui ne permet que des communications verticales.
+\subsection{Modèle de Programmation}
+La notion de \emph{task} est au coeur du modèle de programmation de \emph{\textbf{Sequoia}}: c'est une fonction exempt de tout effet de bord avec une sémantique de passage de paramètre par valeur. Les propriétés qui seront énoncées dans la suite garantissent la portabilité du modèle sans sacrifier les performances. Un exemple de code de multiplication de matrices par blocs est donné dans le listing \ref{sequoiacode}.
+
+\subsubsection{Communication Explicite et Localité}
+La définition d'une tâche exprime à la fois la localité et la communication dans un programme. Lorsqu'une tâche s'exécute, l'ensemble de toutes les données référencées doivent rester dans un seul noeud de l'arbre abstrait de la machine. Ainsi une tâche doit s'exécuter dans un endroit précis de la machine. Les pointeurs et les références ne sont pas permises à l'intérieur d'une tâche ce qui permet de dire que l'ensemble des données traitées par la tâche est contenu dans sa définition.\\
+L'implémentation contient un appel récursif dans lequel un sous-ensemble des données est passé en paramètre. Les communications sont encapsulées par les tâche en utilisant une sémantique de passage de paramètre dit \emph{call-by-value-result} qui est un passage de paramètres par valeur dans lequel les copies locales des données sont réécrites dans l'espace global à la fin de l'appel de la fonction. Chaque tâche s'exécute dans son espace d'adresses local, toutes les données d'entrée des tâches appelantes sont copiées dans l'espace mémoire de la fonction appelée et les résultats sont recopiées vers l'espace mémoire de la fonction appelantes après le retour de la fonction appelées.\\
+Le mapping d'un programme Sequoia dicte quand une tâche appelée doit exécutée dans le même module mémoire que la tâche appelante ou alors assignées à une mémoire enfant.
+
+\subsubsection{Isolation et Parallélisme}
+La granularité du parallélisme dans \emph{\textbf{Sequoia}} et la \emph{tâche} et l'exécution parallèle résulte de l'appel de \emph{tâches} concurrentes. Une tâche s'exécute généralement sur une partie de la boucle sous forme de plusieurs \emph{sous-tâches} parallèles, chaque \emph{sous-tâche} s'exécutant en isolation, une propriété qui garantit la portabilité et la performance. Une des contraintes imposées au modèles et que les tâches s'exécutant en parallèle ne peuvent pas coopérer entre elles car elles n'ont aucun moyen de communiquer. Ceci limite le modèle de programmation au modèle SPMD mais évite le recours aux mécanismes de synchronisation couteux.
+\subsubsection{Décomposition de Tâche}
+\emph{\textbf{Sequoia}} introduit des primitives de décomposition de tableaux et de mapping de tâches, elles sont décrites ci-dessous:\\
+\noindent \rule{\textwidth}{0.2mm}\\
+\textbf{Sequoia Blocking Primitives}\\
+\begin{itemize}
+\item \texttt{\textbf{blkset}}\\
+Un objet Sequoia opaque représentant une collection de blocs de tableaux.\\
+\item \texttt{\textbf{rchop(A, len0, len1, ...)}}\\
+Génere un \texttt{\textbf{blkset}} qui contient des blocks qui ne se recouvrent pas et qui tuilent le tableau multidimensionnel A. Chaque bloc est multidimensionnel de taille \texttt{len0xlen1x ...}.
+\item \texttt{\textbf{rchop(A, rchop\_t(offset0, len0, stride0), ...)}}\\
+Généralisation de  \item \texttt{\textbf{rchop}} qui génère des ensembles de blocs qui contiennent potentiellement des blocs qui se recouvrent. L'offset du tableau de départ, la taille du bloc, et le saut entre les blocs est spécifié pour toutes les dimensions du tableau source.
+\item \texttt{\textbf{ichop(A, Starts, Ends, N)}}\\
+Génère un ensemble de blocs du tableau A de tailles non régulières. Les indices de départ et de fin du bloc sont donnés par les éléments dans le tableau de longueur N \texttt{Starts} et \texttt{Ends}. 
+\item \texttt{\textbf{gather(A, IdxBlkset)}}\\
+Génère un ensemble de blocs en rassemblant les éléments d'un tableau source A en utilisant des indices fournis dans les blocs de \texttt{IdxBlkset}. Le \texttt{blkset } résultant possède les mêmes nombre et taille que les blocs de \texttt{IdxBlkset}.\\
+\end{itemize}
+\rule{\textwidth}{0.2mm}\\
+\textbf{Sequoia Mapping Primitives}\\
+\begin{itemize}
+\item \texttt{\textbf{mappar(i=i0 to iM, j=j0 to jN ...)   {...}}}\\
+Une boule \texttt{\textbf{for}} multi-dimensionnelle contenant uniquement un appel à une \emph{sous-tâche} dans le corps de boucle. La tâche est mappée en parallèle en une collection de blocs.
+\item \texttt{\textbf{mapseq(i=i0 to iM, j=j0 to jN ...)   {...}}}\\
+Une boule multi-dimensionnelle contenant uniquement un appel à une \emph{sous-tâche} dans le corps de boucle. La tâche est mappée séquentiellement en une collection de blocs.
+\item \texttt{\textbf{mapreduce(i=i0 to iM, j=j0 to jN ...)   {...}}}\\
+Permet de faire le mapping en une collection de blocs, qui effectue une réduction sur au moins un argument de la tâche. Pour le support des réductions d'arbres parallèles, une tâche supplémentaires de
+ recombinaison est requise.\\
+\end{itemize}
+\rule{\textwidth}{0.2mm}\\
+\subsubsection{Variantes de Tâches}
+\emph{\textbf{Sequoia}} inclut deux types de tâches qui servent essentiellement à distinguer le code de mapping du code de calcul, elles sont décrites ci-dessous:
+\begin{itemize}
+\item \emph{Inner Tasks}: ce sont les tâches qui appellent des sous-tâches. Elles n'ont pas d'accès direct à leurs arguments de type tableau mais elles passent aux sous-tâches sous forme de blocs. Les \emph{Inner Tasks} utilisent les primitives de \emph{mapping} et de \emph{blocking} pour structurer les calculs sous forme de sous-tâches. La définition d'une \emph{Inner Task} n'est associée à aucun module mémoire particulier de la machine, elle peu s'exécuter dans n'importe quel niveau de la hiérarchie mémoire dans lequel les données traitées tiennent.
+\item \emph{Leaf Tasks}: ce sont des tâches qui ne font pas appel à des sous-tâches et qui opèrent directement sur des données résidant dans les niveaux feuilles de la hiérarchie mémoire. 
+\end{itemize}
+
+\subsubsection{Paramètrisation de Tâches}
+Les tâches sont écrites de manière à ce qu'elles soient paramétrables pour la spécialisation à de multiples machines cibles. La spécialisation est le processus de de création d'instances d'une tâche qui est personnalisée pour s'exécuter sur un certain niveau de la hiérarchie mémoire de la machine. La paramétrisation des tâches permet à une stratégie de décomposition décrite par une variante de tâche d'être appliquée dans différents contextes, rendant la tâche portable sur différentes machines et sur différentes niveaux de la hiérarchie mémoire d'une cible donnée. L'utilisation de paramètres comme la taille des tableaux ainsi que les paramètres ajustable découple l'expression d'un algorithme de son implémentation sur une machine donnée.
+\subsubsection{Spécialisation de Tâches et Tunning}
+Dans \emph{\textbf{Sequoia}} on donne au programmeur le contrôle complet sur les phases de spécialisation et de tunning du code, au travers d'une phase dite de \emph{task mapping and specification} qui est créée par l'utilisateur pour une machine donnée est maintenue indépendamment du code source. En plus, cette phase permet au programmeur de fournir des directives d'optimisation et de tunning qui sont propres à une cible donnée. 
+Les spécification de mapping ont pour but de donner à l'utilisateur un contrôle précis sur le mapping d'une hiérarchie de  tâches sur une machine en isolant les optimisations spécifiques à une cible donnée dans un autre endroit. Au lieu de confier le travail à un compilateur, \emph{\textbf{Sequoia}} permet au programmeur d'optimiser son code lui même afin d'obtenir les meilleurs performances possibles.
+%===============================Listing Sequoia=======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = Exemple de multiplication matricielle par blocs \emph{Sequoia} ,
+label = sequoiacode
+}
+\lstinputlisting{Chapter2/Code/sequoia.c}
+%===================================================================================
+\subsection{Implémentation}
+Dans l'implémentation de \emph{\textbf{Sequoia}} un compilateur source-to-source génère du code C qui s'interface avec un \emph{runtime} spécifique à la plate-forme. Les paramètres d'entrée du compilateur sont un programme \emph{\textbf{Sequoia}} ainsi que des spécifications de mapping sur la machine cible.
+\subsubsection{Compilateur Cell et \emph{runtime}}
+Les instances de tâches \emph{Inner} correspondant à la mémoire principale sont exécutées par le PPE alors que les instances correspondant au niveau mémoire des Local Store sont exécutées par les SPE. Les codes sources PPE et SPE sont compilés séparément, un code binaire est ainsi combiné pour l'exécution, si toutefois le code SPE dépasse la capacité du local store il est découpé sous forme d'overlays. Le \emph{runtime} est \emph{event driven}: un système de notification via mailbox est mis en place entre le PPE est les SPEs, les tâches sont assignées par le PPE au SPEs. Une fois que la notification est reçue un mécanisme du \emph{runtime} charge le morceau de code à exécuter dans les SPEs et initie les transferts de données via DMA. Le système permet la superposition de transferts et de calculs afin d'améliorer les performances. Les mécanismes de synchronisation ne sont pas constamment utilisées entre les tâches, un seul point de synchronisation est requis lors de la fin des sections parallèles,ce qui minimise  l'overhead.
+\subsubsection{Optimisations}
+En plus de permettre au programmeur d'optimiser son implémentation des tâches dans \emph{\textbf{Sequoia}}, certaines optimisations visant à utiliser efficacement la mémoire sont effectuées, notamment l'optimisation des transferts au niveau d'un même niveau la hiérarchie mémoire, ou les copies inutiles sont détectées et supprimées. D'autres optimisation incluant le \emph{software-pipelining} et le déplacement des invariants de boucle sont effectués de manière statique à la compilation.
+\subsection{Conclusion}
+\emph{\textbf{Sequoia}} est un modèle de programmation qui tente d'allier la portabilité avec la performance pour le portage d'algorithmes sur des architectures parallèles. La performance est assurée par l'octroi à l'utilisateur d'une grande liberté dans l'optimisation du code de calcul qui s'exécute sur les noeuds au plus bas niveau de la hiérarchie mémoire. La portabilité est garantie par le fait que l'expression de l'algorithme est découplée de l'implémentation. L'expression explicite des communications, du mouvement des données au travers de la hiérarchie mémoire, du calcul parallèle et la définition d'un ensemble de travail isolé sont effectués grâce à une seule abstraction, la \emph{tâche}. \emph{\textbf{Sequoia}} fournit des primitives de structuration des calcul en tant que hiérarchie de tâches afin d'améliorer la localité et laisse au programmeur le soin d'optimiser la tâche pour une architecture donnée. Toutefois il existe des limitations, en l'occurrence pour le type de parallélisme qui doit être SIMD ce qui limite le schéma de déploiement et le champ d'applications. Aussi, le mapping des applications est fait de manière manuelle et n'est pas contenue dans le code source.
+%=================SECTION SKELL BE==================================================================
+
+\section{Squelettes Algorithmiques pour le Cell}
+La programmation parallèle structurée qu'on appelle programmation par squelettes algorithmiques \cite{skeletons_cole} restraint l'expression du parallèlisme à la composition d'un nombre prédéfini de \emph{patterns} nommés squelettes. Les squelettes algorithmiques sont des briques de base génériques, portables et réutilisables pour lesquelles une implémentation parallèle peut exister. Ils sont issues des langages de programmation fonctionnelle. Un système de programmation basé sur les squelettes fournit un ensemble fixe et relativement limité de squelettes. Chaque squelette représente une manière unique d'exploiter le parallélisme dans une organisation spécifique du calcul, tels que le parallélisme de données, de tâches, le \emph{divide-and-conquer} parallèle ou encore le pipeline. En combinant ces \emph{patterns} le développeur peut construire une spécification haut-niveau de son programme parallèle. Le système peut ainsi exploiter cette spécification pour la transformation de code, l'exploitant efficace des ressources ou encore le placement.\\
+La composition des squelettes peut se faire d'une manière non-hiérarchique en mettant en séquence les différents blocs en en utilisant des variables temporaires pour sauvegarder les résultats intermédiaires, ou alors de manière hiérarchique en imbriquant les fonctions squelette et ce en construisant une fonction composée dans laquelle le code de plusieurs squelettes est passé en paramètre d'un autre squelette. Ceci présente une manière élégante d'exprimer le parallélisme multi-niveau.\\
+Dans un environnement de programmation declarative, comme dans les langages fonctionnels ou alors dans la programmation par squelettes, la composition hiérarchique procure au générateur de code plus de liberté de choix pour les transformations automatiques et l'utilisation efficace des ressources, comme par exemple le nombre de processeurs utilisé en parallèle dans un niveau particulier de la hiérarchie. les squelettes ne pouvant pas être imbriqués  sont généralement implémentées avec juste une librairie générique alors que les squelettes nichés requièrent un pré-traitement qui déroule la hiérarchie du squelette en utilisant par exemple les templates C++ ou les macros de preprocesseur en C.
+%pardo,pipe,seq et chain
+\subsection{Modèle de Programmation}
+\begin{figure}[!htb]
+	\centering
+  \includegraphics[width= 0.8\columnwidth]{Chapter2/figures/skeleton_example}
+	\caption{Exemple de graphe de processus communicants avec hiérarchisation}
+	\label{skelexple}
+\end{figure}
+Dans le modèle de programmation parallèle par squelettes algorithmiques, une application est définie comme étant un graphe de processus communicants. Cette représentation permet de spécifier les schémas de communication entre les processus \textbf{$P_{i}$}, de mettre en évidence les fonctions séquentielles \textbf{$F_{i}$} contenues dans l'application, ainsi que les processus nécessaires à l'exécution parallèle de l'application. Un exemple de représentation est donné dans la figure \ref{skelexple}. On peut distinguer sur cette figure deux parties distinctes : 
+\begin{itemize}
+\item Le système d'équilibrage de charge \textbf{(A)} qui utilise $k$ processeurs qui traite les données fournies par le processus \emph{Distrib}, ces dernières étant regroupées par le processus \emph{Collect}. Il faudra noter que le flux alimente le processeurs de manière dynamique dès qu'il trouve un processus libre.
+\item Le mécanisme de contrôle \textbf{(A)} qui permet de séquencer les traitement dans l'ordre donnée par le graphe. Ce mécanisme assure que les données, une fois traitées (fonction $F_{i}$) par le processeur $P_{i}$, sont transmises au processus $P_{i+1}$. On pourra noter que le schéma d'exécution dans ce cas là est du type \emph{pipeline}.
+\end{itemize}
+Le modèle de programmation parallèle par squelettes algorithmiques repose sur l'extraction de tels schémas récurrents. Un squelette est ainsi défini comme étant un schéma générique paramétré par une liste de fonctions qu'il est possible d'instancier et de composer. Fonctionnellement, les squelettes algorithmiques sont des \textbf{fonctions d'ordre supérieur}, c'est à dire des fonctions prenant une ou plusieurs fonctions comme arguments et retournant une fonction comme résultat. La programmation par squelettes devient permet au programmeur d'utiliser un modèle haut-niveau pour décrire son application, sans se soucier de certains détails complexes comme l'ordonnancement ou le placement. Il peut alors définir une application parallèle comme suit:
+\begin{itemize}
+\item Instancier des squelettes en spécifiant les fonctions qui les définissent.
+\item Exprimer la composition des ces squelettes.
+\end{itemize}
+L’expression de la compositions peut se faire en encodant cette dernière sous la forme d’un \textbf{arbre}(\ref{fig_tree}) dont les noeuds représentent les squelettes utilisés et les feuilles, les fonctions séquentielles passées en paramètres à ces squelettes.
+\begin{figure}[!htb]
+	\centering
+  \includegraphics[width= 0.7\columnwidth]{Chapter2/figures/fig_tree}
+	\caption{Arbre représentant le squelette en Figure \ref{skelexple}}
+	\label{fig_tree}
+\end{figure}
+Dans la figure \ref{fig_tree}, le squelette \textbf{Pipeline} décrit le schéma générique correspondant à la section \textbf{B} du graphe de processus communiquant initial. Le squelette \textbf{Farm} représente quant à lui la partie \textbf{A} de ce même schéma. Les fonctions $F_{i}$ apparaissent aux feuilles de l'arbre, c'est à dire en argument des squelettes. On note aussi que les fonctions \textbf{Distrib} et Collect n'apparaissent plus explicitement, car elles font partie intégrante du squelette \textbf{Farm}. Cette représentation met en avant un des aspects les plus importants de l'approche
+à base de squelettes algorithmiques : à partir d'un nombre restreint de squelettes (classiquement moins d'une dizaine), il est possible de définir des applications complexes. Ceci suppose toutefois que l'on ait formalisé le type d'application que l'on va chercher à paralléliser, de définir précisément le jeu de squelettes que l'on désire mettre à disposition du développeur et de spécifier leurs sémantiques fonctionnelles et opérationnelles. Il existe plusieurs classifications des squelettes. Toutefois, on peut les répartir en trois groupes : les squelettes dédiés au parallélisme de contrôle, les squelettes dédiés au parallélisme de données et les squelettes dédiés à la structuration séquentielle de l’application.
+\subsubsection{Squelettes dédiés au parallélisme de contrôle}
+%pardo,pipe,seq et chain
+\paragraph{Le Squelette Pipeline}
+Ce squelette couvre les situations dans laquelle une liste de fonction qui doivent s'exécuter en série, est répartie sur un ensemble de processeurs différents. En régime permanent l'exécution de la fonction $F_{i}$ sur les données $D_{i+1}$ se fait alors en parallèle avec celle de la fonction $F_{i+1}$ sur les données $D_{i}$. La figure \ref{skell-pipe} illustre ce fonctionnement en régime permanent.
+\begin{figure}[!htb]
+	\centering
+  \includegraphics[width= \columnwidth]{Chapter2/figures/skell-pipe}
+	\caption{Exemple de squelette du type \textbf{Pipeline}}
+	\label{skell-pipe}
+\end{figure}
+Le parallélisme résulte du fait que l'évaluation des différents fonctions du \textbf{Pipeline} sur des éléments différents du flux ($D_{0}$, $D_{1}$ par exemple sur la figure \ref{skell-pipe}) se fait de manière indépendante. Deux grandeurs caractérisent alors le \textbf{Pipeline} : (1)la latence qui est la durée de traitement d'un élément de flux par tous les étages du pipeline, (2) le débit, qui mesure le nombre de résultats fournis par unités de temps et qui est déterminé par l'étage le plus lent du \textbf{Pipeline}.
+\paragraph{Le Squelette Pardo}
+\begin{figure}[!htb]
+	\centering
+  \includegraphics[width= 0.2\columnwidth]{Chapter2/figures/skell-pardo}
+	\caption{Exemple de squelette du type \textbf{Pardo}}
+	\label{skell-pardo}
+\end{figure}
+Le squelette \textbf{Pardo} permet de placer de manière \emph{ad hoc} $N$  fonctions sur $N$ processeurs (Fig. \ref{skell-pardo}). Le schéma de communication est alors implicite. Ce type de squelette est fait pour faciliter la mise en oeuvre d'applications qui ne correspondent pas à un squelette bien défini. Le squelette \textbf{Pardo} est notamment utilisé pour rassembler plusieurs fonctions indépendantes opérant sur un flux de données. Le temps d'exécution d'un tel schéma est alors celui de la fonction qui prend le plus de temps à s'exécuter. 
+\subsection{Squelettes dédiés à la structuration de l'application}
+\subsubsection{Le Squelette Sequence}
+\subsubsection{Le Squelette Select}
+\subsection{Modèle de Programmation \texttt{SKELL\_BE}}
+Dans le modèle de programmation \texttt{SKELL\_BE} \cite{skellbepact}, le processeur Cell est considéré comme une machine asymétrique. Le modèle inclue deux codes source, un pour le PPE et un autre pour le SPE. Du point de vue du PPE une application peut appeler un \emph{kernel} de calcul qui est compilé et exécuté sur le SPE comme dans une application de \emph{stream processing} (\ref{skellbe01}.
+%===============================Listing PPEKERNEL =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+numbers=left,                   % where to put the line-numbers
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = Exemple d'un appel à un kernel PPE dans \texttt{SKELL\_BE},
+label = skellbe01
+}
+\lstinputlisting{Chapter2/Code/ppekernel.c}
+%===================================================================================
+Un \emph{kernel} est défini par la macro \texttt{SKELL\_KERNEL} comme un prototype de fonction dans lequel les arguments passés par référence sont considérés comme des sorties du \emph{kernel}, alors que les arguments passées par valeur ou par référence contante sont les entrées su \emph{kernel}. La ligne 9 du listing \ref{skellbe01} montre un exemple d'appel de \emph{kernel} au \emph{\emph{runtime}}, l'initialisation du processeur Cell qui est effectuée par un appel à \texttt{skell:environment} démarre un groupe de \emph{\emph{threads}} SPE et les mets en attente d'un appel à un \emph{kernel} ce qui réduit le surcoût de création de \emph{\emph{threads}} à chaque fois. La terminaison des \emph{\emph{threads}} est effectuée de la même manière à la fin de la portée de la fonction \emph{main}.\\
+\indent Du point de vue des SPEs, chacun d'eux est un neoud de \emph{cluster} qui supporte la communication point-à-point. Les applications sont conçus à base d'une  composition de squelettes instanciées avec des fonctions définies par l'utilisateur qui considèrent la mémoire centrale comme un mémoire distante à partir de laquelle peuvent être lues ou écrite de manière asynchrone au travers des commandes DMA de la librairie standard ou à des fonctions fournies par \texttt{SKELl\_BE} \ref{skellbe02}.
+
+%===============================Listing SPEKERNEL =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+numbers=left,                   % where to put the line-numbers
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = Exemple de définition d'un kernel SPE dans \texttt{SKELL\_BE},
+label = skellbe02
+}
+\lstinputlisting{Chapter2/Code/spekernel.c}
+%======================Conclusion Générale ==================================
+Ce dernier code source illustre plusieurs aspects :
+\begin{itemize}
+\item la macro \texttt{SKELL\_BE} génère le \emph{stub} de la fonction \texttt{main} et l'introspection de code requise par \texttt{SKELL\_BE}.
+\item la fonction \texttt{run} qui est utilisée dans la foncion de \emph{kernel} pour construire une aplication en utilisant les constructeurs de squelettes \texttt{pardo} et \texttt{seq}.
+\item l'objet \texttt{argN\_} qui fournit un accès transparent au $N^{ième}$ argument du \emph{kernel} stocké dans la mémoire centrale.
+\item les fonction \texttt{pull} et \texttt{push} qui permettent un accès asynchrone à la mémoire principale adressée par le PPE. Ces fonctions déduisent la meilleurs manière de rapatrier les données à partir de leurs arguments et utilisent un découpage statique des données à partir du nombre de SPEs impliquées et de la taille de leur mémoire privée. 
+\item La fonction \texttt{terminate} déclenche la terminaison du \emph{kernel}. Celle-ci n'est appelée qu'une fois per \emph{kernel}, dés que toutes les données transférées de la mémoire centrale on été traitées.
+\end{itemize}
+Le tableau \ref{skellbeapi} résume les principales fonctions de l'interface utilisateur (API) de \texttt{SKELL\_BE}.
+\begin{table}
+\centering
+%\begin{tabular}{ll}
+\begin{tabularx}{\columnwidth}{lX}
+\hline
+\hline
+\textbf{Gestion de l'Application} & \\
+\hline
+\hline
+\texttt{environement(argc,argv)} & Démarrage de l'application\\
+\hline
+\texttt{rank()}      & retourne l'indentifiant PID su SPE courant \\
+\hline
+\texttt{terminate()} & Signale la fin du flux de données et termine l'application\\
+\hline
+\texttt{run(skeleton)}      & Execute une application squelette\\
+\hline
+\hline
+\textbf{Constructeurs de Squelettes}& \\
+\hline
+\hline
+\texttt{seq(f)} & Transforme une fonction utilisateur en une tâche squelette\\
+\hline
+\texttt{operator,(s$_1$,s$_2$)}       & \\
+\texttt{chain(s$_1$,$\ldots$,s$_n$)}  & Constructeur de composition séquentielle\\
+\texttt{chain<N>(s)}                  & \\
+\hline
+\texttt{operator|(s$_1$,s$_2$)}          & \\
+\texttt{pipeline(s$_1$,$\ldots$,s$_n$)}  & Constructeur de \emph{Pipeline}\\
+\texttt{pipeline<N>(s)}                  & \\
+\hline
+\texttt{operator\&(s$_1$,s$_2$)}       & \\
+\texttt{pardo(s$_1$,$\ldots$,s$_n$)}  & Constructeur de \emph{Pardo}\\
+\texttt{pardo<N>(s)}   		      & \\
+\hline
+\hline
+\textbf{Transfert de Données} & \\
+\hline
+\hline
+\texttt{pull(arg$_N$,v,sz=0,o=0)}   & Récupère $sz$ éléments de la  $N^{ième}$ donnée de la mémoire centrale
+                                      et les sauvegarde dans $v$ avec un \emph{offset} $o$\\
+\hline
+\texttt{push(arg$_N$,v,sz=0,o=0))}  & Envoie $sz$ éléments de la donnée $v$ à la  $N^{ième}$ donnée dans la mémoire
+                                      centrale avec un \emph{offset} $o$\\
+\hline
+\hline
+%\end{tabular}
+\end{tabularx}
+\caption{Interface utilisateur \texttt{SKELL\_BE}}
+\label{skellbeapi}
+\end{table}
+
+\subsection{Détails de l'Implémentation}
+Le développement d'une librairie de calcul parallèle à base squelettes algorithmiques à la fois efficace et expressive est une tâche complexe. Plusieurs tentavies ont montré que le compromis entre expressivité et efficacité était déterminant pour le succès d'une telle librairie. Le polymorphisme est à première vue une bonne solution pour exprimer la relation entre les squelettes et les objets fonctions, l'expérience démontre que l'\emph{overhead} induit par son \emph{\emph{runtime}} affecte considérablement la performance globale d'une application. Dans le cas des squelette le polymorphisme au \emph{runtime} n'est pas vraiment nécessaire : par conception, la structure d'une application exprimée sous forme de squelettes imbriqués est connue à la compilation. Il suffit juste de trouver une manière propre d'exploiter cette information disponible à la compilation d'une manière judicieuse.\\
+\indent Considérons les constructeurs de squelettes comme des mots-clés d'un petit langage déclaratif \emph{domain-specific}\footnote{en opposition à un langage \emph{general-purpose}}. L'information sur l'application à générer est donnée par la sémantique opérationnelle de ces constructeurs. Dans notre cas, le défi était de trouver une manière de définir un tel langage comme une extension de C++ qui définit un EDSL (\emph{Embedded Domain Specific Language}), sans construire une nouvelle variation d'un compilateur mais seulement en utilisant la méta-programmation.\\
+La méta-programmation est un ensemble de techniques héritées de la programmation générative qui permet la manipulation, la génération et l'introspection de fragments de code dans un langage. A titre comparatif, lorsqu'une fonction est exécutée au \emph{\emph{runtime}} pour produire des valeurs à l'exécution, une méta-fonction opère à la compilation sur des fragments de code pour générer des fragments de code plus spécialisés qui seront compilés. l'exécution d'un tel code se fait par conséquent en deux passes. En C++, un tel système est mis en oeuvre par les classes et les fonctions \emph{template}. En utilisant la flexibilité de la surcharge d'opérateur et de fonctions en C++ et le fait que les \emph{templates} C++ peuvent effectuer des calculs arbitraires à la compilation, on peut évaluer la structure d'une application parallèle décrite par une combinaison de squelettes \textbf{à la compilation}. Pour ce faire, la structure extraite de la définition de l'application doit être transformée en une représentation intermédiaire basée sur un réseau de \emph{processes} séquentiels. Dans le cas de \texttt{SKELL\_BE} la difficulté fut d'enfouir les constructeur de squelettes dans des éléments de langage, de générer le code sur les SPEs et d'effectuer le transfert d'arguments entre le PPE et les SPEs.
+\subsection{Génération de Code pour les SPEs}
+L'implémentation d'un \emph{EDSL} en C++ impose d'avoir une méthode pour trouver de manière adéquate des informations non-triviales à partir de l'arbre de syntaxe abstraite d'une expression (\emph{AST}). Ceci est effectué en général à l'aide d'une technique connue sous le nom de \emph{Expression Templates} \cite{exp_tpl}. Les \emph{Expression Templates} utilisent la surcharge de fonctions et d'opérateurs pour construire une représentation simplifiée de l'arbre de syntaxe abstraite d'une expression. La structure arbre est un type template complexe structuré comme une représentation linéaire de l'arbre. Les information sur les terminaux de l'expression sont sauvegardées en tant que références dans l'objet \emph{AST}. Cet objet temporaire peut alors être passé comme un argument à d'autres fonctions qui analysent son type est extraient les informations requises pour la tâche en effectuant ce que l'on appelle une \textbf{évaluation partielle} \cite{parteval}.\\
+\indent Pour transformer un \emph{AST} en un code exploitable, il faut transformer l'arbre en un réseau de \emph{process}. Afin d'y parvenir, la sémantique opérationnelle définie dans \cite{falcousem} est transformé en méta-programme capable de générer une liste statique de processes. Chacune des constructeurs de squelettes de \texttt{SKELL\_BE} génére un objet sans état dont le type encode le structure du squelette. a titre d'exemple, le code de l'opérateur \texttt{pipe} est donné dans le listing \ref{pipecode}. On notera qu'aucun calcul n'est effectué à cette étape mais que la structure du squelette est elle même enfouie dans le type de retour.
+%===============================Listing PIPECODE =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+%numbers=left,                   % where to put the line-numbers
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = L'opérateur \texttt{pipe},
+label = pipecode
+}
+\lstinputlisting{Chapter2/Code/pipecode.c}
+Le type \emph{template} est désormais utilisable avec nos méta-fonctions. Celles-ci se chargent de la génération de structures représentants un réseau de \emph{process}. La fonction \texttt{run} appelle une méta-function qui parse le \emph{template} AST et génère l'instatiation du type \texttt{process\_network} adéquat. La règle de sémantique appropriée est appliquée sur chaque squelette rencontré dans l'AST en utilisant la spécialisation partielle des \emph{templates} comme mécanisme de \emph{pattern matching}. Une fois défini, ce réseau est transformé en code en itérant sur ses noeuds et en générant une séquence de fragments de codes SPMD dans lesquelles la liste d'instructions du \emph{process} est exécutée. Ceci est réalisé en construisant un tuple d'objets fonction qui contient le code d'opérations de base qui sont instantiées une fois par SPE. Par exemple, considérons l'expression squelette suivante qui construit un \emph{pipeline} simple à trois étages :
+\begin{center}
+\texttt{run( seq(A) | seq(B) | seq(C) );}
+\end{center}
+Cette expression produit au squelette d'AST suivant :  
+%===============================ListingASTSKELL =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+%numbers=left,                   % where to put the line-numbers
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = La structure d'un squelette connue à la compilation,
+label = skellast
+}
+\lstinputlisting{Chapter2/Code/skellast.c}
+La structure de cet objet temporaire est désormais claire. Les appels successifs à l'opérateur \emph{pipeline} sont clairement visibles et les objets fonctions terminaux apparaissent explicitement. Pour des raisons de performance, on utilise le fait que l'adresse d'une fonction est une constante valide connue à la compilation que l'on peut stocker directement comme paramètre \emph{template}. Le type est ainsi converti en une représentation sous forme de réseau de \emph{process}. Le résultat est le type suivant:
+%===============================ListingASTSKELL =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+%numbers=left,                   % where to put the line-numbers
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption =Représentation sous forme de réseau \emph{process},
+label = processnetwork
+}
+\lstinputlisting{Chapter2/Code/processnetwork.c}
+Le type \emph{template} \texttt{network} contient toutes les informations qui décrivent le réseau de \emph{process} série communicants construit à partir des squelettes, notamment : le PID du premier noeud du réseau, e PID du dernier noeud du réseau et une liste de \emph{process}. Dans le même esprit, la structure \emph{template} \texttt{process} contient des informations dont son propre PID et un descripteur de code. Ce descripteur contient les PID des \emph{process} prédécesseur et successeur et ainsi qu'une liste de macro-instructions qui sont construites à partir de la sémantique du squelette.\\
+\indent La dernière étape est l'itération sur ces types et l'instantiation du code SPMD adéquat. Le listing \ref{finalcode} illustre le code final ainsi généré.
+%===============================Listing FinalCode =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+%numbers=left,                   % where to put the line-numbers
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = Code source génére,
+label = finalcode
+}
+\lstinputlisting{Chapter2/Code/finalcode.c}
+
+La structure SPMD des instructions \texttt{if} chaînées montrent la nature itérative du générateur de code. Chacun des ces blocs effectue les même opérations. En premier lieu, les types de entrées/sorties sont récupérées de l'analyse du type de fonction. Ces types sont ensuite instanciés sous forme d'un tuple. Le code du du \emph{process} est ensuite exécuté dans une boucle qui se met dans une boucle en attente d'un signal de terminaison. Dans cette boucle, chacune des macro-instructions qui apparaissent dans la description du type  réseau de \emph{process} génère un appel concret à soit un transfert DMA ou à un proxy d'appels de fonctions qui extraie les données d'un tuple, alimente une fonction définie par l'utilisateur et retourne un tuple de résultats. Une grande partie de ce processus est facilité par les librairies Boost telles que Proto qui gère la génération des règles de sémantique méta-programmées et Fusion qui gère la transition entre les comportement à la compilation et au \emph{\emph{runtime}} \cite{falcouboost}.\\
+\indent Le processus de génération permet de mieux comprendre pourquoi \texttt{SKELL\_BE} est plus performant que d'autre solution à base de C++. Dans le code généré, toutes les fonctions et le code dépendant des squelettes sont résolues statiquement. Tous les types de données sont concrets et tous les appels de fonctions sont directs. Il n'y a pas donc pas de polymorphisme au \emph{\emph{runtime}} et le compilateur est capable d'\emph{inliner}  plus de code et d'effectuer plus d'optimisation.
+
+\subsection{Communications PPE/SPEs}
+L'autre difficulté dans la conception d'une librairie de parallélisation de code pour le Cell, est son architecture mémoire distribuée qui requiert une gestion explicite des transfert de données entre la mémoire centrale et les mémoire locale des SPEs. Le but étant de trouver une manière de transférer les données de la mémoire centrale vers les SPEs d'une manière transparente du point de vue de l'utilisateur. Une stratégie usuelle passe par le transfert au début du programme, d'une structure appelée \emph{control block} qui contient les informations communes au SPEs et nécessaires à l'exécution du \emph{kernel}. En général, cette structure dépend de l'application et contient toutes les données dont le \emph{kernel} a besoin. Dans notre cas, ces données sont fournies comme arguments de l'appel de fonction du \emph{kernel} principal. Il est ensuite nécessaire de construire à la compilation la structure \emph{control block} appropriée. Ceci est rendu possible en utilisant la méta-pogrammation \emph{template} qui parse le prototype de la fonction pour extraire une liste des types de ces arguments. Le \emph{control block} contiendra ainsi l'adresse de base de l'espace mémoire de chaque SPE et un tuple en utilisant sur l'algorithme suivant.
+\begin{itemize}
+\item Les entrées de types natifs sont stockés par valeurs.
+\item Les sorties de types natifs sont stockés dans une paire contenant leur adresse et une valeur statique contenant leur taille.
+\item Les tableaux sont stockés dans une paire contenant l'adresse de leurs éléments et une valeur statique contenant leur taille.
+\item Les types définis par l'utilisateur  sont stockés dans une paire contenant l'adresse de l'objet et sa taille.
+\end{itemize}
+
+Cette structure est ensuite remplie avec les vraies valeurs des données passées en arguments de l'appel du \emph{kernel} avant de lancer les \emph{\emph{threads}} SPE. A titre d'exemple le prototype de fonction suivant :
+\begin{center}
+\texttt{void f( int, int[5], float\& );}
+\end{center}
+
+est transformé en une structure : 
+
+%===============================Listing transstruct =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+%numbers=left,                   % where to put the line-numbers
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = Code source génére,
+label = transstruct
+}
+\lstinputlisting{Chapter2/Code/transstruct.c}
+
+La fonction suivante est ensuite générée pour la remplire : 
+%===============================Listing transfill =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+%numbers=left,                   % where to put the line-numbers
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = Code source génére,
+label = transfill
+}
+\lstinputlisting{Chapter2/Code/transfill.c}
+
+Du côté du SPE, les objets \texttt{argN} fournissent un opérateur de cast \emph{template} implicite qui récupère les valeurs du $N^{ième}$ élément du tuple au travers d'une commande DMA, ainsi qu'un opérateur d'affectation qui transfert une valeur à la données correspondante dans l'espace d'adressage du PPE. La déduction automatique des arguments \emph{template} permet une syntaxe à la fois compacte et intuitive de telle sorte à ce que le compilateur puisse appeler la bonne primitive de transfert DMA en se basant sur l'index des arguments et le type de la valeur.
+
+\subsection{Résultats Expérimentaux}
+Nous avons mené une campagne de mesure qui a pour but de prouver que SKELL BE ne provoque pas de pertes importante au niveau de la performance. Pour ce faire, nous avons effectué plusieurs tests. La première vise à créer des applications synthétiques à bas de squelettes afin d'évaluer l'\emph{overhead} des méta-programmes. Le deuxième test consiste en l'évaluation de la performance d'algorithmes numériques et de l'algorithme Harris pour la detection de point d'intérêt traité plus en détail par la suite. Les test on été effectué sur une lame IBM QS20 et la compilation s'est faite à l'aide avec la chaîne \texttt{gcc} et la métrique temporelle utilisée est le nombre de cycles moyen par point traité.
+\subsubsection{Benchmarks Synthétiques}
+Cette mesure a pour but de prouver que le surcoût induit par la couche de méta-programmation d'un squelette est négligeable. Pour ce faire, nous avons évalué le temps d'exécution d'un squelette SKELL BE synthétique en augmentant le nombre de SPEs mis en jeu avec un code source similaire écrit à la main.  Les premiers résultats permettent de constater que l'exécution d'une fonction au travers des opérateur CHAIN ou SEQ , n'induit pas un \emph{overhead} important. L'examen du code source assembleur généré démontre que la seule différence entre l'appel direct et la version squelette est une indirection de pointeur qui permet de retrouver l'adresse de la fonction à partir de l'objet adaptateur de fonction utilisé en interne.\\
+\indent Le test pour le squelette PIPE construit un \emph{pipeline} de 2 jusqu'à 8 SPEs dans lequel la quantité de transfert de données est négligeable. Chaque étage de ces \emph{pipeline} exécutent dont la durée est comprise entre 10 $ms$ et 200 $ms$. Les mêmes tests ont été effectués pour le squelette PARDO. Les figures \ref{overheadpipe} et \ref{overheadpardo} illustrent les résultats de mesures. On peut ainsi constater que le surcoût ne dépasse jamais 1.5 \%.
+\subsubsection{Benchmarks de \emph{Scalability}}
+L'évaluation qui suit mesure la \emph{scalability} (passage à l'echelle) de notre outil SKELL BE et fait une comparaison avec d'une part un code équivalent écrit à la main ou alors un code \emph{OpenMP} compilé avec \emph{XLC single source compiler} pour le Cell. La mesure s'est faite sur des noyaux de calculs de l'API \emph{BLAS}  \emph{Basic Linear Algebra Subprograms}. L'évaluation de la \emph{scalability }se fait en mesurant un \emph{speedup} relatif en comparaison avec l'exécution sur un SPE.
+\paragraph{Le noyau \texttt{DOT}}
+\begin{table}
+\centering
+\begin{tabular}{|c||c|c|c|c|}
+\hline
+\textbf{SPE} & \textbf{OMP} & \textbf{Manual} & \textbf{SKELL BE} & \textbf{\emph{overhead}}\\
+\hline
+\hline
+1 & 219.7 & 65.9 & 67.9 & 3.1 \%\\
+\hline
+2 & 263.7 & 32.9 & 34.5 & 4.7 \%\\
+\hline
+4 & 131.9 & 16.5 & 17.3 & 4.78 \%\\
+\hline
+8 & 66.1 & 8.3 & 8.7 & 4.9 \%\\
+\hline
+\end{tabular}
+\caption{Benchmark \texttt{DOT}}\label{scaldot}
+\end{table}
+
+Dans ce programme nous effectuons le produit scalaire de deux tableaux de $10^{9}$ élements flottants simple-précision. La versions OpenMP utilise une directive de réduction alors que les versions écrite à la main et SKELL BE collectent explicitement les résultats partiels pour les additionner.  Dans ce cas là le $cpp$ minimum pour la version OpenMP est de 66 donnant un \emph{speedup} maximal relatif de $\times 3.32$ lorsque la version manuelle donne elle, un \emph{speedup} de7.98. La version OpenMP est limitée par le surcoût induit par la gestion implicite des communication et de la synchronisation. Dans la même situation SKELL BE fournit un accélération maximale de $\times 7.85$ ce qui représente un \emph{overhead} de 5\% par rapport à la version écrite à la main. 
+\paragraph{Le noyau \texttt{CONVO}}
+\begin{table}
+\centering
+\begin{tabular}{|c||c|c|c|c|}
+\hline
+\textbf{SPE} & \textbf{OMP} & \textbf{Manual} & \textbf{SKELL BE} & \textbf{\emph{overhead}}\\
+\hline
+\hline
+1 & 2402 & 649 & 672 & 3.6\%\\
+\hline
+2 & 4289 & 391 & 411 & 5.0 \%\\
+\hline
+4 & 2146 & 172 & 181 & 45.2 \%\\
+\hline
+8 & 1073 &   98 &  103 & 5.4\%\\
+\hline
+\end{tabular}
+\caption{Benchmark \texttt{CONVO}}\label{scalconvo}
+\end{table}
+
+Dans ce deuxième opérateur testé, nous effectuons un produit de convolution sur des images de taille $4096 \times 4096$ avec un masque de taille $3 \times 3$ Dans toutes les versions le masque est dupliqué dans chaque SPE.  Les versions manuelles atteignenent jusqu'à $ \times 6.54$ comparativement au \emph{speedup} OpenMP de 2.24 et celui de SKELL BE mesuré à 6.52. L'\emph{overhead} quand à lui a augmenté à cause notamment de la gestion des transfert non-alignés (qui se fait au \emph{\emph{runtime}}) du noyaux de convolution, il est autour de 5\%. 
+
+\paragraph{Le noyau \texttt{SGEMV}}
+\begin{table}
+\centering
+\begin{tabular}{|c||c|c|c|c|}
+\hline
+\textbf{SPE} & \textbf{OMP} & \textbf{Manual} & \textbf{SKELL BE} & \textbf{\emph{overhead}}\\
+\hline
+\hline
+1 & 200.7 & 179.8& 187.9 & 4.6\%\\
+\hline
+2 & 208.5 & 79.9 & 83.9 & 4.9 \%\\
+\hline
+4 & 104.3 & 42.2 & 44.5 & 5.5 \%\\
+\hline
+8 & 52.2 &   23.6 &  25.0 & 5.9\%\\
+\hline
+\end{tabular}
+\caption{Benchmark \texttt{SGEMV}}\label{scalsgemv}
+\end{table}
+Dans ce benchmark, un produit  entre une matrice $4096 \times 4096$ et un vecteur $4096 \times 1$. On remarque la même chose que dans ce qui précède, c'est à dire une bonne \emph{scalability} de SKELL BE avec un \emph{overhead} toujours autour de 5\%.
+
+\subsubsection{Algorithme de Harris}
+Cette application est plus complexe que celle étudiées précédemment car elle comporte plusieurs opérateurs, à la fois point-à-point et noyaux de convolution. Ce benchmark a pour but de prouver que SKELL BE est également adapté pour notre domaine d'application. Plusieurs schémas de parallélisation sont possible pour cet algorithmes, ils sont traités avec plus de détails dans le chapitre suivant. Nous avons choisi ici trois versions de déploiement :  une version complètement chaînée où tous les opérateurs sont regourpés au sein d'un seul et même SPE et répliqués 8 fois; la versions chaînée à moitié, ou les opérateurs sont chaînés deux à deux sur un SPE, un \emph{pipeline} est ensuite formé entre deux SPEs ce qui permet de répliquer 4 fois; Et enfin une version ou chaque opérateur occupe un SPE,  ce qui permet de répliquer 2 fois. Le listing \ref{harrisskell} représente les \emph{kernels} SPE des différentes versions.  Le chaînage y est représenté par une virgule (\textbf{,}) et le \emph{pipeline} par un opérateur \textbf{\textbar}.
+%===============================Listing transfill =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+%numbers=left,                   % where to put the line-numbers
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = Les \emph{kernels SPE des implémentations de l'opérateur de Harris},
+label = harrisskell
+}
+\lstinputlisting{Chapter2/Code/harrisskell.c}
+
+On compare les différentes versions en terme de nombre de cycles par pixel avec des implémentations manuelles de l'algorithme sur des images $512 \times 512$ (Tableau \ref{tabharrisskell}). L'\emph{overhead} est également de 5\% ce qui valide notre approche car le compromis \emph{overhead} rapidité de mise en oeuvre est très bon. 
+\begin{table}[htb]
+\begin{tabular}{|c||c|c|c|}
+\hline
+\textbf{Manual} & \textbf{Full-Chain}  & \textbf{Half-Chain}  & \textbf{No-Chainl}  \\
+\hline
+\hline
+\textbf{Manual} & 11.26 & 8.36 & 9.97 \\
+\hline
+\textbf{SKELL BE} & 11.86 & 8.64 & 10.43 \\
+\hline
+\textbf{\emph{Overhead}} & 5.33 \%&  3.35 \% &  4.61 \% \\
+\hline
+\end{tabular}
+\caption{Benchmarks de l'algorithme de Harris}\label{tabharrisskell}
+\end{table}
+\subsubsection{Impact sur la Taille de l'Exécutable}
+La méta-programmation est souvent blâmée pa-ce-qu'elle produit des exécutables trop grands à cause de la réplication de code. Sur le processeur Cell, ce problème devient critique à cause de la taille limitée des \emph{local store} (256 KB) et doit par conséquent rester sous contrôle. Pour évaluer l'impact de la méta-programmation sur la taille du code source nous avons comparé la taille des codes générés par SKELL BE avec ceux écrits à la main. 
+\begin{table}[htb]
+\begin{tabular}{|c||c|c|c|c|}
+\hline 
+\textbf{Opérateur} & \textbf{\texttt{DOT}}& \textbf{\texttt{CONVO}} & \textbf{\texttt{SGEMV}}& \textbf{\texttt{HARRIS}} \\
+\hline
+\hline
+\textbf{Code écrit à la main} & 1.1 KB & 1.2 KB & 2.3 KB & 5.3 KB \\
+\hline
+\textbf{Code Généré par SKELL BE} & 12.6 KB & 14.5 KB & 22.7 KB & 49.4 KB \\
+\hline
+\end{tabular}
+\caption{Benchmarks de l'algorithme de Harris}\label{codesize}
+\end{table}
+De manière générale, le code SKELL BE tiens largement dans les 256 KB du \emph{local store} mais celui-ci est 10 fois plus grand qu'un code équivalent écrit à la main. Ceci est principalement du au fait que SKELL BE génère par défaut un code SPMD contenant une structure du type \emph{switch}  qui englobe le code de tous les SPEs, ce qui donne approximativement un code 8 fois plus gros. Une des solutions dans ce cas là serait de passer le PID du SPE comme symbole au pré-processeur et de ne faire compiler que le code propre à ce même SPE.
+\subsubsection{Impact sur la Temps de Compilation}
+L'autre problème s'agissant de la méta-programmation est le temps de compilation. En effet, le temps de compilation d'un programme SKELL BE peut être décomposé en deux étapes principales : une première étape durant 1.5 s qui englobe les directives du preprocesseur qui gère les fonction définies par l'utilisateur; une deuxième étape proportionnelle au nombre de types de squelettes utilisés. Dans le pire des cas, qui est celui du squelette Half-Pipe la compilation prend 10s. 
+\subsection{Conclusion}
+SKELL BE est une solution à base de langage spécifique au domaine enfouis dans C++. Il est basé sur les squelettes algorithmiques ,un modèle de programmation parallèle très flexible. Il est très adapté au processeur Cell car le placement du graphe d'application y est primordial pour la performance. Les résultats qui précèdent tendent à prouver que l'on obtient de bonne performance tant au niveau temporel brut qu'au niveau de la /\emph{scalability}. Les mesures sur les benchmarks simples ont prouvé que l'\emph{overhead} induit est négligeable comparativement à un code écrit à la main. Le déploiement de l'agorithme de Harris sur le Cell à l'aide de SKELL BE et selon plusieurs schémas de parallélisation,  permettent d'apprécier la flexibilité et l'expressivité fournies par l'outil. Les performances obtenus sur l'algorithme prouvent l'efficacité de l'outil.
+
+\section{Conclusion Générale}
+Dans ce qui précède nous avons décrit les différents outils ou modèle de programmation pour le processeur Cell. Ce chapitre, qui n'est pas une étude exhaustive, fait état des principaux outils qui ont fait objet de publications et d'évaluation significatives. Les outils diffèrent par leur mise en oeuvre et leur difficulté d'utilisation. Les plus simples à utiliser, qui sont les approches à base d'annotation de code (OpenMP, CellSS), laissent le soin au compilateur de faire le travail de parallélisation et d'optimisation du code. De l'autre côté RapidMind et Sequoia adoptent une approche qui définit un langage spécifique accompagné d'un \emph{\emph{runtime}} et d'un compilateur, mais une bonne partie du travail d'optimisation est laissée à la charge du programmeur. Enfin, l'approche de programmation la plus fastidieuse et celle des \emph{Pthreads} qui sont un outil de programmation parallèle très bas niveaux qui laisse une grande liberté au programmeur pour ce qui est du déploiement de son code sur le Cell. Un code à base de \emph{\emph{threads} }  est de ce fait long à mettre en oeuvre est difficile à maintenir, mais il permet d'un autre  côté d'avoir un contrôle total sur son implémentation. Ceci a un intérêt en cas de contraintes fortes en termes de temps d'exécution et de prédictibilité de comportement.  
+On notera que la mise en oeuvre à nécessité un grand effort de la part des concepteurs pour deux raisons principales: (1) la mémoire distribuée du Cell qui impose la gestion explicite des transferts mémoire à partir de et vers la mémoire centrale (2) Le PPE et les SPEs possèdent un jeux d'instructions différents ce qui rend difficile l'étape de génération de code.
+
+
+
+%On trouve dans la littérature plusieurs jeux de squelettes algorithmiques répondant à divers besoins [45, 22, 5, 88, 119, 54]. Au sein de QUAFF, 
+%\section{The Divide \& Conquer Skeleton (Fixed Degree}
+%Ce type de squelette provient de la célèbre technique du \emph{divide and conquer}. Cette technique peut s'appliquer lorsque la solution à un problème peut être définie récursivement comme une collections de sous-problèmes qui sont des instances plus petites du problème original. Les algorithmes de ce type offrent un bon potentiel de parallélisation. En effet, si l'on arrive à exprimer un problème sous forme de sous-problèmes définis récursivement  on imagine bien que ces derniers peuvent être exécutées de manière concurrente sur plusieurs processeurs. L'exécution des algorithmes du type \emph{divide and conquer} se résume à l'évaluation d'un arbre de processus évoluant dynamiquement, le processus représentant un sous-problème généré. Le défi étant de s'assurer que les déploiement de cet arbre virtuel se fait de la manière la plus efficace possible sur une vraie machine. 
+%\section{The Iterative Combination Skeleton}
+%\section{The Cluster Skeleton}
+	%\section{The Task Queue Skeleton}>>>>>>> .r54

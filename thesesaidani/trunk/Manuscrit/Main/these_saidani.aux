@@ -1,0 +1,331 @@
+\relax 
+\catcode`:\active
+\catcode`;\active
+\catcode`!\active
+\catcode`?\active
+\select@language{french}
+\@writefile{toc}{\select@language{french}}
+\@writefile{lof}{\select@language{french}}
+\@writefile{lot}{\select@language{french}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {1}Introduction}{11}}
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {section}{\numberline {1.1}Introduction au Calcul Parallèle}{11}}
+\citation{vonneumann}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.1.1}Concepts Généraux}{12}}
+\@writefile{toc}{\contentsline {subsubsection}{Architecture de \emph  {von Neumann}}{12}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1.1}{\ignorespaces Architecture de \emph  {von Neumann}}}{12}}
+\newlabel{figvonneumann}{{1.1}{12}}
+\citation{flynn}
+\@writefile{lot}{\contentsline {table}{\numberline {1.1}{\ignorespaces Classification de Flynn des machines parallèles}}{13}}
+\newlabel{flynn}{{1.1}{13}}
+\@writefile{toc}{\contentsline {subsubsection}{Classification de Flynn des Machines Parallèles}{13}}
+\@writefile{toc}{\contentsline {paragraph}{Single Instruction, Single Data (SISD)}{13}}
+\@writefile{toc}{\contentsline {paragraph}{Single Instruction, Multiple Data (SIMD)}{13}}
+\@writefile{toc}{\contentsline {paragraph}{Multiple Instruction, Single Data (MISD)}{14}}
+\@writefile{toc}{\contentsline {paragraph}{Multiple Instruction, Multiple Data (MIMD)}{14}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.1.2}Architectures Mémoire des Machines Parallèles}{14}}
+\@writefile{toc}{\contentsline {subsubsection}{Les Machines Parallèles à Mémoire Partagée}{14}}
+\@writefile{toc}{\contentsline {paragraph}{Uniform Memory Access (UMA)}{14}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1.2}{\ignorespaces Machine Parallèle à Mémoire Partagée UMA}}{15}}
+\newlabel{figSMUMA}{{1.2}{15}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1.3}{\ignorespaces Machine Parallèle à Mémoire Partagée NUMA}}{15}}
+\newlabel{figSMNUMA}{{1.3}{15}}
+\@writefile{toc}{\contentsline {paragraph}{Non-Uniform Memory Access (NUMA)}{15}}
+\@writefile{toc}{\contentsline {paragraph}{Avantages et Incovénients}{15}}
+\@writefile{toc}{\contentsline {subsubsection}{Les Machines Parallèles à Mémoire Distribuée}{16}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1.4}{\ignorespaces Machine Parallèle à Mémoire Distribuée}}{16}}
+\newlabel{figDMEM}{{1.4}{16}}
+\@writefile{toc}{\contentsline {paragraph}{Avantages et Incovénients}{16}}
+\@writefile{toc}{\contentsline {subsubsection}{Les Machines Parallèles à Mémoire Hybride}{17}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1.5}{\ignorespaces Machine Parallèle à Mémoire Hybride}}{17}}
+\newlabel{figHMEM}{{1.5}{17}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.1.3}Modèles de Programmation Parallèle}{17}}
+\@writefile{toc}{\contentsline {subsubsection}{Le Modèle \emph  {Shared Memory}}{18}}
+\@writefile{toc}{\contentsline {subsubsection}{Le Modèle de Programmation par \emph  {Threads}}{18}}
+\citation{pthreads_std}
+\citation{mpistand}
+\@writefile{toc}{\contentsline {paragraph}{Les \emph  {Threads} POSIX}{19}}
+\@writefile{toc}{\contentsline {paragraph}{OpenMP}{19}}
+\@writefile{toc}{\contentsline {subsubsection}{Le Modèle \emph  {Message Passing}}{19}}
+\@writefile{toc}{\contentsline {subsubsection}{Le Modèle \emph  {Data Parallel}}{20}}
+\@writefile{toc}{\contentsline {subsubsection}{Autres Modèles}{20}}
+\@writefile{toc}{\contentsline {paragraph}{Modèle Hybride}{20}}
+\@writefile{toc}{\contentsline {paragraph}{Modèle Single Program Multiple Data}{21}}
+\@writefile{toc}{\contentsline {paragraph}{Modèle Multiple Program Multiple Data}{21}}
+\@writefile{toc}{\contentsline {section}{\numberline {1.2}Traitement d'Images et Parallélisme}{21}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.2.1}Le Partitionnement}{22}}
+\@writefile{toc}{\contentsline {subsubsection}{Décomposition de Domaine}{22}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1.6}{\ignorespaces Partitonnement par décomposition du domaine}}{22}}
+\newlabel{figdomain}{{1.6}{22}}
+\@writefile{toc}{\contentsline {section}{\numberline {1.3}Aperçu de l'Architecture}{22}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1.7}{\ignorespaces Partitonnement par décomposition du domaine en traitement d'images}}{23}}
+\newlabel{decomp2D}{{1.7}{23}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1.8}{\ignorespaces Vue d'ensemble de l'architecture hétérogène du processeur Cell}}{25}}
+\newlabel{cell_fig1}{{1.8}{25}}
+\@writefile{toc}{\contentsline {subsubsection}{Le PPE: Power Processor Element}{25}}
+\@writefile{toc}{\contentsline {subsubsection}{Les SPE (Synergistic Processing Element)}{26}}
+\@writefile{toc}{\contentsline {subsubsection}{Le Bus Interne (Element Interconnect Bus)}{27}}
+\citation{pthreads_std}
+\@writefile{toc}{\contentsline {chapter}{\numberline {2}Modèles de Programmation}{29}}
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {section}{\numberline {2.1}Les Threads POSIX}{29}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1.1}l'API Pthread}{30}}
+\@writefile{toc}{\contentsline {subsubsection}{Gestion des Threads}{31}}
+\@writefile{toc}{\contentsline {subsubsection}{Les Variables \emph  {mutex}}{31}}
+\newlabel{pthreadcode}{{2.1}{32}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.1}Exemple de code \emph  {Pthread} basique montrant les routines de création de \emph  {threads}}{32}}
+\@writefile{toc}{\contentsline {subsubsection}{Les Variables de Condition}{33}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1.2}Les Threads POSIX sur le Cell}{33}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1.3}Processus de Génération de Code}{34}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1.4}conclusion}{34}}
+\citation{rapidmind}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.1}{\ignorespaces Processus \emph  {dual source} de génération de code exécutable pour le Cell}}{35}}
+\newlabel{fig_compprocess}{{2.1}{35}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.2}RapidMind}{36}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2.1}Modèle de Programmation et Interface}{36}}
+\@writefile{toc}{\contentsline {subsubsection}{le type \textbf  {\texttt  {Value}}}{37}}
+\@writefile{toc}{\contentsline {subsubsection}{le type \textbf  {\texttt  {Array}}}{37}}
+\@writefile{toc}{\contentsline {subsubsection}{le type \textbf  {\texttt  {Program}}}{38}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2.2}Evaluation Partielle et Algèbre du Programme}{38}}
+\newlabel{rapidmindcode}{{2.2}{39}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.2}Exemple de parallélisation de code avec \emph  {RapidMind}}{39}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2.3}Les Opérations Collectives}{40}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.2}{\ignorespaces Illustration d'une opération collective de réduction }}{41}}
+\newlabel{reduction}{{2.2}{41}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2.4}Spécificité du Backend pour le Cell de RapidMind}{41}}
+\citation{rapidmind}
+\citation{cell_omp}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2.5}Conclusion}{42}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.3}OpenMP}{42}}
+\newlabel{ompexample}{{2.3}{43}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.3}Exemple de code \emph  {OpenMP} où une boucle for est parallélisée}{43}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.1}\emph  {threads} et Synchronisation}{44}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.2}Génération de Code}{45}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.3}Modèle Mémoire}{46}}
+\citation{cell_omp}
+\citation{cellss_sc06}
+\citation{bsc_grid}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.4}Conclusion}{47}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.4}Cell SuperScalar}{47}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.3}{\ignorespaces Procédure de génération de code de CellSS}}{48}}
+\newlabel{cellss_chain}{{2.3}{48}}
+\newlabel{cellsscode}{{2.4}{49}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.4}Exemple sparse LU avec \emph  {CellSS}}{49}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.1}\emph  {runtime}}{50}}
+\@writefile{toc}{\contentsline {subsubsection}{Middleware pour le Cell}{51}}
+\citation{sequoia_sc06}
+\@writefile{toc}{\contentsline {subsubsection}{Exploitation de la Localité}{52}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.2}Conclusion}{52}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.5}\emph  {Sequoia}}{53}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.1}Mémoire Hiérarchique}{53}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.4}{\ignorespaces Multiplication de matrices de tailles 1024x1024 structurée en hiérarchie de tâches indépendantes effectuant des multiplications sur des blocs de données plus petits}}{54}}
+\newlabel{seq_fig1}{{2.4}{54}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.5}{\ignorespaces Modèle abstrait Sequoia du processeur Cell}}{55}}
+\newlabel{seq_fig2}{{2.5}{55}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.2}Modèle de Programmation}{56}}
+\@writefile{toc}{\contentsline {subsubsection}{Communication Explicite et Localité}{56}}
+\@writefile{toc}{\contentsline {subsubsection}{Isolation et Parallélisme}{56}}
+\@writefile{toc}{\contentsline {subsubsection}{Décomposition de Tâche}{57}}
+\@writefile{toc}{\contentsline {subsubsection}{Variantes de Tâches}{58}}
+\@writefile{toc}{\contentsline {subsubsection}{Paramètrisation de Tâches}{58}}
+\@writefile{toc}{\contentsline {subsubsection}{Spécialisation de Tâches et Tunning}{59}}
+\newlabel{sequoiacode}{{2.5}{59}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.5}Exemple de multiplication matricielle par blocs \emph  {Sequoia}}{59}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.3}Implémentation}{60}}
+\@writefile{toc}{\contentsline {subsubsection}{Compilateur Cell et \emph  {runtime}}{60}}
+\citation{skeletons_cole}
+\@writefile{toc}{\contentsline {subsubsection}{Optimisations}{61}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.4}Conclusion}{61}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.6}Squelettes Algorithmiques pour le Cell}{61}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6.1}Modèle de Programmation}{62}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.6}{\ignorespaces Exemple de graphe de processus communicants avec hiérarchisation}}{63}}
+\newlabel{skelexple}{{2.6}{63}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.7}{\ignorespaces Arbre représentant le squelette en Figure \ref  {skelexple}}}{64}}
+\newlabel{fig_tree}{{2.7}{64}}
+\citation{skellbepact}
+\@writefile{toc}{\contentsline {subsubsection}{Squelettes dédiés au parallélisme de contrôle}{65}}
+\@writefile{toc}{\contentsline {paragraph}{Le Squelette Pipeline}{65}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.8}{\ignorespaces Exemple de squelette du type \textbf  {Pipeline}}}{65}}
+\newlabel{skell-pipe}{{2.8}{65}}
+\@writefile{toc}{\contentsline {paragraph}{Le Squelette Pardo}{65}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.9}{\ignorespaces Exemple de squelette du type \textbf  {Pardo}}}{66}}
+\newlabel{skell-pardo}{{2.9}{66}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6.2}Squelettes dédiés à la structuration de l'application}{66}}
+\@writefile{toc}{\contentsline {subsubsection}{Le Squelette Sequence}{66}}
+\@writefile{toc}{\contentsline {subsubsection}{Le Squelette Select}{66}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6.3}Modèle de Programmation \texttt  {SKELL\_BE}}{66}}
+\newlabel{skellbe01}{{2.6}{66}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.6}Exemple d'un appel à un kernel PPE dans \texttt  {SKELL\_BE}}{66}}
+\newlabel{skellbe02}{{2.7}{67}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.7}Exemple de définition d'un kernel SPE dans \texttt  {SKELL\_BE}}{67}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6.4}Détails de l'Implémentation}{68}}
+\@writefile{lot}{\contentsline {table}{\numberline {2.1}{\ignorespaces Interface utilisateur \texttt  {SKELL\_BE}}}{69}}
+\newlabel{skellbeapi}{{2.1}{69}}
+\citation{exp_tpl}
+\citation{parteval}
+\citation{falcousem}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6.5}Génération de Code pour les SPEs}{70}}
+\newlabel{pipecode}{{2.8}{71}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.8}L'opérateur \texttt  {pipe}}{71}}
+\newlabel{skellast}{{2.9}{71}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.9}La structure d'un squelette connue à la compilation}{71}}
+\newlabel{processnetwork}{{2.10}{72}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.10}Représentation sous forme de réseau \emph  {process}}{72}}
+\citation{falcouboost}
+\newlabel{finalcode}{{2.11}{73}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.11}Code source génére}{73}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6.6}Communications PPE/SPEs}{74}}
+\newlabel{transstruct}{{2.12}{75}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.12}Code source génére}{75}}
+\newlabel{transfill}{{2.13}{75}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.13}Code source génére}{75}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6.7}Résultats Expérimentaux}{75}}
+\@writefile{toc}{\contentsline {subsubsection}{Benchmarks Synthétiques}{76}}
+\@writefile{toc}{\contentsline {subsubsection}{Benchmarks de \emph  {Scalability}}{76}}
+\@writefile{toc}{\contentsline {paragraph}{Le noyau \texttt  {DOT}}{76}}
+\@writefile{lot}{\contentsline {table}{\numberline {2.2}{\ignorespaces Benchmark \texttt  {DOT}}}{77}}
+\newlabel{scaldot}{{2.2}{77}}
+\@writefile{lot}{\contentsline {table}{\numberline {2.3}{\ignorespaces Benchmark \texttt  {CONVO}}}{77}}
+\newlabel{scalconvo}{{2.3}{77}}
+\@writefile{toc}{\contentsline {paragraph}{Le noyau \texttt  {CONVO}}{77}}
+\@writefile{toc}{\contentsline {paragraph}{Le noyau \texttt  {SGEMV}}{77}}
+\@writefile{lot}{\contentsline {table}{\numberline {2.4}{\ignorespaces Benchmark \texttt  {SGEMV}}}{78}}
+\newlabel{scalsgemv}{{2.4}{78}}
+\@writefile{toc}{\contentsline {subsubsection}{Algorithme de Harris}{78}}
+\newlabel{harrisskell}{{2.14}{78}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.14}Les \emph  {kernels SPE des implémentations de l'opérateur de Harris}}{78}}
+\@writefile{lot}{\contentsline {table}{\numberline {2.5}{\ignorespaces Benchmarks de l'algorithme de Harris}}{79}}
+\newlabel{tabharrisskell}{{2.5}{79}}
+\@writefile{toc}{\contentsline {subsubsection}{Impact sur la Taille de l'Exécutable}{79}}
+\@writefile{lot}{\contentsline {table}{\numberline {2.6}{\ignorespaces Benchmarks de l'algorithme de Harris}}{79}}
+\newlabel{codesize}{{2.6}{79}}
+\@writefile{toc}{\contentsline {subsubsection}{Impact sur la Temps de Compilation}{80}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6.8}Conclusion}{80}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.7}Conclusion Générale}{80}}
+\citation{harris_corner}
+\citation{moravec}
+\@writefile{toc}{\contentsline {chapter}{\numberline {3}Parallélisation de Code de Traitement d'Images}{83}}
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {section}{\numberline {3.1}Algorithme de Harris}{84}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.1}Description de l'Algorithme}{84}}
+\newlabel{eq_00}{{3.1}{84}}
+\newlabel{eq_01}{{3.2}{84}}
+\newlabel{eq_03}{{3.3}{85}}
+\newlabel{eq_04}{{3.4}{85}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}Détails de l'Implémentation}{85}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces Illustration de la détection de points d'intérêts sur une image niveaux de gris 512$\times $512}}{86}}
+\newlabel{fig_house}{{3.1}{86}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.2}{\ignorespaces Implémentation de l'algorithme de Harris sous forme de graphe flot de données}}{86}}
+\newlabel{fig_HarrisAlgorithm}{{3.2}{86}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.2}Exploitation du Parallélisme et Optimisations Multi-niveau}{87}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.1}Techniques Spécifiques au Domaine}{88}}
+\@writefile{toc}{\contentsline {subsubsection}{Séparabilité des Noyaux}{88}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.3}{\ignorespaces Exemple de convolution par un filtre Gaussien $3\times 3$ (a)version avec noyaux 2D (b) version avec deux noyaux 1D , résultant de la séparation du noyau 2D.}}{88}}
+\newlabel{fig_convosep}{{3.3}{88}}
+\newlabel{tab_sepa_arith}{{3.2.1}{89}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.1}{\ignorespaces Réduction de la complexité arithmétique par séparabilité des noyaux}}{89}}
+\newlabel{tab_sepa_mem}{{3.2.1}{89}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.2}{\ignorespaces Réduction de la complexité mémoire par séparabilité des noyaux}}{89}}
+\@writefile{toc}{\contentsline {subsubsection}{Chevauchement des Noyaux}{90}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.4}{\ignorespaces Chevauchement des données pour un calcul d'un filtre Gaussien $3\times 3$, certaines données sont conservées en décalant le masque de convolution.}}{90}}
+\newlabel{fig_convoover}{{3.4}{90}}
+\@writefile{toc}{\contentsline {subsubsection}{Séparation des noyaux et chevauchement}{90}}
+\newlabel{tab_over_mem}{{3.2.1}{91}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.3}{\ignorespaces Réduction de la complexité mémoire par chevauchement des noyaux}}{91}}
+\newlabel{tab_sepaover_arith}{{3.2.1}{91}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.4}{\ignorespaces Réduction de la complexité arithmétique par séparabilité et chevauchement des noyaux}}{91}}
+\@writefile{toc}{\contentsline {subsubsection}{Composition de Fonctions}{91}}
+\newlabel{sectioncompo}{{3.2.1}{91}}
+\newlabel{tab_sepaover_mem}{{3.2.1}{92}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.5}{\ignorespaces Réduction de la complexité mémoire par séparabilité et chevauchement des noyaux}}{92}}
+\newlabel{fig_compo}{{3.2.1}{93}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.5}{\ignorespaces Règle de composition de fonctions.\textbf  {(a)} composition de deux opérateurs point à point \textbf  {(b)} composition d'un noyaux de convolution suivi d'un opérateur point à point \textbf  {(c)} composition d'un opérateur point à point suivi d'un noyaux de convolution \textbf  {(d)} composition de deux noyaux de convolution successifs}}{93}}
+\newlabel{tab_memall}{{3.2.1}{94}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.6}{\ignorespaces Tableau récapitulatif de l'optimisation des accès mémoire en combinant l'ensemble des optimisations}}{94}}
+\citation{cellnoc}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.2}Optimisation des Transferts Mémoire}{95}}
+\newlabel{fignoc}{{3.2.2}{95}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.6}{\ignorespaces Réseau d'interconnection du Cell}}{95}}
+\@writefile{toc}{\contentsline {subsubsection}{Optimisation de la Bande-Passante du \emph  {NoC}}{95}}
+\citation{cellnoc}
+\citation{cell_bw02}
+\newlabel{figbwsize}{{3.2.2}{96}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.7}{\ignorespaces Influence de la taille du transfert DMA sur la bande-passante}}{96}}
+\@writefile{toc}{\contentsline {paragraph}{Taille du Transfert}{96}}
+\newlabel{figbwncontention}{{3.2.2}{97}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.8}{\ignorespaces Influence du nombre de transferts dans le cas d'une communication LS<->LS}}{97}}
+\@writefile{toc}{\contentsline {paragraph}{Nombre de Transferts Concurrents}{97}}
+\citation{cell_bw02}
+\newlabel{figbwnspes}{{3.2.2}{98}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.9}{\ignorespaces Influence du nombre de transferts dans le cas d'une communication MS<->LS}}{98}}
+\@writefile{toc}{\contentsline {subsubsection}{Optimisation de la localité temporelle par chainage des opérateurs}{98}}
+\citation{wolfetiling}
+\@writefile{toc}{\contentsline {subsubsection}{Optimisation du \emph  {Tiling} des données}{99}}
+\@writefile{toc}{\contentsline {paragraph}{Taille de la Tuile}{99}}
+\newlabel{qreloads}{{3.2.2}{100}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.10}{\ignorespaces Redondances de données pour un opérateur de convolution $3 \times 3$}}{100}}
+\@writefile{toc}{\contentsline {paragraph}{Dimensions de la Tuile}{100}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.11}{\ignorespaces Tracé de la fonction $Q(h,w)$ dans l'espace}}{102}}
+\newlabel{meshtile}{{3.11}{102}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.3}Schémas de Parallélisation}{103}}
+\@writefile{toc}{\contentsline {subsubsection}{SPMD Conventionnel}{103}}
+\@writefile{toc}{\contentsline {subsubsection}{Pipeline Conventionnel}{103}}
+\newlabel{harris-spmd}{{3.2.3}{104}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.12}{\ignorespaces Schéma de Parallélisation SPMD Conventionnel}}{104}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.13}{\ignorespaces Schéma de Parallélisation Pipeline}}{104}}
+\newlabel{harris-pipeline}{{3.13}{104}}
+\citation{cell_handbook}
+\@writefile{toc}{\contentsline {subsubsection}{Chainage d'opérateur par paires}{105}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.14}{\ignorespaces Schéma de Parallélisation Chainage d'opérateurs par paires}}{105}}
+\newlabel{harris-pipeline}{{3.14}{105}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.15}{\ignorespaces Schéma de Parallélisation Chainage et fusion d'opérateurs par paires}}{106}}
+\newlabel{harris-pipeline}{{3.15}{106}}
+\@writefile{toc}{\contentsline {subsubsection}{Chainage et fusion d'opérateur par paires}{106}}
+\@writefile{toc}{\contentsline {subsubsection}{Chaînage entier et fusion d'opérateur par paires}{106}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.16}{\ignorespaces Schéma de Parallélisation Chaînage et fusion d'opérateurs par paires}}{107}}
+\newlabel{harris-pipeline}{{3.16}{107}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.3}\'Evaluation des Performances}{107}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.1}Métriques de Mesure}{108}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.2}Méthode et Plateforme de Mesure}{108}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.3}Comparaison des Schémas de Parallélisation}{108}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.17}{\ignorespaces Comparaison des modèles en cycles par point}}{109}}
+\newlabel{comparemodels}{{3.17}{109}}
+\citation{cell_bw02}
+\citation{cellnoc}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.4}Influence de la Taille de la Tuile}{110}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.18}{\ignorespaces Influence de la taille de la tuile sur la performance pour la version chainage entier et fusion d'opérateur par paires 1 SPU}}{110}}
+\newlabel{tilesize}{{3.18}{110}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.7}{\ignorespaces Apport de la composition de fonction à la performance}}{111}}
+\newlabel{tabspuperf}{{3.7}{111}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.5}Analyse des Résultats}{111}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.19}{\ignorespaces Mesure du \emph  {Speedup} en fonction du nombre de SPEs}}{112}}
+\newlabel{speedup}{{3.19}{112}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.6}Mesure des Métriques de Passage à l'\'Echelle}{112}}
+\bibstyle{plain}
+\bibdata{thesis}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.20}{\ignorespaces Mesure de l'Efficacité en fonction du nombre de SPEs}}{113}}
+\newlabel{efficiency}{{3.20}{113}}
+\bibcite{bsc_grid}{1}
+\bibcite{cellss_sc06}{2}
+\bibcite{skeletons_cole}{3}
+\bibcite{cell_bw02}{4}
+\bibcite{falcouboost}{5}
+\bibcite{falcousem}{6}
+\bibcite{sequoia_sc06}{7}
+\bibcite{flynn}{8}
+\bibcite{mpistand}{9}
+\bibcite{harris_corner}{10}
+\bibcite{cell_handbook}{11}
+\bibcite{pthreads_std}{12}
+\bibcite{cellnoc}{13}
+\bibcite{rapidmind}{14}
+\bibcite{moravec}{15}
+\bibcite{cell_omp}{16}
+\bibcite{skellbepact}{17}
+\bibcite{exp_tpl}{18}
+\bibcite{parteval}{19}
+\bibcite{vonneumann}{20}
+\bibcite{wolfetiling}{21}

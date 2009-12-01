@@ -1,0 +1,131 @@
+\select@language {french}
+\contentsline {chapter}{\numberline {1}Introduction}{11}
+\contentsline {section}{\numberline {1.1}Introduction au Calcul Parallèle}{11}
+\contentsline {subsection}{\numberline {1.1.1}Concepts Généraux}{12}
+\contentsline {subsubsection}{Architecture de \emph {von Neumann}}{12}
+\contentsline {subsubsection}{Classification de Flynn des Machines Parallèles}{13}
+\contentsline {paragraph}{Single Instruction, Single Data (SISD)}{13}
+\contentsline {paragraph}{Single Instruction, Multiple Data (SIMD)}{13}
+\contentsline {paragraph}{Multiple Instruction, Single Data (MISD)}{14}
+\contentsline {paragraph}{Multiple Instruction, Multiple Data (MIMD)}{14}
+\contentsline {subsection}{\numberline {1.1.2}Architectures Mémoire des Machines Parallèles}{14}
+\contentsline {subsubsection}{Les Machines Parallèles à Mémoire Partagée}{14}
+\contentsline {paragraph}{Uniform Memory Access (UMA)}{14}
+\contentsline {paragraph}{Non-Uniform Memory Access (NUMA)}{15}
+\contentsline {paragraph}{Avantages et Incovénients}{15}
+\contentsline {subsubsection}{Les Machines Parallèles à Mémoire Distribuée}{16}
+\contentsline {paragraph}{Avantages et Incovénients}{16}
+\contentsline {subsubsection}{Les Machines Parallèles à Mémoire Hybride}{17}
+\contentsline {subsection}{\numberline {1.1.3}Modèles de Programmation Parallèle}{17}
+\contentsline {subsubsection}{Le Modèle \emph {Shared Memory}}{18}
+\contentsline {subsubsection}{Le Modèle de Programmation par \emph {Threads}}{18}
+\contentsline {paragraph}{Les \emph {Threads} POSIX}{19}
+\contentsline {paragraph}{OpenMP}{19}
+\contentsline {subsubsection}{Le Modèle \emph {Message Passing}}{19}
+\contentsline {subsubsection}{Le Modèle \emph {Data Parallel}}{20}
+\contentsline {subsubsection}{Autres Modèles}{20}
+\contentsline {paragraph}{Modèle Hybride}{20}
+\contentsline {paragraph}{Modèle Single Program Multiple Data}{21}
+\contentsline {paragraph}{Modèle Multiple Program Multiple Data}{21}
+\contentsline {section}{\numberline {1.2}Traitement d'Images et Parallélisme}{21}
+\contentsline {subsection}{\numberline {1.2.1}Le Partitionnement}{22}
+\contentsline {subsubsection}{Décomposition de Domaine}{22}
+\contentsline {section}{\numberline {1.3}Aperçu de l'Architecture}{22}
+\contentsline {subsubsection}{Le PPE: Power Processor Element}{25}
+\contentsline {subsubsection}{Les SPE (Synergistic Processing Element)}{26}
+\contentsline {subsubsection}{Le Bus Interne (Element Interconnect Bus)}{27}
+\contentsline {chapter}{\numberline {2}Modèles de Programmation}{29}
+\contentsline {section}{\numberline {2.1}Les Threads POSIX}{29}
+\contentsline {subsection}{\numberline {2.1.1}l'API Pthread}{30}
+\contentsline {subsubsection}{Gestion des Threads}{31}
+\contentsline {subsubsection}{Les Variables \emph {mutex}}{31}
+\contentsline {subsubsection}{Les Variables de Condition}{33}
+\contentsline {subsection}{\numberline {2.1.2}Les Threads POSIX sur le Cell}{33}
+\contentsline {subsection}{\numberline {2.1.3}Processus de Génération de Code}{34}
+\contentsline {subsection}{\numberline {2.1.4}conclusion}{34}
+\contentsline {section}{\numberline {2.2}RapidMind}{36}
+\contentsline {subsection}{\numberline {2.2.1}Modèle de Programmation et Interface}{36}
+\contentsline {subsubsection}{le type \textbf {\texttt {Value}}}{37}
+\contentsline {subsubsection}{le type \textbf {\texttt {Array}}}{37}
+\contentsline {subsubsection}{le type \textbf {\texttt {Program}}}{38}
+\contentsline {subsection}{\numberline {2.2.2}Evaluation Partielle et Algèbre du Programme}{38}
+\contentsline {subsection}{\numberline {2.2.3}Les Opérations Collectives}{40}
+\contentsline {subsection}{\numberline {2.2.4}Spécificité du Backend pour le Cell de RapidMind}{41}
+\contentsline {subsection}{\numberline {2.2.5}Conclusion}{42}
+\contentsline {section}{\numberline {2.3}OpenMP}{42}
+\contentsline {subsection}{\numberline {2.3.1}\emph {threads} et Synchronisation}{44}
+\contentsline {subsection}{\numberline {2.3.2}Génération de Code}{45}
+\contentsline {subsection}{\numberline {2.3.3}Modèle Mémoire}{46}
+\contentsline {subsection}{\numberline {2.3.4}Conclusion}{47}
+\contentsline {section}{\numberline {2.4}Cell SuperScalar}{47}
+\contentsline {subsection}{\numberline {2.4.1}\emph {runtime}}{50}
+\contentsline {subsubsection}{Middleware pour le Cell}{51}
+\contentsline {subsubsection}{Exploitation de la Localité}{52}
+\contentsline {subsection}{\numberline {2.4.2}Conclusion}{52}
+\contentsline {section}{\numberline {2.5}\emph {Sequoia}}{53}
+\contentsline {subsection}{\numberline {2.5.1}Mémoire Hiérarchique}{53}
+\contentsline {subsection}{\numberline {2.5.2}Modèle de Programmation}{56}
+\contentsline {subsubsection}{Communication Explicite et Localité}{56}
+\contentsline {subsubsection}{Isolation et Parallélisme}{56}
+\contentsline {subsubsection}{Décomposition de Tâche}{57}
+\contentsline {subsubsection}{Variantes de Tâches}{58}
+\contentsline {subsubsection}{Paramètrisation de Tâches}{58}
+\contentsline {subsubsection}{Spécialisation de Tâches et Tunning}{59}
+\contentsline {subsection}{\numberline {2.5.3}Implémentation}{60}
+\contentsline {subsubsection}{Compilateur Cell et \emph {runtime}}{60}
+\contentsline {subsubsection}{Optimisations}{61}
+\contentsline {subsection}{\numberline {2.5.4}Conclusion}{61}
+\contentsline {section}{\numberline {2.6}Squelettes Algorithmiques pour le Cell}{61}
+\contentsline {subsection}{\numberline {2.6.1}Modèle de Programmation}{62}
+\contentsline {subsubsection}{Squelettes dédiés au parallélisme de contrôle}{65}
+\contentsline {paragraph}{Le Squelette Pipeline}{65}
+\contentsline {paragraph}{Le Squelette Pardo}{65}
+\contentsline {subsection}{\numberline {2.6.2}Squelettes dédiés à la structuration de l'application}{66}
+\contentsline {subsubsection}{Le Squelette Sequence}{66}
+\contentsline {subsubsection}{Le Squelette Select}{66}
+\contentsline {subsection}{\numberline {2.6.3}Modèle de Programmation \texttt {SKELL\_BE}}{66}
+\contentsline {subsection}{\numberline {2.6.4}Détails de l'Implémentation}{68}
+\contentsline {subsection}{\numberline {2.6.5}Génération de Code pour les SPEs}{70}
+\contentsline {subsection}{\numberline {2.6.6}Communications PPE/SPEs}{74}
+\contentsline {subsection}{\numberline {2.6.7}Résultats Expérimentaux}{75}
+\contentsline {subsubsection}{Benchmarks Synthétiques}{76}
+\contentsline {subsubsection}{Benchmarks de \emph {Scalability}}{76}
+\contentsline {paragraph}{Le noyau \texttt {DOT}}{76}
+\contentsline {paragraph}{Le noyau \texttt {CONVO}}{77}
+\contentsline {paragraph}{Le noyau \texttt {SGEMV}}{77}
+\contentsline {subsubsection}{Algorithme de Harris}{78}
+\contentsline {subsubsection}{Impact sur la Taille de l'Exécutable}{79}
+\contentsline {subsubsection}{Impact sur la Temps de Compilation}{80}
+\contentsline {subsection}{\numberline {2.6.8}Conclusion}{80}
+\contentsline {section}{\numberline {2.7}Conclusion Générale}{80}
+\contentsline {chapter}{\numberline {3}Parallélisation de Code de Traitement d'Images}{83}
+\contentsline {section}{\numberline {3.1}Algorithme de Harris}{84}
+\contentsline {subsection}{\numberline {3.1.1}Description de l'Algorithme}{84}
+\contentsline {subsection}{\numberline {3.1.2}Détails de l'Implémentation}{85}
+\contentsline {section}{\numberline {3.2}Exploitation du Parallélisme et Optimisations Multi-niveau}{87}
+\contentsline {subsection}{\numberline {3.2.1}Techniques Spécifiques au Domaine}{88}
+\contentsline {subsubsection}{Séparabilité des Noyaux}{88}
+\contentsline {subsubsection}{Chevauchement des Noyaux}{90}
+\contentsline {subsubsection}{Séparation des noyaux et chevauchement}{90}
+\contentsline {subsubsection}{Composition de Fonctions}{91}
+\contentsline {subsection}{\numberline {3.2.2}Optimisation des Transferts Mémoire}{95}
+\contentsline {subsubsection}{Optimisation de la Bande-Passante du \emph {NoC}}{95}
+\contentsline {paragraph}{Taille du Transfert}{96}
+\contentsline {paragraph}{Nombre de Transferts Concurrents}{97}
+\contentsline {subsubsection}{Optimisation de la localité temporelle par chainage des opérateurs}{98}
+\contentsline {subsubsection}{Optimisation du \emph {Tiling} des données}{99}
+\contentsline {paragraph}{Taille de la Tuile}{99}
+\contentsline {paragraph}{Dimensions de la Tuile}{100}
+\contentsline {subsection}{\numberline {3.2.3}Schémas de Parallélisation}{103}
+\contentsline {subsubsection}{SPMD Conventionnel}{103}
+\contentsline {subsubsection}{Pipeline Conventionnel}{103}
+\contentsline {subsubsection}{Chainage d'opérateur par paires}{105}
+\contentsline {subsubsection}{Chainage et fusion d'opérateur par paires}{106}
+\contentsline {subsubsection}{Chaînage entier et fusion d'opérateur par paires}{106}
+\contentsline {section}{\numberline {3.3}\'Evaluation des Performances}{107}
+\contentsline {subsection}{\numberline {3.3.1}Métriques de Mesure}{108}
+\contentsline {subsection}{\numberline {3.3.2}Méthode et Plateforme de Mesure}{108}
+\contentsline {subsection}{\numberline {3.3.3}Comparaison des Schémas de Parallélisation}{108}
+\contentsline {subsection}{\numberline {3.3.4}Influence de la Taille de la Tuile}{110}
+\contentsline {subsection}{\numberline {3.3.5}Analyse des Résultats}{111}
+\contentsline {subsection}{\numberline {3.3.6}Mesure des Métriques de Passage à l'\'Echelle}{112}

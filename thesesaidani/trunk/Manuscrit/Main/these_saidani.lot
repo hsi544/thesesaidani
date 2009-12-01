@@ -1,0 +1,18 @@
+\select@language {french}
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {1.1}{\ignorespaces Classification de Flynn des machines parallèles}}{13}
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {2.1}{\ignorespaces Interface utilisateur \texttt {SKELL\_BE}}}{69}
+\contentsline {table}{\numberline {2.2}{\ignorespaces Benchmark \texttt {DOT}}}{77}
+\contentsline {table}{\numberline {2.3}{\ignorespaces Benchmark \texttt {CONVO}}}{77}
+\contentsline {table}{\numberline {2.4}{\ignorespaces Benchmark \texttt {SGEMV}}}{78}
+\contentsline {table}{\numberline {2.5}{\ignorespaces Benchmarks de l'algorithme de Harris}}{79}
+\contentsline {table}{\numberline {2.6}{\ignorespaces Benchmarks de l'algorithme de Harris}}{79}
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {3.1}{\ignorespaces Réduction de la complexité arithmétique par séparabilité des noyaux}}{89}
+\contentsline {table}{\numberline {3.2}{\ignorespaces Réduction de la complexité mémoire par séparabilité des noyaux}}{89}
+\contentsline {table}{\numberline {3.3}{\ignorespaces Réduction de la complexité mémoire par chevauchement des noyaux}}{91}
+\contentsline {table}{\numberline {3.4}{\ignorespaces Réduction de la complexité arithmétique par séparabilité et chevauchement des noyaux}}{91}
+\contentsline {table}{\numberline {3.5}{\ignorespaces Réduction de la complexité mémoire par séparabilité et chevauchement des noyaux}}{92}
+\contentsline {table}{\numberline {3.6}{\ignorespaces Tableau récapitulatif de l'optimisation des accès mémoire en combinant l'ensemble des optimisations}}{94}
+\contentsline {table}{\numberline {3.7}{\ignorespaces Apport de la composition de fonction à la performance}}{111}
