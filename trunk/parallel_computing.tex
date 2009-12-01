@@ -1,0 +1,138 @@
+\section{Introduction au Calcul Parallèle}
+Les logiciels ont été conçus historiquement pour une exécution en série. Les programmes devaient s'exécuter sur une seule machine contenant une seule unité de traitement centrale (\emph{CPU}) et le problème est décomposé en une suite d'instructions qui sont exécutées les unes après les autres. Ainsi, une seule instruction peut être exécutée à la fois. Le calcul parallèle est par opposition à la précédente approche, l'utilisation simultanée de plusieurs ressources de calcul pour résoudre un problème. Un logiciel peut ainsi s'exécuter sur plusieurs \emph{CPU}. Le problème est décomposé en plusieurs parties qui peuvent être résolues de manière concurrente. Ces parties sont à leur tour décomposées en plusieurs instructions et chaque paquet d'instructions s'exécute de manière indépendante l'un de l'autre. Les ressources de calculs incluent une seules machine avec plusieurs processeurs, un nombre arbitraire de machines connectées via un réseau ou alors une combinaison des deux. Une bonne partie des problèmes de calcul intensif possèdent certaines caractéristiques qui en font de bon candidats à la parallélisation. Parmi ces caractéristiques: le possibilités de les décomposer en plusieurs sous-problèmes qui peuvent être résolus simultanément et la possibilités d'être résolus en moins de temps avec plusieurs ressources qu'avec une seule. Le calcul parallèle était auparavant, réservé exclusivement à la modélisation de problèmes et de phénomènes scientifiques provenant de la réalité tels que l'environnement, la physique nucléaire, les biotechnologies, la géologie et les mathématiques. A ce jour, le calcul parallèle s'est ouvert à d'autre domaines grâce notamment à l'évolution fulgurante de la technologie des semi-conducteurs qui a rendu les plate-formes haute performance plus accessibles. On peut citer des applications comme les bases de données, l'exploration pétrolière, les moteurs de recherche, la modélisation financière, les technologies de diffusion multimédia et les applications graphiques et de réalité virtuelle.
+\subsection{Concepts Généraux}
+\subsubsection{Architecture de \emph{von Neumann}}
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width=0.7\columnwidth]{Chapter1/figures/vonneumann}
+	\caption{Architecture de \emph{von Neumann}}
+	\label{figvonneumann}
+\end{figure}
+Ce modèle fut inventé par le mathématicien hongrois \emph{John von Neumann} qui a posé les premières bases de la conception d'un ordinateur dans son papier de 1945 \cite{vonneumann}. A partir de ce moment tous les ordinateurs ont été conçus sur ces bases. L'architecture \emph{von Neumann} \ref{figvonneumann} est constituée de 4 composants principaux: une mémoire, une unité de contrôle, une unité arithmétique et logique(\emph{ALU}) des Entrées/Sorties (\emph{I/O}). La mémoire à accès aléatoire (\emph{RAM}) en lecture/écriture est utilisée pour stocker les instructions ainsi que les données. L'unité de contrôle va chercher les instructions ou les données de la mémoire, décode les instructions et coordonne séquentiellement les opérations afin d'accomplir la tâche programmée. L'ALU effectue les opérations arithmétiques de base. les I/O font l'interface avec l'utilisateur humain.
+\subsubsection{Classification de Flynn des Machines Parallèles}
+Il existe plusieurs manières de classer les machines parallèles. Toutefois, il existe une classification qui est largement utilisée depuis 1966 et qui est celle de Flynn \cite{flynn} (\emph{Flynn's Taxonomy}). Cette classification distingue les architectures parallèles selon deux paramètres indépendants qui sont les instructions et les données : chacun de ces deux paramètres peut avoir deux états possibles \emph{Single} ou \emph{Multiple}. Ainsi le tableau \ref{flynn} illustre la classification de Flynn.
+\begin{table}
+\centering
+\begin{tabular}{|c||c|}
+\hline
+\textbf{SISD} &  \textbf{SIMD} \\
+\hline
+Single Instruction Single Data& Single Instruction Multiple Data\\
+\hline
+\hline
+\textbf{MISD} &  \textbf{MIMD} \\
+\hline
+Multiple Instruction Single Data& Multiple Instruction Multiple Data\\
+\hline
+\end{tabular}
+\caption{Classification de Flynn des machines parallèles}
+\label{flynn}
+\end{table}
+
+\paragraph{Single Instruction, Single Data (SISD)}
+Une machine série qui ne peut exécuter qu'un seul flux d'instruction en un cycle d'horloge \emph{CPU}. De plus, un seul flux de données est utilisé comme entrée en un cycle d'horloge. L'exécution du programme y est déterministe et il constitue le type de machines à la fois le plus ancien est le plus répandu de nos jours.
+\paragraph{Single Instruction, Multiple Data (SIMD)}
+C'est un type de machines parallèles dont les processeurs exécutent la même instruction en un cycle d'horloge donné. Cependant, chaque unité de traitement peut opérer sur un élément de données différent. Ce type de machines est bien taillé pour des problèmes réguliers tels que le traitement d'images et le rendu graphique. L'exécution des programme y est synchrone et déterministe. Deux variantes de ces machines existent : 
+\begin{itemize}
+\item Processor Arrays: Connection Machine CM-2, MasPar MP-1 \& MP-2, ILLIAC IV
+\item Vector Pipelines: IBM 9000, Cray X-MP, Y-MP \& C90, Fujitsu VP, NEC SX-2, Hitachi S820, ETA10 
+\end{itemize}
+De plus, la majorité des processeurs des stations de travail actuelles et des unités de traitement graphiques, comportent une unité de traitement spécialisée SIMD, on parle alors de \emph{SWAR} (\emph{SIMD Within A Register}).
+
+\paragraph{Multiple Instruction, Single Data (MISD)}
+Un seul flux de données alimente plusieurs unités de traitement et chaque unité de traitement opère sur les données de manière indépendante grâce à un flot d'instructions indépendants. 
+\paragraph{Multiple Instruction, Multiple Data (MIMD)}
+C'est actuellement le type le plus commun de machines parallèles. Chaque processeur de ces machines peut exécuter un flux d'instructions différent et peut opérer sur un flux de données différent. L'exécution peut être synchrone ou asynchrone, déterministe ou non-déterministe. On peut citer les \emph{Supercomputers} actuels, les clusters de machines parallèles mis en réseau, les grilles de calculs, les multi-processeurs SMP (Symetric Multi-Processor) et les processeur multi-core. De plus, plusieurs de ces machines contiennent des unités de traitement SIMD.
+
+\subsection{Architectures Mémoire des Machines Parallèles}
+Dans la suite nous donnons une classification des machines parallèles selon le type de leur hiérarchie mémoire. Cette classification permet d'une part de distinguer les machines parallèles d'un autre point de vue que celui du CPU et permet également de mieux comprendre les motivations des modèles de programmation pour les machines parallèles.
+\subsubsection{Les Machines Parallèles à Mémoire Partagée}
+Il existe plusieurs variantes de ces machines mais toutes partagent une propriété commune qui est la capacité de tous les processeurs d'accéder toute la mémoire comme un espace d'adressage global. Ainsi, plusieurs processeurs peuvent opérer d'une manière indépendante mais partagent la même ressource mémoire. Un changement opéré par un processeurs dans un emplacement mémoire est visible à tous les autres processeurs. Cette classe de machine peut être divisée en deux sous-classes basées sur les temps d'accès à la mémoire : UMA et NUMA.
+\paragraph{Uniform Memory Access (UMA)}
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width=0.7\columnwidth]{Chapter1/figures/SMUMA}
+	\caption{Machine Parallèle à Mémoire Partagée UMA}
+	\label{figSMUMA}
+\end{figure}
+Ce sont principalement les machines de type SMP qui possèdent plusieurs processeurs identiques et qui peuvent accéder de manière égale et en un temps identique à la mémoire. Elles sont parfois appelées CC-UMA - Cache Coherent UMA. La cohérence de cache signifie que si un processeur met à jour un emplacement de la mémoire tous les autres processeurs sont au courant de ce changement. Cette fonctionnalité est assurée au niveau du \emph{hardware}.
+\paragraph{Non-Uniform Memory Access (NUMA)}
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width=0.7\columnwidth]{Chapter1/figures/SMNUMA}
+	\caption{Machine Parallèle à Mémoire Partagée NUMA}
+	\label{figSMNUMA}
+\end{figure}
+Ce type de machines est souvent conçu en connectant deux ou plusieurs SMPs. Un SMP peut avoir un accès direct à la mémoire d'un autre SMP. Le temps d'accès à une mémoire donnée n'est pas égal pour tous les processeurs et lorsque un noeud est traversé l'accès est plus lent. Si la cohérence de cache est garantie on parle alors de CC-NUMA.
+
+\paragraph{Avantages et Incovénients}
+Parmi les avantages de ce type d'architectures mémoire est une perspective simplifiée de la mémoire du point de vue du programmeur. Le partage des données entre les tâches est à la fois rapide et uniforme. Le premier inconvénient est le manque de mis à l'échelle (\emph{scalability}) entre la mémoire et les CPUs. Le fait d'augmenter le nombre de CPUs augmente le trafic sur le bus mémoire et provoque un goulot d'étranglement et la gestion de la cohérence devient de plus en plus complexe. Le programmeur est responsable de la synchronisation des tâches qui garantit un accès correcte à la mémoire globale. Par conséquent, la conception de machine parallèles à mémoire partagée avec de plus en plus de processeurs devient difficile et coûteux. 
+\subsubsection{Les Machines Parallèles à Mémoire Distribuée}
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width=0.7\columnwidth]{Chapter1/Figures/DMEM}
+	\caption{Machine Parallèle à Mémoire Distribuée}
+	\label{figDMEM}
+\end{figure}
+Comme les machines à mémoire partagée, les machines à mémoire distribuée varient mais elles partagent tout de même un point commun : elles requièrent un réseau de communication pour connecter la mémoire inter-processeurs. Les différents processeurs possèdent leur propre mémoire locale. Les adresses mémoire d'un processeur donnée ne correspondent pas à celles d'un autre et par conséquent le concept de mémoire globale n'existe pas. Puisque chaque processeur possède sa propre mémoire privée il opère de manière indépendante. En effet, chaque changement opéré sur sa mémoire locale n'as aucun effet sur la mémoire des autres processeurs ce qui exclue le concept de cohérence de cache. Lorsqu'un processeur à besoin des données contenues dans la mémoire d'un autre processeur, le programmeur est en charge de définir quand et comment les données sont transférées. Ce dernier est aussi responsable de la synchronisation.  
+\paragraph{Avantages et Incovénients}
+L'avantage majeur de ce type d'architectures est le fait que la mémoire soit \emph{scalable} avec le nombre de processeurs. En effet, la taille de la mémoire croit proportionnellement avec le nombre de processeurs. Chaque processeur peut aussi accéder rapidement à sa mémoire locale sans interférence et sans engendrer de surcout du au maintien de la cohérence de cache. Le principal inconvénient de ce type d'architectures mémoire et la gestion explicite par le logiciel des communications entre les processeurs. Les accès à la mémoire se font souvent à des temps non-uniformes et la présence de plusieurs espaces d'adressage rend complexe l'adaptation de programmes écrits pour une mémoire partagée.
+\subsubsection{Les Machines Parallèles à Mémoire Hybride}
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width=0.7\columnwidth]{Chapter1/figures/HMEM}
+	\caption{Machine Parallèle à Mémoire Hybride}
+	\label{figHMEM}
+\end{figure}
+Les machines les plus rapides du monde emploient des architectures mémoire dites hybrides qui regroupent les deux types précédents: partagée et distribuée. La composante mémoire partagée est souvent une machine SMP. La composante distribuée quant à elle consiste en la mise en réseau de plusieurs machines SMP. Les différents SMPs ne peuvent adresser que leur propre mémoire et le transfert de données entre deux SMPs requiert des communications au travers du réseau. Selon le niveau dans lequel on se trouve, ce type de machines possède les inconvénients et avantages des deux précédentes architectures mémoire.
+\subsection{Modèles de Programmation Parallèle}
+Il existe plusieurs modèles de programmation pour les machines parallèles. Ces modèles existent à un niveau d'abstraction au dessus de l'architecture matérielle et de celle de la mémoire. Même si à première vue les modèles de programmation sont intimement liés à l'architecture de la machine ils sont supposés pouvoir être implémentés sur n'importe quelle machine parallèle quelqu'en soient les caractéristiques. Il n'existe pas de modèle de programmation idéal mais certains modèles de programmation sont bien adaptés pour une application données sur une machine donnée. Dans la suite nous décrivons les principaux modèles de programmation parallèles.
+\subsubsection{Le Modèle \emph{Shared Memory}}
+Dans ce modèle de programmation les tâches partagent un espace d'adressage commun sur lequel ils peuvent lire et écrire des données de manière asynchrone. Plusieurs mécanismes, tels que les \emph{locks} et les sémaphores peuvent être utilisés pour contrôler l'accès à la mémoire partagée. Ce modèle de programmation est simplifié du point de vue de l'utilisateur car il n'y a pas de notion d'appartenance des données à une tâche ce qui évite les communication explicite pour transférer des données d'une tâche à une autre. Toutefois, en terme de performances ce dernier point constitue in inconvénient car il engendre un surcout d'accés à la mémoire de rafraichissement de cache et de trafic sur le bus lorsque plusieurs processeurs utilisent les mêmes données.
+Les implémentations de ce modèle sur les machines à mémoire partagés se résument au compilateur natif qui traduit les variables du programme en adresse mémoire globales. Il n'existe cependant pas d'implémentation de ce modèle sur des machines à mémoire distribuée.
+\subsubsection{Le Modèle de Programmation par \emph{Threads}}
+Dans le modèle de programmation par threads, un seul \emph{process} peut avoir des chemins d'exécution multiples et concurrents. On peut assimiler ce concepts à un programme principal qui inclue un certain nombre de sous-routines. Le programme principal est ordonnancé pour être exécuté par les système d'exploitation, et il acquièrent toutes les ressources système nécessaires à son exécution. Il effectue alors un ensemble d'instructions en série et crée un certain nombres de tâches (\emph{threads}) qui peuvent être ordonnancées et exécutées par l'OS de manière concurrente. Chaque \emph{thread} possède ses données locales mais partage également les ressources du programme principal avec les autres \emph{threads}. Chaque \emph{thread} possède un accès à la mémoire globale car il partage l'espace d'adressage du programme principal. La charge du travail d'un \emph{thread} peut être considérée comme une sous-routine du programme principal mais qui peut s'exécuter en parallèle d'un autre \emph{thread}. Les \emph{threads} communiquent entre eux via la mémoire globale ce qui nécessite des opérations de synchronisation afin de garantir l'exclusivité de l'accès à un emplacement donnée à un instant donné pour un seul \emph{thread}. Les \emph{threads} on une durée de vie variable et peuvent être crées et détruits tout au long du déroulement du programme. Le modèle de programmation par \emph{thread} est souvent associé avec les machines à mémoire partagée. Les implémentations des \emph{threads} comportent en général une librairie de fonctions ou alors une série de directives enfouis dans le code parallèle. Dans les deux cas l'utilisateur est responsable de la définition du parallélisme. Il existe plusieurs implémentations des \emph{threads}, et la plupart des  constructeurs ont développé leur propre version ce qui a affecté la portabilité des codes parallèles. Cependant, un effort de standardisation à donné naissance à deux implémentations qui sont devenues le standard de nos jours.
+\paragraph{Les \emph{Threads} POSIX}
+Ils sont basé sur une librairie de programmation parallèle et spécifiées par le standard \emph{IEEE POSIX 1003.1c standard (1995)} \cite{pthreads_std}. Ils sont implémentés uniquement en langage C et plus connus sous le nom de \emph{Pthreads}. Le parallélisme y est explicite et l'interface bas-niveau force le programmeur à donner beaucoup d'attention au détails.
+\paragraph{OpenMP}
+C'est un modèle de programmation basé sur des directives de compilation et peut être directement utilisé sur du code série. Ce standard à été défini par un consortium de vendeurs de processeurs et de logiciel. L'API Fortran à été délivrée en 1997 alors que l'API C/C++ ne l'a été qu'une année plus tard. C'est une API portable et multi-plateforme et est très simple d'utilisation.
+\subsubsection{Le Modèle \emph{Message Passing}}
+Dans ce modèle, la programmation parallèle se fait par passage de messages. Un ensemble de tâche utilisent leur propre mémoire locale durant le calcul. Plusieurs tâches peuvent résider sur la même machine physique ou alors sur un nombre arbitraire de machines. Les tâches échangent des données au travers des communications en envoyant et recevant des messages. Les transferts de données requièrent des opérations coopératives pour être effectuées par chaque \emph{process}. Par exemple, une opération \emph{send} doit avoir une opération symétrique \emph{receive}. Les implémentations du \emph{Message Passing} prennent la forme d'une librairie de sous-routines et le programmeur est responsable de la détermination du parallélisme. Comme pour toute librairie, plusieurs versions ont été développées, ce qui a provoqué des problèmes de compatibilité. En 1992 le \emph{MPI Forum} a vu le jour dans le but de standardiser les implémentations du \emph{Message Passing} et a délivré deux standard MPI \cite{mpistand} en 1994 et MPI-2 en 1996. Des nos jours MPI est le modèle de programmation le plus utilisé pour le \emph{Message Passing}. Dans les implémentations MPI sur des architectures à mémoire partagée les communications réseaux sont tout simplement remplacées par des copies mémoire.
+
+\subsubsection{Le Modèle \emph{Data Parallel}}
+Ce modèle est basé sur le parallélisme de données qui concentre le travail en parallèle sur un ensemble de données sur un tableau à une ou plusieurs dimensions. Un ensemble de tâches travaillent collectivement sur la même structure de données mais chaque tâches opère sur une partition différente de cette structure. Les tâches effectuent toutes la même opération sur leur partition de données. Sur les architectures à mémoire partagée toutes les tâches peuvent avoir accès à la structure de données via la mémoire globale. Par contre lorsque l'architecture mémoire est distribuée les données sont divisées en morceaux qui résident dans la mémoire locale de chaque tâche. La programmation avec ce modèle se fait en général en écrivant du code avec des constructions de parallélisme de données. Ces dernières peuvent avoir la forme d'appel à des fonction d'une librairie ou à des directives reconnues par un compilateur \emph{data parallel}. Les implémentation de ce modèle sont souvent des extensions ou de nouveaux compilateurs on peut citer les compilateur \texttt{Fortran} (\texttt{F90 et F95}) et leur extension High Performance Fortran (\emph{HPF}) qui supportent la programmation \emph{data parallel}. \emph{HPF} inclue des directives qui contrôlent la distribution des données, des assertions qui peuvent améliorer l'optimisation du code généré ainsi que des construction \emph{data parallel}. Les implémentations sur les architectures mémoire distribuées de ce modèle sont sous forme d'une compilateur qui convertit le code standard en code \emph{Message Passing} (MPI) qui distribue les données sur les différents processeurs et tout cela de manière transparent du point de vue de l'utilisateur.
+
+\subsubsection{Autres Modèles}
+D'autres modèles existent et existeront dans le futur proche en plus de ceux mentionnés auparavant. On peut en mentionner trois :
+\paragraph{Modèle Hybride}
+Dans ce modèle deux ou plusieurs modèles sont combinés. On peut citer par exemple la combinaison de \emph{MPI} avec les \emph{Pthreads} ou avec \emph{OpenMP}. Ainsi, différents niveaux de parallélisme sont gérés, par exemple un réseau de SMPs. On peut citer également la combinaison de \emph{HPF} avec \emph{MPI} pour le même type de configuration.
+\paragraph{Modèle Single Program Multiple Data}
+Le modèle \emph{SPMD} est un modèle haut niveau qui peut être construit sur la base d'une combinaison des modèles cités précédemment. Un seul programme est exécuté par toutes les tâche simultanément. A n'importe quel instant les tâchent peuvent exécuter des instructions différentes ou similaires du même programme.Un programme \emph{SPMD} peut toutefois contenir des branchement qui permettent à une tâche de n'exécuter qu'une portion du code et toutes les tâches peuvent utiliser différentes données.
+\paragraph{Modèle Multiple Program Multiple Data}
+Tout comme le modèle \emph{SPMD}, le modèle \emph{MPMD} est haut-niveau et peut englober l'ensemble des modèles citées précédemment. Les programmes \emph{MPMD} ont typiquement plusieurs objets exécutables. Lors de l'exécution parallèle du programme une tâche peut exécuter le même programme ou un programme différent et toutes les tâches peuvent utiliser des données différentes.
+
+\section{Traitement d'Images et Parallélisme}
+Le traitement d'images est une discipline du traitement du signal dont l'entrée est une image. Les techniques de traitement du signal sont appliquées à un signal de 2 dimensions pour donner en sortie soit une image, soit une certaine caractéristique de l'image. Dans notre cas on s'intéresse au traitement d'images de bas niveau, ou les opérateurs sont souvent des opérateurs point-à-point ou des noyaux de convolution. Ce type de calcul est bien adapté aux machines parallèles car il n'y a généralement pas de dépendances de données et les algorithmes de bas-niveau sont majoritairement des opérations de calcul pur. Toutefois, pour des applications de moyen-niveau, par exemple la segmentation, il existe une forte dépendance de données et les algorithmes sont souvent des imbrications de structures conditions. Ceci rend la tâche de parallélisation pour ce types d'algorithmes fastidieuse, et les accélérations sont souvent médiocres en comparaison avec l'effort fourni pour l'adaptation de l'algorithme série. La conception d'une version parallèle d'un algorithme devient une tâche fastidieuse et qui dépend de plusieurs facteurs. Il est alors important d'accorder de l'importance à plusieurs aspects déterminants pour la performance.
+\subsection{Le Partitionnement}
+La première tâche lors de la parallélisation d'une application de traitement d'image est le choix du type partitionnement à adopter. Ce principe prend ça source du fait qu'il y a plusieurs ressources et que le but est de repartir la charge de travail sur ces ressources sous formes de morceaux qui peuvent être distribués sur plusieurs tâches. Il existe deux méthodes basiques pour le partitionnement la décomposition de domaine (\emph{domain decomposition}) et la décomposition fonctionnelle (\emph{functionnal decomposition})
+\subsubsection{Décomposition de Domaine}
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.8\columnwidth]{Chapter1/figures/domaindecomp}
+	\caption{Partitonnement par décomposition du domaine}
+	\label{figdomain}
+\end{figure}
+
+Dans ce type de partitionnement, les données associées au problème sont décomposées. Chaque tâche parallèle travaille donc sur une portion des données. Il existe alors plusieurs manières de décomposer les données. En traitement d'images, les données sont en 2 dimensions les décompositions possibles sont illustrées en figure \ref{decomp2D}.
+
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.8\columnwidth]{Chapter1/figures/decomp2D}
+	\caption{Partitonnement par décomposition du domaine en traitement d'images}
+	\label{decomp2D}
+\end{figure}
+
+
+
+
+
