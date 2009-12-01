@@ -1,0 +1,527 @@
+
+Dans ce chapitre nous rentrons dans le vif du sujet, à savoir, la parallélisation de code de traitement d'images pour le processeur Cell. L'algorithme considéré est celui de la détection de points d'intérêts de Harris. Le choix de cet algorithme s'est fait selon plusieurs critères qui sont les suivants:
+\begin{itemize}
+\item C'est un algorithme de traitement d'images bas niveaux qu'on retrouve dans plusieurs applications plus complexes, comme la reconstructions 3D et le suivi d'objets.
+\item Il est composé de blocs de traitement de base qui sont représentatifs des algorithmes bas niveau comme les opérateurs de convolution et les opérateurs point à point.
+\item C'est un algorithme qui ne peux pas s'exécuter en temps réel sans optimisations spécifiques.
+\end{itemize}
+\'Etant donné les caractéristiques de l'architecture du Cell ainsi que celles de l'algorithme, le but est de trouver la meilleure implémentation permettant d'exploiter au mieux les dispositifs haute performance de l'architecture. Le processeur Cell est un vrai concentré de dispositifs accélérateurs parmi lesquels les unités SPE purement SIMD, les contrôleurs DMA permettant un parallélisme entre transferts mémoire et tâches de calculs ainsi que la multiplicité des coeurs qui permettent de répartir la charge de calcul de plusieurs manières possible, soit sous forme de parallélisme de donnée uniquement, ou alors de parallélisme de tâches ou un mélange des deux.
+\section{Algorithme de Harris}
+La détection de point d'intérêts de \emph{Harris} et \emph{Stephen} \cite{harris_corner} est utilisée dans les systèmes de vision par ordinateur pour l'extraction de connaissance comme la détection de mouvement, la mise en correspondance d'images, le suivi d'objets, la reconstruction 3D et la reconnaissance d'objets. Cet algorithme fut proposé pour palier aux manques de l'algorithme de \emph{Moravec} \cite{moravec} qui était sensible au bruit et pas invariant à la rotation. Un coin peut être défini comme étant l'intersection de deux contours lorsque un point d'intérêt peut être défini comme un point ayant une position bien déterminée et qui peut être détecté de manière robuste. Ainsi, le point d'intérêt peut être un coin mais aussi un point isolé d'intensité maximum ou minimum localement, une terminaison de ligne ou encore un point de courbe où la courbure est localement maximale.
+
+\subsection{Description de l'Algorithme}
+Si l'on considère des zones de l'image de dimensions $u \times v$ (dans notre cas $3 \times 3$ dans une images 2-dimensions en niveaux de gris $I$  qui est décalée de $(x, y)$, l'opérateur de Harris est basé sur l'estimation de l'auto-corrélation locale $S$ dont l'équation est la suivante:
+\begin{equation}
+\label{eq_00}
+S(x,y) =\sum\limits_{u}\sum\limits_{v} w(u,v)\left( I(u,v) - I(u-x,v-y) \right)^{2}
+\end{equation}
+Par l'approximation de $S$ avec une série de Taylor du second ordre la matrice de Harris $M$ est donnée par :
+\begin{equation}
+\label{eq_01}
+M=\sum\limits_{u}\sum\limits_{v}w(u,v)\begin{bmatrix}I_{x}^{2}& I_{x}I_{y}\\I_{x}I_{y}&I_{y}^{2}\end{bmatrix}
+\end{equation}
+Un point d'intérêt est caractérisé par une large variation de $S$ dans toutes les directions du vecteur $(x,y)$. En analysant les valeurs propres de $M$, cette caractérisation peut être exprimée de la manière suivante. Soit $\lambda_{1}$, $\lambda_{2}$ les valeurs propres de $M$:
+\begin{enumerate}
+	\item Si $\lambda_{1}$ $\approx 0$ et $\lambda_{2}$ $\approx 0$ alors il n'y a pas de point d'intérêt au pixel $(x,y)$.
+	\item Si $\lambda_{1}$ $\approx 0$ and $\lambda_{2}$ a une grande valeur positive alors un contour est retrouvé.
+	\item Si $\lambda_{1}$ and $\lambda_{2}$ sont deux grandes valeurs positives distinctes alors un coin est détecté.
+\end{enumerate}
+\emph{Harris} et \emph{Stephen} ont constaté que le calcul des valeurs propres était couteux car il requiert le calcul d'une racine carrée, et ont proposé à la place l'algorithme suivant : 
+
+\begin{enumerate}
+\item Pour chaque pixel $(x, y)$ de l'image calculer la matrice de corrélation $M$:\\
+\begin{equation}
+\label{eq_03}
+M=\begin{bmatrix} S_{xx} & S_{xy} \\ S_{xy} & S_{yy} \end{bmatrix}; \mbox{où:} S_{xx}=\left(\frac{\partial I}{\partial x}\right)^{2}\otimes w, S_{yy}=\left(\frac{\partial I}{\partial y}\right)^{2}\otimes w, S_{xy} = \left(\frac{\partial I}{\partial x}\frac{\partial I}{\partial y}\right)\otimes w
+\end{equation}
+
+Où	$\otimes$ est l'opérateur de convolution $w$ un noyau Gaussien.\\
+\item Construire la carte de coarsité en calculant la mesure de coarsité $C(x, y)$ pour chaque pixel $(x, y)$:\\
+\begin{equation}
+\label{eq_04}
+C(x,y)=det(M)-k(trace(M))^{2}
+\end{equation}
+\begin{eqnarray*}
+det(M)=S_{xx}.S_{yy}-S_{xy}^{2}\\
+trace(M)=S_{xx}+S_{yy}
+\end{eqnarray*}
+et $k$ une constante empirique.\\
+\end{enumerate}
+Une illustration d'une détection de points d'intérêt sur une image 512$\times$512 en niveaux de gris est donnée en figure \ref{fig_house}. Afin d'obtenir ce résultat, deux étapes supplémentaires sont nécessaires qui permettent d'extraire une information visuelle à partir de la matrice $C(x,y)$\footnote{Ces étapes ont pour but de visualiser le résultat et ne sont donc pas incluses dans le graphe de l'algorithme}. Ces étapes sont les suivantes :
+\begin{enumerate}
+\item Seuillage de la carte d'intérêt en mettant toute les valeurs de $C(x,y)$ inférieurs à un seuil donné à zéro.
+\item Extraction des maxima locaux en gardant les points qui sont plus grand que tous leurs voisins dans un voisinage 3$\times$3.
+\end{enumerate}
+\begin{figure}[!htb]
+	\centering
+\begin{tabular}{cc}
+	\includegraphics[width= 0.5\columnwidth]{Chapter3/figures/house1} & \includegraphics[width= 0.5\columnwidth]{Chapter3/figures/house_harris_map}
+	\end{tabular}
+	\caption{Illustration de la détection de points d'intérêts sur une image niveaux de gris 512$\times$512}
+	\label{fig_house}
+\end{figure}
+
+\subsection{Détails de l'Implémentation}
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width= \columnwidth]{Chapter3/figures/harris_NB}
+	\caption{Implémentation de l'algorithme de Harris sous forme de graphe flot de données}
+	\label{fig_HarrisAlgorithm}
+\end{figure}
+Les images en niveaux de gris sont typiquement des données stockées une des entiers 8-bit non signés et la sortie de l'algorithme de Harris est dans ce cas là un entier 32 bit signé. Toutefois, pour des raisons de limitation du jeux d'instruction du SPU, et afin de garantir une comparaison objective avec les extension Altivec et SSE nous avons choisi le format flottant simple précision pour l'entrée et la sortie de l'algorithme. Dans notre implémentation nous avons divisé l'algorithme en 4 noyaux de traitement : un opérateur de \emph{Sobel} qui représente la dérivée dans les directions horizontale et verticale, un opérateur de multiplication, un noyau de lisage de \emph{Gauss} ($w$ dans l'équation \ref{eq_03} suivi d'un opérateur de coarsité. Nous avons fixé la constante $k$ à zéro (typiquement elle est fixée à 0.04) car ceci n'avait pas d'influence sur le résultat qualitatif. On obtient ainsi le graphe flot de données donné dans la figure \ref{fig_HarrisAlgorithm} qui est représentatif d'un algorithme de traitement d'images bas niveau car il englobe des noyaux de convolution et des opérateurs point à point. Les noyaux de convolution de Sobel ($GradX$ et $GradY$)et le noyau de $Gauss$ sont définis comme suit: 
+\begin{eqnarray*}
+Grad_{X} = \begin{bmatrix}-1 & 0 & 1 \\ -2 & 0 & 2 \\ -1 & 0 & 1 \end{bmatrix}; Grad_{Y} = \begin{bmatrix}-1 & -2 & -1 \\ 0 & 0 & 0 \\ 1 & 2 & 1 \end{bmatrix}; Gauss = \frac{1}{16}\begin{bmatrix}1 & 2 & 1 \\ 2 & 4 & 2 \\ 1 & 2 & 1 \end{bmatrix}
+\end{eqnarray*}
+\'Etant donnée qu'ils consomment plus d'entrées qu'ils ne produisent de sorties, les noyaux de convolution sont le goulot d'étranglement de l'algorithme car elles augmentent considérablement le trafic mémoire. Au vu de la nature des calculs effectués dans les différents noyaux, et qui sont très simples généralement (une suite de multiplications/accumulation) on peut considérer que les instructions mémoire sont prépondérantes dans l'application et que de ce fait, on peut qualifier l'algorithme de \emph{memory-bounded problem} (problème limité par la mémoire). C'est pour cela que les efforts d'optimisation sur l'algorithme de Harris sont faites par l'optimisation des accès mémoire à différent niveaux de la hiérarchie mémoire du processeur Cell. 
+\section{Exploitation du Parallélisme et Optimisations Multi-niveau}
+Les techniques d'optimisation démontrées ici sont multiples et variées. Certaines sont de nature algorithmique et relèvent plutôt du domaine du traitement du signal et des images. D'autres techniques génériques relèvent plutôt du domaine de l'optimisation logicielle est qu'on retrouve parfois dans certains compilateurs optimisants. Les techniques précédentes sont générales et peuvent être appliqués à la majorité des processeurs généralistes car elle ne tiennent pas compte des aspects spécifiques d'une architecture donnée. Par contre, des optimisations de plus haut niveau et qui sont spécifiques à l'architecture particulière du Cell ont aussi été employées. Celles-ci ne sont généralement pas reproductibles sur d'autres architectures parallèles car elles relèvent plus d'une adéquation entre l'algorithme et l'architecture qui contient certains dispositifs qui n'existent que sur le Cell et des fois elles résultent de contraintes de programmation spécifiques au Cell comme la taille limitée des mémoire locale des SPEs et par conséquent la gestion logicielle de l'utilisation de la mémoire.
+\subsection{Techniques Spécifiques au Domaine}
+Ces optimisations relèvent plutôt du domaine du traitement du signal et des images. Elles peuvent donc être appliquées à plusieurs algorithmes et sur n'importe quelle architecture. Celles que nous avons utilisé concernent les noyaux de convolution et sont : la séparabilité, le chevauchement (\emph{overlapping}) et la factorisation des calculs.
+\subsubsection{Séparabilité des Noyaux}
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width= \columnwidth]{Chapter3/figures/convolution_sep}
+	\caption{Exemple de convolution par un filtre Gaussien $3\times3$ (a)version avec noyaux 2D (b) version avec deux noyaux 1D , résultant de la séparation du noyau 2D.}
+	\label{fig_convosep}
+\end{figure}
+Cette optimisation consiste à exploiter le fait que les noyaux de convolution 2D de \emph{Sobel} \emph{Gauss} soient séparables en deux filtre de convolution 1D (Fig. \ref{fig_convosep}). Ainsi, la matrice des coefficients peut être exprimée comme un produit de deux vecteur comme l'illustre les équations ci-dessous :
+\begin{eqnarray*}
+Grad_{X} =  \frac{1}{  8} \begin{bmatrix} -1 &  0 &   1  \\ -2 & 0 & 2 \\ -1 & 0 & 1 \end{bmatrix} =    \frac{1}{8} \begin{bmatrix} -1 \\ 0 \\ 1 \end{bmatrix} \times  \begin{bmatrix} 1 & 2 & 1 \end{bmatrix};
+Grad_{Y} =  \frac{1}{  8} \begin{bmatrix} -1 & -2 & -1   \\  0 & 0 & 0 \\  1 & 2 & 1 \end{bmatrix}  =   \frac{1}{8} \begin{bmatrix} 1 \\ 2 \\ 1 \end{bmatrix} \times  \begin{bmatrix} -1 & 0 & 1 \end{bmatrix}\\
+Gauss      =  \frac{1}{16} \begin{bmatrix}  1 &  2 &   1  \\  2 & 4 & 2 \\  1 & 2 & 1 \end{bmatrix} = \frac{1}{16}\begin{bmatrix}1 \\ 2 \\ 1 \end{bmatrix} \times \begin{bmatrix}1  & 2 & 1 \end{bmatrix}
+\end{eqnarray*}
+Lorsque l'on sépare les noyaux de convolution, le calcul se fait en deux passes : une pour chaque vecteur. Grâce à la séparabilité des noyaux on arrive à réduire le nombre d'instructions mémoire ainsi que la complexité arithmétique. La comparaison est illustrée dans les tableaux \ref{tab_sepa_arith} et \ref{tab_sepa_mem}.
+\begin{table}
+\centering
+\begin{tabular}{|c|c|c||c|c|c|c|}
+\multicolumn{7}{c}{\textbf{Complexité arithmétique filtre de \emph{Sobel}}}\\
+\hline
+\multicolumn{3}{|c||}{\emph{Sans séparation du noyau}} & \multicolumn{3}{|c|}{\emph{Avec séparation du noyau}} & \emph{Gain \%}\\
+\hline
+\textbf{\texttt{MUL}} & \textbf{\texttt{ADD}} & \textbf{Total}& \textbf{\texttt{MUL}} & \textbf{\texttt{ADD}} & \textbf{Total}  & \multirow{2}{*}{\textbf{75}}\\
+\cline{1-6}
+ 2  & 5 & 7  & 1  & 3 & 4  & \\
+\hline
+\multicolumn{7}{c}{\textbf{Complexité arithmétique filtre de \emph{Gauss}}}\\
+\hline
+\multicolumn{3}{|c||}{\emph{Sans séparation du noyau}} & \multicolumn{3}{|c|}{\emph{Avec séparation du noyau}}  & \emph{Gain \%} \\
+\hline
+\textbf{\texttt{MUL}} & \textbf{\texttt{ADD}} & \textbf{Total}& \textbf{\texttt{MUL}} & \textbf{\texttt{ADD}} & \textbf{Total} &   \multirow{2}{*}{\textbf{116}} \\
+\cline{1-6}
+ 8  & 5 & 13  & 2  & 4 & 6  &  \\
+\hline
+\end{tabular}
+\label{tab_sepa_arith}
+\caption{Réduction de la complexité arithmétique par séparabilité des noyaux}
+\end{table}
+
+\begin{table}
+\centering
+\begin{tabular}{|c|c|c||c|c|c|c|}
+\multicolumn{7}{c}{\textbf{Complexité mémoire filtre de \emph{Sobel}}}\\
+\hline
+\multicolumn{3}{|c||}{\emph{Sans séparation du noyau}} & \multicolumn{3}{|c|}{\emph{Avec séparation du noyau}} & \emph{Gain \%}\\
+\hline
+\textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}& \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}  & \multirow{2}{*}{\textbf{0}}\\
+\cline{1-6}
+ 6  & 1 & 7  & 1  & 5 & 2  & \\
+\hline
+\multicolumn{7}{c}{\textbf{Complexité mémoire filtre de \emph{Gauss}}}\\
+\hline
+\multicolumn{3}{|c||}{\emph{Sans séparation du noyau}} & \multicolumn{3}{|c|}{\emph{Avec séparation du noyau}}  & \emph{Gain \%} \\
+\hline
+\textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}& \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total} &   \multirow{2}{*}{\textbf{25}} \\
+\cline{1-6}
+ 9  & 1 & 10  & 6  & 1 & 8  &  \\
+\hline
+\end{tabular}
+\label{tab_sepa_mem}
+\caption{Réduction de la complexité mémoire par séparabilité des noyaux}
+\end{table}
+
+\subsubsection{Chevauchement des Noyaux}
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width= \columnwidth]{Chapter3/figures/convolution_overlap}
+	\caption{Chevauchement des données pour un calcul d'un filtre Gaussien $3\times3$, certaines données sont conservées en décalant le masque de convolution.}
+	\label{fig_convoover}
+\end{figure}
+La deuxième particularité des noyaux de convolution est une notion de chevauchement qui permet d'avoir une redondance d'une partie des données (Fig. \ref{fig_convoover}). En effet, comme le démontre la figure \ref{fig_ovelapping}, à chaque itération du calcul de la convolution il n'y a qu'une seule nouvelle colonne chargée. Les colonnes redondantes sont copiées dans les registres en les décalant d'un pas à droite par rapport à leur position précédente (\emph{rotation de registres}). On notera que le même type d'optimisation peut se faire grâce à un \emph{déroulage de boucle}.
+\begin{table}
+\centering
+\begin{tabular}{|c|c|c||c|c|c|c|}
+\multicolumn{7}{c}{\textbf{Complexité mémoire filtre de \emph{Sobel}}}\\
+\hline
+\multicolumn{3}{|c||}{\emph{Sans chevauchement du noyau}} & \multicolumn{3}{|c|}{\emph{Avec chevauchement du noyau}} & \emph{Gain \%}\\
+\hline
+\textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}& \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}  & \multirow{2}{*}{\textbf{133}}\\
+\cline{1-6}
+ 6  & 1 & 7  & 2  & 1 & 3  & \\
+\hline
+\multicolumn{7}{c}{\textbf{Complexité mémoire filtre de \emph{Gauss}}}\\
+\hline
+\multicolumn{3}{|c||}{\emph{Sans chevauchement du noyau}} & \multicolumn{3}{|c|}{\emph{Avec chevauchement du noyau}}  & \emph{Gain \%} \\
+\hline
+\textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}& \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total} &   \multirow{2}{*}{\textbf{150}} \\
+\cline{1-6}
+ 9  & 1 & 10  & 3  & 1 & 4  &  \\
+\hline
+\end{tabular}
+\label{tab_over_mem}
+\caption{Réduction de la complexité mémoire par chevauchement des noyaux}
+\end{table}
+\subsubsection{Séparation des noyaux et chevauchement}
+Cette optimisation n'est en fait qu'une combinaison des deux précédentes. En effet on profite d'une part du fait que les noyaux soient séparables pour réduire la complexité arithmétique, et d'autre part du chevauchement des noyaux pour mémoriser le résultat précédent. Ainsi, au lieu de mémoriser les deux dernières colonnes, on mémorise le résultat du filtrage par le premier filtre 1D pour le réutiliser à l'itération suivante de la boucle. Dans ce cas là; la compléxité arithmétique est la même que celle de la version avec séparation des noyaux, alors que la complexité mémoire est réduite d'avantage.
+Les tableau \ref{tab_sepaover_arith} et \ref{tab_sepaover_mem} donnent la différence en terme de complexité arithmétique et mémoire entre la version de base de l'algorithme est la version tenant compte des deux optimisations combinées.
+\begin{table}
+\centering
+\begin{tabular}{|c|c|c||c|c|c|c|}
+\multicolumn{7}{c}{\textbf{Complexité arithmétique filtre de \emph{Sobel}}}\\
+\hline
+\multicolumn{3}{|c||}{\emph{Sans séparation du noyau + chevauchement}} & \multicolumn{3}{|c|}{\emph{Avec séparation du noyau + chevauchement}} & \emph{Gain \%}\\
+\hline
+\textbf{\texttt{MUL}} & \textbf{\texttt{ADD}} & \textbf{Total}& \textbf{\texttt{MUL}} & \textbf{\texttt{ADD}} & \textbf{Total}  & \multirow{2}{*}{\textbf{75}}\\
+\cline{1-6}
+ 2  & 5 & 7  & 1  & 3 & 4  & \\
+\hline
+\multicolumn{7}{c}{\textbf{Complexité arithmétique filtre de \emph{Gauss}}}\\
+\hline
+\multicolumn{3}{|c||}{\emph{Sans séparation du noyau + chevauchement}} & \multicolumn{3}{|c|}{\emph{Avec séparation du noyau + chevauchement}}  & \emph{Gain \%} \\
+\hline
+\textbf{\texttt{MUL}} & \textbf{\texttt{ADD}} & \textbf{Total}& \textbf{\texttt{MUL}} & \textbf{\texttt{ADD}} & \textbf{Total} &   \multirow{2}{*}{\textbf{116}} \\
+\cline{1-6}
+ 8  & 5 & 13  & 2  & 4 & 6  &  \\
+\hline
+\end{tabular}
+\label{tab_sepaover_arith}
+\caption{Réduction de la complexité arithmétique par séparabilité et chevauchement des noyaux}
+\end{table}
+
+\begin{table}
+\centering
+\begin{tabular}{|c|c|c||c|c|c|c|}
+\multicolumn{7}{c}{\textbf{Complexité mémoire filtre de \emph{Sobel}}}\\
+\hline
+\multicolumn{3}{|c||}{\emph{Sans séparation du noyau + chevauchement}} & \multicolumn{3}{|c|}{\emph{Avec séparation du noyau + chevauchement }} & \emph{Gain \%}\\
+\hline
+\textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}& \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}  & \multirow{2}{*}{\textbf{250}}\\
+\cline{1-6}
+ 6  & 1 & 7  & 1  & 1 & 2  & \\
+\hline
+\multicolumn{7}{c}{\textbf{Complexité mémoire filtre de \emph{Gauss}}}\\
+\hline
+\multicolumn{3}{|c||}{\emph{Sans séparation du noyau + chevauchement}} & \multicolumn{3}{|c|}{\emph{Avec séparation du noyau + chevauchement }}  & \emph{Gain \%} \\
+\hline
+\textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}& \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total} &   \multirow{2}{*}{\textbf{400}} \\
+\cline{1-6}
+ 9  & 1 & 10  & 1  & 1 & 2  &  \\
+\hline
+\end{tabular}
+\label{tab_sepaover_mem}
+\caption{Réduction de la complexité mémoire par séparabilité et chevauchement des noyaux}
+\end{table}
+\subsubsection{Composition de Fonctions}
+\label{sectioncompo}
+\begin{figure}[!htb]
+	\centering
+  \includegraphics[width= \columnwidth]{Chapter3/figures/funccompo}
+  	\label{fig_compo}
+	\caption{Règle de composition de fonctions.\textbf{(a)} composition de deux opérateurs point à point \textbf{(b)} composition d'un noyaux de convolution suivi d'un opérateur point à point \textbf{(c)} composition d'un opérateur point à point  suivi d'un noyaux de convolution \textbf{(d)} composition de deux noyaux de convolution successifs}
+\end{figure}
+
+Cette technique d'optimisation s'avère très efficace surtout dans les codes ou les instructions mémoire sont prépondérantes. En effet, le fait de composer deux fonctions de calcul pour en faire une seule qui effectue les deux calculs réduit considérablement le nombre d'accès mémoire puisque les opérations de sauvegarde et de chargement intermédiaires entre les deux fonctions initiales sont supprimées, et la transaction se fait au niveaux des registres. De plus, le cout de l'appel de fonction (taille de la pile, et branchement) est également réduit, car le résultat de la composition de fonctions et une seule fonction. Dans les cas les plus simples, la mise en oeuvre de cette technique n'est pas difficile. Toutefois, lorsqu'il s'agit d'opérateurs de convolution comme dans notre cas, des nouvelles contraintes apparaissent afin de garantir la validité du résultat du calcul. Ainsi, des règles de composition s'imposent en fonction de l'ordre dans lequel s'enchainent les fonctions. Ces règles sont illustrées sur la figure \ref{fig_compo}. On peut alors constater qu'il existe plusieurs règles de composition des fonctions selon d'une part, la nature des opérateurs mis en jeu et d'autre part l'ordre dans lequel il s'enchainent. En terme d'apport de cette technique en terme de performances nous observons deux aspects distincts:
+\begin{itemize}
+\item \textbf{Complexité mémoire} : on observe en effet que ceux ci sont systématiquement réduits, car les opérations de \texttt{LOAD/STORE} intermédiaires sont supprimés, sauf dans le cas de la composition de deux noyaux de convolution (cas \textbf{(d)} sur la figure \ref{fig_compo})ou la présence de bords supplémentaires augmente considérablement le nombre des accès mémoire.
+\item \textbf{Complexité arithmétique} : Celle-ci ne change pas dans le meilleurs des cas notamment lorsque les opérateurs composées sont point à point ou alors lorsque l'opérateur de convolution est placé devant un opérateur point à point (cas \textbf{(b)} sur la figure \ref{fig_compo}). Toutefois, si la convolution est placée à la suite d'un quelconque traitement, elle impose que l'opérateur qui la précède soit effectué sur tous les pixels de voisinage, ce qui augmente considérablement la complexité arithmétique, en particulier lorsque l'opérateur qui précède est une convolution (cas \textbf{(d)} sur la figure \ref{fig_compo}).
+\end{itemize}
+D'après les observations ci-dessus, la composition de fonction peut être un bon choix pour l'optimisation d'une chaîne de traitement telle que l'algorithme de détection de point d'intérêts de Harris. Toutefois, toutes les combinaisons n'apportent pas forcément une amélioration des performances, elle peuvent même dans certains cas les dégrader. Le tableau \ref{tab_memall} résume les complexité mémoire et arithmétiques des différents cas de composition sur la figure \ref{fig_compo} en incluant également les optimisations décrites auparavant.
+\begin{table}
+\centering
+\begin{tabular}{|c||c|c|c|c|}
+\hline
+\multicolumn{5}{|c|}{\textbf{Version de base sans composition}}\\
+\hline
+\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
+\hline
+\emph{Sobel} & 2 & 6 & 1 & 14\\
+\hline
+\emph{Mul} & 3 & 2 & 1 & 9\\
+\hline
+\emph{Gauss} & 3 & 9 & 1 & 30\\
+\hline
+\emph{Coarsity} & 1 & 3 & 1 & 4\\
+\hline
+\emph{Harris} & 1 & 48 & 9 & 57\\
+\hline
+\multicolumn{5}{|c|}{\textbf{Version avec chevauchement et séparation des noyaux sans composition}}\\
+\hline
+\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
+\hline
+\emph{Sobel} & 1 & 3 & 2 & 5\\
+\hline
+\emph{Mul} & 3 & 2 & 1 & 6\\
+\hline
+\emph{Gauss} & 3 & 3 & 1 & 12\\
+\hline
+\emph{Coarsity} & 1 & 3 & 1 & 4\\
+\hline
+\emph{Harris} & 1 & 21 & 9 & 30\\
+\hline
+\multicolumn{5}{|c|}{\textbf{Version avec composition de Sobel$\circ$Mul et Gauss$\circ$Coarsity}}\\
+\hline
+\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
+\hline
+\emph{Sobel$\circ$Mul} & 1 & 9 & 3 & 12\\
+\hline
+\emph{Gauss$\circ$Coarsity} & 3 & 9 & 1 & 28\\
+\hline
+\emph{Harris} & 1 & 36 & 4 & 40\\
+\hline
+\multicolumn{5}{|c|}{\textbf{Version avec chevauchement et séparation + composition de Sobel$\circ$Mul et Gauss$\circ$Coarsity}}\\
+\hline
+\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
+\hline
+\emph{Sobel$\circ$Mul} & 1 & 3 & 3 & 6\\
+\hline
+\emph{Gauss$\circ$Coarsity} & 3 & 3 & 1 & 10\\
+\hline
+\emph{Harris} & 1 & 12 & 4 & 16\\
+\hline
+\multicolumn{5}{|c|}{\textbf{Version avec composition de Sobel$\circ$Mul$\circ$Gauss$\circ$Coarsity}}\\
+\hline
+\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
+\hline
+\emph{Sobel$\circ$Mul$\circ$Gauss$\circ$Coarsity} & 1 & 25 & 1 & 26\\
+\hline
+\emph{Harris} & - & - & - & 26\\
+\hline
+\multicolumn{5}{|c|}{\textbf{Version avec chevauchement et séparation + composition de Sobel$\circ$Mul$\circ$Gauss$\circ$Coarsity}}\\
+\hline
+\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
+\hline
+\emph{Sobel$\circ$Mul$\circ$Gauss$\circ$Coarsity} & 1 & 5 & 1 & 6\\
+\hline
+\emph{Harris} & - & - & - & 6\\
+\hline
+\end{tabular}
+\label{tab_memall}
+\caption{Tableau récapitulatif de l'optimisation des accès mémoire en combinant l'ensemble des optimisations}
+\end{table}
+\subsection{Optimisation des Transferts Mémoire}
+\begin{figure}[!htb]
+	\centering
+  \includegraphics[width= \columnwidth]{Chapter3/figures/cellnoc}
+  \label{fignoc}
+	\caption{Réseau d'interconnection du Cell}
+\end{figure}
+Dans cette partie, nous abordons des techniques d'optimisations qui sont relatives au transferts de données présents dans l'application. On entend, par transfert de donnée, toute communication qui met en jeu deux mémoires physiques sur Cell. Cela comporte les transferts DMA entre la mémoire principale et les mémoires locales des SPEs ainsi que les communications mettant en jeu deux mémoires privées de SPEs. Plusieurs aspects sont mis en avant. D'une part, les caractéristiques internes de l'architecture du réseaux de communications \cite{cellnoc} (\emph{Network On Chip (NoC)}) du Cell et d'autres part la nature des transferts de données imposées par l'algorithme et la partition des données à plusieurs niveaux de la hiérarchie mémoire.
+\subsubsection{Optimisation de la Bande-Passante du \emph{NoC}}
+Dans le modèle de programmation utilisé qui est basé sur le \emph{SDK} du Cell et les librairies \emph{libspe}, les données présentes en mémoire centrale sont transférées aux mémoires locales des SPEs avant d'être traitées. Ces transferts se font d'une manière explicite dans le logiciel par appel à des fonctions de l'API de gestion du \emph{MFC} et ils sont gérées par le \emph{Noc} au travers de contrôleurs mémoire et de l'arbitre de bus. L'architecture du Bus et la topologie du réseau impose quelques contraintes qui jouent un rôle primordial dans la minimisation des latences des communications point à point.
+\paragraph{Taille du Transfert}
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width= 0.8\columnwidth]{Chapter3/figures/bwsize}
+  \label{figbwsize}
+  \caption{Influence de la taille du transfert DMA sur la bande-passante}
+\end{figure}
+%\begin{figure}[!htb]
+%	\centering
+%  \includegraphics[width= 0.8\columnwidth]{Chapter3/figures/grapheBW}
+%  \label{graphbw}
+%	\caption{Bande-passante cumulée }
+%\end{figure}
+
+Le premier paramètre influant sur la bande passante est la taille du bloc de données transféré. D'une part, il y a des contraintes imposées par l'API de transfert qui limite les tailles d'un bloc transféré par une commande DMA à 1, 2, 4, 8 octets ou tout multiple de 16 \emph{bytes} et la taille de données maximale transférée en une seule commande est de 16 \emph{KB}. Des plus les adresses doivent obligatoirement être alignées sur 16 \emph{bytes} et un alignement sur 128 \emph{bytes} est préférable à cause de la taille de la ligne de cache sur la mémoire locale du SPE qui est de 128 \emph{bytes}. D'autre part l'espace mémoire disponible sur les SPEs pour stocker données et instructions est limité à 256 KB. Toutes ces contraintes, imposent une attention des contraintes fortes en termes de taille de bloc transféré et d'alignement des données qui ne sont pas du ressort du développeur dans les architectures à mémoire partagée. Plusieurs \emph{benchmarks} ont été effectués dans \cite{cellnoc} et \cite{cell_bw02} et qui démontrent la relation entre la taille et à la fois le débit et la latence des transferts sur le Cell. Le graphe \ref{graphbw} donne les résultats sur un benchmark de bande-passante que nous avons effectué sur une BladeCenter QS20 et démontrent que celle ci est proportionnelle à la taille des données transférées. Ceci s'explique par le fait que la \emph{latence} du transfert qui représente le temps d'initialisation d'un transfert, cette durée étant la même quelque soit la taille du paquet jusqu'à 16 KB.
+\paragraph{Nombre de Transferts Concurrents}
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width= 0.8\columnwidth]{Chapter3/figures/bwcontention}
+  \label{figbwncontention}
+  \caption{Influence du nombre de transferts dans le cas d'une communication LS<->LS}
+\end{figure}
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width= 0.8\columnwidth]{Chapter3/figures/bwnspes}
+  \label{figbwnspes}
+  \caption{Influence du nombre de transferts dans le cas d'une communication MS<->LS}
+\end{figure}
+
+Les second facteur qui influe sur l'efficacité du réseau lors des transferts est le nombre de transferts s'exécutant en parallèle. En effet, l'architecture du réseau dont la topologie est tu type \emph{token ring} contient quatre anneaux d'une largeur de 128-bit : deux dans le sens d'une aiguille d'une montre et les deux autres dans le sens contraire. En observant la topologie du réseau ainsi que le sens de circulation des données sur les anneaux du bus, il s'avère évident qu'il peut y avoir collision entre deux transferts s'exécutant de manière concurrente (\ref{fignoc}). Sachant qu'un anneau peut gérer 3 transferts concurrents tant que ceux-ci n'entrent pas en collision. Ce risque est d'autant plus important si le nombre de transferts concurrents augmente (au-delà de 12). Lorsqu'un tel conflit est détecté,  l'arbitre de bus le résout avec un surcout qui divise globalement la bande-passante par deux. La courbe sur le figure \ref{figbwncontention} permet de constater l'influence du nombre de transferts concurrents, on peut ainsi observer que la courbe perd sa linéarité quand au delà de 4 SPEs et ceci car le nombre de transferts devient trop important pour ne pas provoquer de collisions sur le bus.\\
+\indent Dans le cas d'une communication du PPE vers le SPE, la bande passante maximale qui peut être atteinte est de 25.6 GB/s. Dans le cas où plusieurs SPEs font une requête vers la mémoire principale les transferts ne peuvent être que sérialisés car il existe qu'une seule liaison vers le MS (\emph{Main Storage}). On observe alors que le graphique de la figure \ref{bwnspes} que la bande passante maximale n'est atteinte que lorsqu'au moins 4 SPEs font un transfert de la mémoire centrale vers leurs mémoires privée. 
+
+\subsubsection{Optimisation de la localité temporelle par chainage des opérateurs}
+Le but visé par cette technique est de rapprocher le plus possible les données des unités de traitement. En effet, les couts liés au transfert des données de la mémoire centrale vers les mémoires locales étant important, il est pertinent de garder les données en mémoire locale après chaque traitement au lieu de multiplier les lectures/écritures vers la mémoire centrale. Les règles de chainage des opérateurs au niveaux des accès mémoires, sont les mêmes que pour la composition des opérateurs citée dans la section \ref{sectioncompo}. Cette optimisation apporte beaucoup à la performance globale car l'application est caractérisée par un ratio transfert/calcul important et la différence de bande-passante entre l'accès en mémoire locale et l'accès à une mémoire distante par DMA est d'un facteur dix \cite{cell_bw02}.
+
+\subsubsection{Optimisation du \emph{Tiling} des données}
+Le \emph{loop tiling} \cite{wolfetiling}ou \emph{loop blocking} est une technique d'optimisation très utilisée que cela soit par les programmeurs ou par les compilateurs optimisants. Cette technique consiste en un découpage des données à différents niveaux de la hiérarchie mémoire de telle sorte à ce que la latence d'accès soit la plus petite possible. Dans une architecture mémoire partagée contenant des caches, ceci revient à un découpage qui garantit que les données utilisées par un traitement donné tiennent toujours dans le cache. Ainsi, le temps d'accès aux données est de l'ordre du cycle et les défauts de cache (\emph{cache misses}) sont quasi inexistant quelque soit la taille des données.\\
+\indent Au vu de la nature de la hiérarchie mémoire du processeur Cell, le \emph{tiling} est une obligation. D'une part, il n'existe pas de mémoire cache pour gérer les mémoires privée des SPEs, le découpage des données est une tâche confiée au programmeur. D'autre part l'espace de stockage étant limité dans les \emph{local store} (256 KB), le découpage des données en tuiles pouvant tenir dans le cache est obligatoire. L'unité de données atomique devient alors la tuile qui représente le morceau de donné le plus petit qui va être traitée par le code du SPE.
+\paragraph{Taille de la Tuile}
+La taille de la tuile est un paramètre primordial lorsqu'il s'agit de découper les données de manière optimale. Dans le cas du processeur Cell, les contraintes imposées par l'architecture font que le choix de la taille optimale est restreint. En effet, la taille limitée du \emph{local store} pour le code source et les données, impose que la taille de la tuile ne dépasse pas la capacité de stockage qui est de 256 KB. L'autre paramètre dont on doit tenir compte est le nombre d'entrées et de sorties des fonctions de traitement car celui-ci donne le nombre de tuiles. On peut en déduire globalement, que la taille de la tuile est égale à la capacité de stockage restante pour les données, divisée par le nombre de tuiles en entrée et en sortie de la chaine de traitement mise en jeu. D'autre part, selon ce qui a été vu precedemment, la taille de transfert qui garantit une bande-passante maximale sur le bus est de 16 KB ou un multiple de cette taille.
+\paragraph{Dimensions de la Tuile}
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=\columnwidth]{Chapter3/figures/qreloads}
+  \label{qreloads}
+  \caption{Redondances de données pour un opérateur de convolution $3 \times 3$}
+\end{figure}
+Les tuile que l'on traite dans notre cas sont en général d'une forme rectangulaire. Toutefois, à cause de la présence d'opérateurs de convolution, les dimensions hauteur et largeur de la tuile ($h$ et $w$) doivent également être considérées. En effet, dans le cas d'opérateurs de convolution les bords qui représentent les voisinage des pixels traités augmentent la quantité de données transférées de la mémoire. Cette quantité peut être réduite avec un choix judicieux des dimensions de la Tuile. Comme le montre la figure \ref{qreloads}certains des pixels sont rechargés, nous démontrons dans la suite l'influence des dimensions de la tuile sur ce nombre de pixels redondants.\\
+\indent Si l'on considère une image de hauteur $H$ et de largeur de $W$, une tuile de dimensions $h$ et $w$ et un opérateur de convolution nécessitant un voisinage pour chaque pixel. On suppose pour simplifier le calcul, que la matrice de convolution est carrée, ce qui fait que les bords des deux côtés sont égaux. La quantité totale de pixels transférées pour le traitement est alors :
+\begin{equation}
+Q = (h+2b)\times(w+2b)\times nb_{tiles}\nonumber
+\end{equation}
+où $nb_{tiles}$ est le nombres de tuiles dans l'image.
+\begin{equation}
+nb_{tiles} = \frac{H \times W}{h \times w} \nonumber
+\end{equation}
+Le but étant de trouver à taille de tuile constante $h\times w$ quels sont les dimensions $h$ et $w$ qui minimisent $Q$
+\begin{equation}
+Q = (h+2b)\times(w+2b)\times\frac{H \times W}{h \times w} \nonumber
+\end{equation}
+
+Posons alors $\lambda = h \times w = C^{te}$, la fonction à minimiser devient alors :
+\begin{equation}
+Q = (h+2b)\times(w+2b)\times\frac{H \times W}{\lambda} \nonumber
+\end{equation}
+Calculons alors les dérivées  : \begin{equation}\frac{\partial Q}{\partial h} \mbox{ et } \frac{\partial Q}{\partial w} \nonumber\end{equation}
+
+\begin{equation} Q = \frac{H \times W}{\lambda} (h+2b) \times (\frac{\lambda}{h}+2b) \mbox{  et symétriquement  } Q = \frac{H \times W}{\lambda} (w+2b) \times (\frac{\lambda}{w}+2b) \nonumber\end{equation}
+
+\begin{equation}
+%$\frac{\partial Q}{\partial h} = \frac{H \times W \times 2b}{\lambda \times h^{2}}(h^{2}-\lambda)$
+\frac{\partial Q}{\partial h} = \frac{H \times W \times 2b}{\lambda \times h^{2}}(h^{2}-\lambda) \nonumber \\
+\end{equation}
+\begin{equation}
+\frac{\partial Q}{\partial w} = \frac{H \times W \times 2b}{\lambda \times w^{2}}(w^{2}-\lambda) \nonumber
+\end{equation}
+Le minimum de la fonction $Q$ est atteint lorsque : \begin{equation}\frac{\partial Q}{\partial h} = 0 \mbox{ et } \frac{\partial Q}{\partial w}  = 0\nonumber\end{equation}
+
+ce qui donne \begin{equation}h = w = \sqrt{\lambda} \nonumber \end{equation}
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=\columnwidth]{Chapter3/figures/meshtile}
+  \caption{Tracé de la fonction $Q(h,w)$ dans l'espace}
+  \label{meshtile}\end{figure}
+Ce qui permet de déduire que la forme de la tuile qui minimise la quantité de données transférée est une forme carrée. D'autre par lorsque l'on observe le tracé de la fonction $Q$ sur la figure \ref{meshtile} on peut constater que cette fonction décroit quand $h$ et $w$ augmentent et que la valeur de $Q$ est minimale pour une surface de tuile donnée ($h \times w = C^{te}$) lorsque $h = w$ ce qui correspond à la première bissectrice du plan $(hw)$. Ceci permet d'affirmer d'une part que la tuile carrée est optimale pour une surface donnée et que la valeur de $Q$ diminue d'autant plus lorsque $h$ et $w$ augmentent. Les valeurs de $h$ et $w$ sont alors limitées par l'espace mémoire disponible pour une tuile dans la mémoire locale des SPEs.\\
+\indent Ce résultat nous a permis de démontrer que la forme de la tuile avait une influence sur la quantité de données transférées et par conséquent sur la performance globale de l'application. Cependant, ce découpage n'est pas forcément optimal lorsqu'on passe à l'implémentation. En effet, des tuiles de formes carrées signifient des accès à des zones non-contigues de la mémoire. Ce type d'accès est en général couteux car il provoque des sauts dans la mémoire. De plus, sur le processeur Cell, ceci se traduit en commandes DMA sur des zones non-contigues de la mémoire ce qui nécessitent des commandes du type \emph{DMA list}. Ces dernières requièrent la création d'une liste qui contient chaque DMA élémentaire et qui est d'autant plus grande que le nombre de transferts est important. Cette liste doit également être mise à jour lors de chaque nouveau transfert. Toutes ces contraintes nous ont poussé dans un premier temps à adopter un découpage en bandes qui consiste à ce que les tuiles aient une largeur égale à celle de l'image. Ceci permet que les accès se fassent uniquement sur des zones contigues de la mémoire et que les transferts puissent se faire avec une seule commande DMA. De plus, lorsqu'une tuile ne contient pas de bords latéraux comme dans notre cas, le problème d'alignement des transferts est également contourné. Par contre, ce choix induit des limitations en terme de taille d'image pouvant être traitée. En effet, sachant que la taille de la tuile est limitée et que sa largeur est égale celle de l'image, la hauteur de la tuile elle, diminue au fur et à mesure que la largeur de l'image augmente. De ce fait, les accès non-contigus sont nécessaires pour des taille d'images très grandes.
+\subsection{Schémas de Parallélisation}
+Dans ce qui suit, nous abordons l'optimisation de notre algorithme à un niveau d'abstraction plus haut qui est celui des tâches. L'architecture du Cell permet plusieurs placements possibles du graphe d'opérateurs par la présence de 8 SPEs et la possibilité de mettre en place différents schémas de communication. Dans les figures qui suivent les opérateurs sont représentés par des cercles, les processeurs par des rectangles à coins arrondis, les tuiles sont de forme rectangulaire et peuvent contenir des bords. Les flèches à trait fin représentent des instruction \texttt{LOAD/STORE} dans la mémoire privée du SPE alors que les flèches plus épaisses représentent des commandes DMA inter-SPE ou alors entre la mémoire centrale et le \emph{local store} d'un SPE.
+\subsubsection{SPMD Conventionnel}
+\begin{figure}[!htb]
+	\centering
+  \includegraphics[width= \columnwidth]{Chapter3/figures/harris-spmd}
+  \label{harris-spmd}
+	\caption{Schéma de Parallélisation SPMD Conventionnel}
+\end{figure}
+Dans ce schéma de déploiement, l'image est divisée en 8 régions de même taille, afin que chacun des 8 SPEs ait une charge de calcul équivalente. Tous les SPEs exécutent le même code. Les opérateurs sont exécutés successivement sur l'image entière l'un après l'autre. A titre d'exemple l'opérateur de multiplication n'est exécuté que lorsque le calcul du filtre de \emph{Sobel} est achevé sur toute l'image. Ce modèle de calcul est dit \emph{data-parallel} car les données sont envoyées en parallèle sur les SPEs et traitées de manière complètement indépendantes les unes des autres. Toutefois, la bande passante sur le bus mémoire centrale vers \emph{locale store} est beaucoup sollicitée car les données sont systématiquement lues et écrites avant et après chaque opérateur.
+\subsubsection{Pipeline Conventionnel}
+\begin{figure}[!htb]
+	\centering
+  \includegraphics[width= \columnwidth]{Chapter3/figures/harris-pipeline}
+	\caption{Schéma de Parallélisation Pipeline}
+	\label{harris-pipeline}
+\end{figure}
+Cette implémentation de l'algorithme consiste à déployer le graphe d'opérateur sous forme de pipeline. L'image n'est pas subdivisée en régions de traitement mais chaque tuile traitée traverse le pipeline avant qu'une nouvelle tuile ne puisse le faire. L'algorithme est par conséquent fortement séquentialisé. Par contre la bande-passante inter-SPEs est bien exploitée car la majorité des transferts se font entre SPEs et par conséquent la pression exercée sur le bus précédemment est atténuée car elle est répartie sur l'ensemble de l'anneau.
+\subsubsection{Chainage d'opérateur par paires}
+\begin{figure}[!htb]
+	\centering
+  \includegraphics[width= \columnwidth]{Chapter3/figures/harris-hchain}
+	\caption{Schéma de Parallélisation Chainage d'opérateurs par paires}
+	\label{harris-pipeline}
+\end{figure}
+Dans cette version deux opérateurs successifs sont placés sur le même SPE. Ainsi, les opérateur \emph{Sobel} et \emph{Mul} sont placés sur un même SPE et \emph{Gauss} et \emph{Coarsity} sont placés sur un autre SPE. Le nombre de SPEs dans un processeur Cell étant de 8, ce schéma permet d'avoir 4 régions de l'image traitées en parallèle. Si l'on compare cette version à la précédente, on notera que la pression sur le bus d'interconnexion est plus importante car les transferts concurrents sont plus nombreux et par conséquent le risque de contention du bus est plus probable.
+\subsubsection{Chainage et fusion d'opérateur par paires}
+\begin{figure}[!htb]
+	\centering
+  \includegraphics[width= 0.6\columnwidth]{Chapter3/figures/harris-hchainhpipe}
+	\caption{Schéma de Parallélisation Chainage et fusion d'opérateurs par paires}
+	\label{harris-pipeline}
+\end{figure}
+Cette version est une variante de celle qui la précède. L'idée étant de fusionner les opérateurs présents sur un même SPE, et ce afin d'éliminer les instructions de \texttt{LOAD} et \texttt{STORE} présent à la sortie de du premier et à l'entrée du second. De ce fait, le nombre de cycles peut être considérablement réduit, surtout lorsque l'on sait que la latence des instructions mémoire est de 6 cycles sur les SPE \cite{cell_handbook}.
+\subsubsection{Chaînage entier et fusion d'opérateur par paires}
+\begin{figure}[htb]
+	\centering
+  \includegraphics[width= 0.6\columnwidth]{Chapter3/figures/harris-hchainfpipe}
+	\caption{Schéma de Parallélisation Chaînage et fusion d'opérateurs par paires}
+	\label{harris-pipeline}
+\end{figure}
+Dans cette implémentation tous les opérateurs sont exécutés sur le même SPE. D'une part ceci permet d'éviter les transferts DMA entre SPE et minimise donc les transactions sur le bus d'interconnexion.
+\section{\'Evaluation des Performances}
+après avoir exposé les différentes techniques d'optimisations nous procédons à la mesure de performance pour les différents modèles de déploiement précédents. Il s'agit ici de comparer les modèles en terme de temps d'exécution sur le processeur Cell. Dans un deuxième temps nous évaluons l'influence des transferts sur la performance globale de chacun des modèles.
+\subsection{Métriques de Mesure}
+La métrique que nous avons choisi d'utiliser pour la mesure de performance, est le nombre de cycles moyen par pixel ou $cpp$, \begin{equation}cpp = \frac{nombre_{cyles \mbox{ } cpu}}{nombre_{pixels}} = \frac{nombre_{cyles \mbox{ } cpu}}{H \times W} \nonumber\end{equation}. Les bancs de tests ont été conçus de telle sorte à mesurer d'une part la performance brute ainsi que d'autres métriques spécifiques aux architectures parallèles qui sont des métriques de passage à l'échelle (\emph{scalability}) notament l'accélération \emph{speedup} et l'efficacité \emph{efficiency}.
+\subsection{Méthode et Plateforme de Mesure}
+La plate-forme sur laquelle a été menée l'évaluation des performance est un Blade QS20 d'IBM cadencé à 3.2 GHz. Cette lame contient deux processeurs Cell, chacun relié à une mémoire de 512 MB, ce qui donne au total 1 GB de \emph{RAM} disponible. Le timer utilisé pour la mesure la performance est appelé \emph{timebase} et il est cadencé à 14.318 $Mhz$. L'OS installé est un Linux, distribution Fedora 7. Le développement à été réalisé sur le \emph{Cell SDK 3.0} et les compilateurs utilisés sont \emph{ppu-gcc} et {spu-gcc}, ce qui implique une compilation du type \emph{dual-source} un pour le SPE et un pour le PPE.\\
+\indent La méthodologie de mesure adoptée est en accord avec les systèmes de vision par ordinateur. Nous avons simulé le cas d'un flux d'images continu, et avons mesuré le temps d'exécution moyen pour une image. Ceci permet de négliger l'\emph{overhead} induit par la création et la synchronisation des \emph{threads}. L'interface utilisateur permet de faire varier plusieurs paramètres, notamment la taille de l'image, la taille de la tuile et le nombre de SPEs.
+\subsection{Comparaison des Schémas de Parallélisation}
+\begin{figure}[htb]
+	\centering
+  \includegraphics[width= 0.8\columnwidth]{Chapter3/figures/BenchCompareModels}
+	\caption{Comparaison des modèles en cycles par point}
+	\label{comparemodels}
+\end{figure}
+La figure \ref{comparemodels} donne une comparaison entre les différents modèle de déploiement de l'algorithme de Harris sur le processeur Cell décrits précédemment. Ce que l'on peut observer en premier lieu c'est que le schéma \emph{pipeline} donne les plus mauvaises performances ce qui était attendu : cette versions est volontairement sérialisée et n'exploite pas entièrement le parallélisme de données offert par l'architecture du Cell. Les autres résultats correspondent également à nos attentes : 
+\begin{itemize}
+\item Nos techniques d'optimisation des accès mémoires améliorent sensiblement la performance globale car la version la plus rapide est celle ou les fonctions sont composées deux par deux  et ou tous les opérateurs sont exécutés sur le même SPE (remplacement des DMA par des \texttt{LOAD/STORE} ).
+\item Les versions ou les DMA inter-SPE sont utilisés possèdent de bonnes performance : à titre d'exemple la versions sans composition de fonction et en regroupant deux opérateurs par SPE est plus rapide que la versions SPMD.
+\item De plus, la version avec composition de fonction ou les paires d'opérateurs sont sur deux SPEs différents est presque aussi rapide que la même versions ou tous les opérateurs sont placés sur le même SPE. Ceci prouve que la bande-passante inter-SPE est comparable à celle des instructions \texttt{LOAD/STORE} sur les mémoires locales.
+\end{itemize}
+Dans ce qui précède nous avons pu constater que le placement optimal d'un graphe de fonctions sur le processeur Cell n'était pas forcément évident lorsqu'il s'agit d'un algorithme de traitement d'image comme dans notre cas. D'une part, l'on a vu que le choix d'un schéma complètement \emph{data parallel} n'était pas forcément optimal, et qu'un schéma mixte avec une partie \emph{pipeline} imbriquéé dans un schéma \emph{data parallel} donnait un résultat aussi bon qu'un schéma basé purement sur le parallélisme de données. Ceci est en grande partie possible, grâce à un niveau supplémentaire de parallélisme au niveaux de transferts. En effet, en favorisant les communications inter-SPE on profite pleinement de la bande passante du bus interne (204.8 GB/s) qui peut gérer jusqu'à 12 transferts en parallèle alors que dans un schéma de transferts où plusieurs SPEs communiquent avec la mémoire centrale les commandes sont forcément sérialisées et dans ce cas là la bande passante est limitée à 25.6 GB/s. 
+\subsection{Influence de la Taille de la Tuile}
+\begin{figure}[htb]
+	\centering
+  \includegraphics[width= \columnwidth]{Chapter3/figures/SizeTile}
+	\caption{Influence de la taille de la tuile sur la performance pour la version chainage entier et fusion d'opérateur par paires 1 SPU}
+	\label{tilesize}
+\end{figure}
+Comme il est démontré dans \cite{cell_bw02} et \cite{cellnoc} la taille du bloc de données transféré possède une influence sur la bande-passante du bus interne. Dans notre domaine d'application, la bande-passante mémoire est critique pour la performance globale de l'application, car les algorithmes de traitement d'image sont généralement caractérisés par un ratio transfert/calcul important. La figure \ref{tilesize} nous montre que la taille de tuile donnant les meilleures performance est 16KB, et ceci pour deux raisons:
+\begin{itemize}
+\item Une taille de bloc de 16 KB ou multiple de cette taille, garantit une bande-passante maximale sur le bus interne.
+\item Comme nous l'avons vu dans la discussion sur la forme de la tuile, il est démontré que plus la taille de tuile est grande moins il y a de pixels redondants, et la quantité de données totale transférées est minimisée en ce qui concerne les noyaux de convolution.
+\end{itemize}
+\subsection{Analyse des Résultats}
+\begin{table}
+\begin{tabular}{|c||c|c|c|}
+\hline
+\textbf{Modèle} & \textbf{Opérateur} & \textbf{Nombre de Cycles} & \textbf{Speedup} \\
+\hline
+\hline
+\textbf{Halfchain} & Sobel+Mul+\texttt{LOAD/STORE}&119346&x \\
+\hline
+\textbf{Halfchain+Halfpipe} & Gauss+Coarsity+\texttt{LOAD/STORE}&188630&x \\
+\hline
+\textbf{Halfchain} & (Sobel $\circ$ Mul)+\texttt{LOAD/STORE}&16539& 7.2 \\
+\hline
+\textbf{Halfchain+Halfpipe} &(Gauss $\circ$ Coarsity)+\texttt{LOAD/STORE}&504309& 3.5 \\
+\hline
+\end{tabular}
+\caption{Apport de la composition de fonction à la performance}
+\label{tabspuperf}
+\end{table}
+
+La comparaison de la performance globale des différents schémas d'implémentation ne suffit pas à prouver que l'optimisation de l'utilisation de la mémoire sont les facteurs principaux de l'amélioration de la performance. Dans le but de donner une analyse plus précise et donc plus complète, nous avons effectué des mesures au niveau du SPE ou nous avons estimé le gain apporté par la composition des fonctions et les transferts DMA inter-SPE. Le tableau \ref{tabspuperf} donne en nombre de cycles \emph{SPU} les versions ou les opérateurs ne sont pas composés deux à deux et celle ou elles le sont. Comme on peut le constater, cette optimisation permet d'avoir une accélération pouvant atteindre $\times 7.2$. Cette techniques, permet une utilisation maximale des registres au détriment de la mémoire et par conséquent elle est limitée par la taille du banc de registres du processeur (128 registres pour le SPU. D'autre part l'optimisation de la localité des données en chainant les opérateurs d'un même SPE est certe bénéfique, mais elle est limitée par le niveau de hiérarchie mémoire juste au dessus des registres qui est le \emph{local store}, limité lui à 256 KB.
+\subsection{Mesure des Métriques de Passage à l'\'Echelle}
+
+\begin{figure}[htb]
+	\centering
+  \includegraphics[width= 0.8\columnwidth]{Chapter3/figures/Speedup}
+	\caption{Mesure du \emph{Speedup} en fonction du nombre de SPEs}
+	\label{speedup}
+\end{figure}
+
+\begin{figure}[htb]
+	\centering
+ \includegraphics[width= 0.8\columnwidth]{Chapter3/figures/Efficiency}
+	\caption{Mesure de l'Efficacité en fonction du nombre de SPEs}
+	\label{efficiency}
+\end{figure}
+
+Lorsque l'on mesure les performance d'une machine parallèle on ne peut se contenter de mesurer les performances temporelles brutes. Il est également intéressant de s'attarder sur d'autres paramètres qui permettent de comparer deux architectures parallèles ou alors d'isoler un goulot d'étranglement qui limite la performance. Ce que l'on veut évaluer est le passage à l'échelle ou \emph{scalability} qui permet de mesurer sur un système à plusieurs processeurs, le rendement des $N$ unités par rapport à un seul. Les métriques les plus connues sont l'accélération (\emph{Speedup}) et l'efficacité (\emph{Efficiency}), et sont définies comme suit:
+\begin{equation}
+Speedup = \frac{\mbox{Temps d'Exécution sur 1 Processeur}}{\mbox{Temps d'Exécution sur $P$ Processeur}} \nonumber
+\end{equation}
+\begin{equation}
+Efficiency = \frac{\mbox{Temps d'Exécution sur 1 Processeur}}{P \times \mbox{Temps d'Exécution sur $P$ Processeur}}\nonumber
+\end{equation}
+Ces mesures sont essentielles pour l'adaptation d'un code séquentiel à une machine parallèle. Elles permettent d'une part de détecter des limitations d'un système parallèle pour la parallélisation d'un code. Par exemple, on peut évaluer la complexité due au contrôle des \emph{threads} et à leur synchronisation. D'autre part, on peut mesurer l'efficacité du réseau d'interconnection à distribuer les données de manière parallèle au différents noeuds. Elles peuvent également justifier l'ajout d'une quantité supplémentaires de processeurs si cela n'altère pas la performance en induisant un coût de gestion supplémentaire. \\
+\indent D'après les figures \ref{speedup} et \ref{efficiency} on peut constater que le Cell est une architecture ayant une bonne "scalabilité". En effet, on peut noter dans les deux cas étudiés à la fois, un \emph{speedup} proche de $P$ le nombre de SPEs et une efficacité proche de 1. On peut tout de même noter certaines différences entre les deux implémentations étudiées, d'une part la version SPMD et d'autre part la versions avec composition de fonctions et chainage sur le même SPE. La première implique une pression importante sur le bus de données car presque tous les lectures/écritures mémoire se font sur la mémoire externe. Au contraire, la seconde minimise le trafic vers la mémoire externe. Ceci explique, la différence au niveau de l'efficacité et permet de déduire que plus le ratio transfert/calcul est grand est moins le passage à l'échelle est bon.
