@@ -1,23 +1,26 @@
-%%%% debut macro %%%%
-\makeatletter
-\def\hlinewd#1{%
-\noalign{\ifnum0=`}\fi\hrule \@height #1 %
-\futurelet\reserved@a\@xhline}
-\makeatother
-%%%% fin macro %%%%
 
 \noindent N$^{\circ}$ D'ORDRE
 \pagestyle{empty}
+%============= header image ================%
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=\columnwidth]{./header}
 \end{figure}
+%=========================================%
+
 \begin{center}
-%\begin{tabular}{||c||}
-\begin{tabular}{@{\,\vrule width 3pt\,}c@{\,\vrule width 3pt\,}}
-\hlinewd{3pt}
-\large{THÈSE DE DOCTORAT}\\\hlinewd{3pt}
-\end{tabular}
+\setlength\arrayrulewidth{2pt}\arrayrulecolor{blue} 
+\setlength\doublerulesep{2pt}\doublerulesepcolor{blue} 
+\begin{tabular}{||c||} 
+\hline\hline 
+\large{THÈSE DE DOCTORAT}\\
+\hline\hline 
+\end{tabular} 
+
+\setlength\arrayrulewidth{1.5pt}\arrayrulecolor{black} 
+\setlength\doublerulesep{1.5pt}\doublerulesepcolor{white} 
+
+%\framebox{\large{THÈSE DE DOCTORAT}}
 
 \vfill
 
