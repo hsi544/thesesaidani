@@ -111,26 +111,31 @@ Le modèle \emph{SPMD} est un modèle haut niveau qui peut être construit sur la b
 \paragraph{Modèle Multiple Program Multiple Data}
 Tout comme le modèle \emph{SPMD}, le modèle \emph{MPMD} est haut-niveau et peut englober l'ensemble des modèles citées précédemment. Les programmes \emph{MPMD} ont typiquement plusieurs objets exécutables. Lors de l'exécution parallèle du programme une tâche peut exécuter le même programme ou un programme différent et toutes les tâches peuvent utiliser des données différentes.
 
-\section{Traitement d'Images et Parallélisme}
-Le traitement d'images est une discipline du traitement du signal dont l'entrée est une image. Les techniques de traitement du signal sont appliquées à un signal de 2 dimensions pour donner en sortie soit une image, soit une certaine caractéristique de l'image. Dans notre cas on s'intéresse au traitement d'images de bas niveau, ou les opérateurs sont souvent des opérateurs point-à-point ou des noyaux de convolution. Ce type de calcul est bien adapté aux machines parallèles car il n'y a généralement pas de dépendances de données et les algorithmes de bas-niveau sont majoritairement des opérations de calcul pur. Toutefois, pour des applications de moyen-niveau, par exemple la segmentation, il existe une forte dépendance de données et les algorithmes sont souvent des imbrications de structures conditions. Ceci rend la tâche de parallélisation pour ce types d'algorithmes fastidieuse, et les accélérations sont souvent médiocres en comparaison avec l'effort fourni pour l'adaptation de l'algorithme série. La conception d'une version parallèle d'un algorithme devient une tâche fastidieuse et qui dépend de plusieurs facteurs. Il est alors important d'accorder de l'importance à plusieurs aspects déterminants pour la performance.
-\subsection{Le Partitionnement}
-La première tâche lors de la parallélisation d'une application de traitement d'image est le choix du type partitionnement à adopter. Ce principe prend ça source du fait qu'il y a plusieurs ressources et que le but est de repartir la charge de travail sur ces ressources sous formes de morceaux qui peuvent être distribués sur plusieurs tâches. Il existe deux méthodes basiques pour le partitionnement la décomposition de domaine (\emph{domain decomposition}) et la décomposition fonctionnelle (\emph{functionnal decomposition})
-\subsubsection{Décomposition de Domaine}
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=0.8\columnwidth]{Chapter1/figures/domaindecomp}
-	\caption{Partitonnement par décomposition du domaine}
-	\label{figdomain}
-\end{figure}
+\section{Parallélisation}
+Les architectures parallèles et les modèles de programmation associés étant définis. La question qui se pose alors est celle du choix à la fois de l'architecture et du modèle de programmation adéquats pour la mise en oeuvre d'une application parallèle donnée. L'efficacité des outils automatiques de parallélisation dépend souvent de plusieurs facteurs, parmi lesquelles : les caractéristiques de l'architecture matérielle et de la hiérarchie mémoire ainsi que la nature des algorithmes qui forment l'application à paralléliser.  L'utilisation d'outils automatiques n'est pas toujours efficace, il est alors parfois nécessaire de gérer manuellement le parallélisme et les optimisations qui lui sont associées. Deux choix se présentent alors :\subsection{Parallélisation Manuelle}Elle permet un contrôle précis de la performance, et une grande flexibilité en termes de schéma de parallélisation possible (différents modèles de calcul). Par contre, les temps de développement sont importants, que cela soit pour la mise en ½uvre, le débogage ou la maintenance de l'application. Les erreurs sont parfois très difficiles à trouver, et le processus d'optimisation est souvent itératif.\subsection{Parallélisation Automatique}
+L'automatisation du processus de parallélisation de code est un problème ouvert, et les efforts effectués en la matière sont de plus en plus nombreux, en particulier avec l'avènement des nouvelles architectures parallèles et leur démocratisation. On peut trouver deux formes d'outils automatiques de parallélisation. Certains outils sont entièrement automatiques : ils prennent en entrée un code source série et détectent automatiquement le parallélisme potentiel ils génèrent en suite le code parallèle correspondant. D'autres outils sont semi-automatiques car l'utilisateur indique les portions de codes parallélisables, c'est le cas par exemple d'OpenMP via les directives de compilation.L'avantage des approches automatiques est avant tout la rapidité de mise en ½uvre d'une solution à base de calcul parallèle, d'autant plus que dans la majorité des cas le code original est directement utilisable. Par contre, le contrôle est beaucoup moins précis qu'avec une version entièrement manuelle. Il peut y avoir par exemple des erreurs dans les résultats de calcul. De plus, les modèles de programmation dans ce cas ne permettent pas une grande flexibilité dans le choix des schémas de parallélisation. Dans certains cas le gain de performance peut être médiocre, et on peut même observer une baisse de performances par rapport à la version originale. Enfin, ce genre d'outils n'est généralement efficace que sur des portions de code facilement utilisable comme les boucles. Dans la suite nous allons présenter les différentes étapes de mise en ½uvre d'un code parallèle manuellement, les étapes en question vont de la détermination de l'opportunité de parallélisation jusqu'à la mise en ouvre et l'évaluation du gain ainsi obtenu.
 
-Dans ce type de partitionnement, les données associées au problème sont décomposées. Chaque tâche parallèle travaille donc sur une portion des données. Il existe alors plusieurs manières de décomposer les données. En traitement d'images, les données sont en 2 dimensions les décompositions possibles sont illustrées en figure \ref{decomp2D}.
 
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=0.8\columnwidth]{Chapter1/figures/decomp2D}
-	\caption{Partitonnement par décomposition du domaine en traitement d'images}
-	\label{decomp2D}
-\end{figure}
+
+%Le traitement d'images est une discipline du traitement du signal dont l'entrée est une image. Les techniques de traitement du signal sont appliquées à un signal de 2 dimensions pour donner en sortie soit une image, soit une certaine caractéristique de l'image. Dans notre cas on s'intéresse au traitement d'images de bas niveau, ou les opérateurs sont souvent des opérateurs point-à-point ou des noyaux de convolution. Ce type de calcul est bien adapté aux machines parallèles car il n'y a généralement pas de dépendances de données et les algorithmes de bas-niveau sont majoritairement des opérations de calcul pur. Toutefois, pour des applications de moyen-niveau, par exemple la segmentation, il existe une forte dépendance de données et les algorithmes sont souvent des imbrications de structures conditions. Ceci rend la tâche de parallélisation pour ce types d'algorithmes fastidieuse, et les accélérations sont souvent médiocres en comparaison avec l'effort fourni pour l'adaptation de l'algorithme série. La conception d'une version parallèle d'un algorithme devient une tâche fastidieuse et qui dépend de plusieurs facteurs. Il est alors important d'accorder de l'importance à plusieurs aspects déterminants pour la performance.
+%\subsection{Le Partitionnement}
+%La première tâche lors de la parallélisation d'une application de traitement d'image est le choix du type partitionnement à adopter. Ce principe prend ça source du fait qu'il y a plusieurs ressources et que le but est de repartir la charge de travail sur ces ressources sous formes de morceaux qui peuvent être distribués sur plusieurs tâches. Il existe deux méthodes basiques pour le partitionnement la décomposition de domaine (\emph{domain decomposition}) et la décomposition fonctionnelle (\emph{functionnal decomposition})
+%\subsubsection{Décomposition de Domaine}
+%\begin{figure}[htb]
+%	\centering
+%	\includegraphics[width=0.8\columnwidth]{Chapter1/figures/domaindecomp}
+%	\caption{Partitonnement par décomposition du domaine}
+%	\label{figdomain}
+%\end{figure}
+
+%Dans ce type de partitionnement, les données associées au problème sont décomposées. Chaque tâche parallèle travaille donc sur une portion des données. Il existe alors plusieurs manières de décomposer les données. En traitement d'images, les données sont en 2 dimensions les décompositions possibles sont illustrées en figure \ref{decomp2D}.
+
+%\begin{figure}[htb]
+%	\centering
+%	\includegraphics[width=0.8\columnwidth]{Chapter1/figures/decomp2D}
+%	\caption{Partitonnement par décomposition du domaine en traitement d'images}
+%	\label{decomp2D}
+%\end{figure}
 
 
 
