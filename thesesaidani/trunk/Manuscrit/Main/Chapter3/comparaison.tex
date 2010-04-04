@@ -1,4 +1,42 @@
-Dans cette section, on se propose de comparer l'implementation du même algorithme de détéction de points d'interéts de Harris sur d'autres architectures parallèles Ã©mergentes utilisant eventuellement d'autres modèles de programmations que le processeur Cell. Les architectures considérées dans cette étude sont des architectures du type SMP à  mémoire partagée (Intel et PowerPC) ainsi que les cartes graphiques Nvidia et leur langage de programmation CUDA (\emph{Compute Unified Device Architecture}).
+Dans cette section, on se propose de comparer l'implementation du même algorithme de détéction de points d'interéts de Harris sur d'autres architectures parallèles émergentes utilisant eventuellement d'autres modèles de programmations que le processeur Cell. Les architectures considérées dans cette étude sont des architectures du type SMP à  mémoire partagée (Intel et PowerPC) ainsi que les cartes graphiques Nvidia et leur langage de programmation CUDA (\emph{Compute Unified Device Architecture}).
+
 \subsection{Les Processeurs Multi-Coeurs}
-Ce type de processeurs constitue aujourd'hui le \emph{main stream} en terme de conception d'architectures parallèles et est à  la fois le plus disséminé dans les machines grand public. Le parallélisme y est présent à  plusieurs niveaux, car ces architectures reprennent les concepts des architectures classiques mono-coeurs et dupliquent les coeurs afin d'obtenir un niveau de parallélisme supérieur. La mémoire y est généralement partagée et la hiérarchie mémoire et basée sur plusieurs niveaux de caches communs ou pas. Les modèles et outils de programmations utilisés pour tirer profit du parallélisme de ces architectures sont les librairie de \emph{threads} \emph{Pthread} ainsi que les directives de compilation \emph{OpenMP}. En ce qui concerne les optimisations bas-niveau comme celles au niveau des instructions ou certaines optimisations SIMD, elles sont généralement bien gérés par les compilateurs modernes. 
+Ce type de processeurs constitue aujourd'hui le \emph{main stream} en terme de conception d'architectures parallèles et est à  la fois le plus disséminé dans les machines grand public. Le parallélisme y est présent à  plusieurs niveaux, car ces architectures reprennent les concepts des architectures classiques mono-coeurs et dupliquent les coeurs afin d'obtenir un niveau de parallélisme supérieur. La mémoire y est généralement partagée et la hiérarchie mémoire et basée sur plusieurs niveaux de caches communs ou pas. Les modèles et outils de programmations utilisés pour tirer profit du parallélisme de ces architectures sont les librairie de \emph{threads} \emph{Pthread} ainsi que les directives de compilation \emph{OpenMP}. En ce qui concerne les optimisations bas-niveau comme celles au niveau des instructions ou certaines optimisations SIMD, elles sont généralement bien gérés par les compilateurs modernes.
+
 \subsection{Les GPU Nvidia et CUDA}
+Les cartes graphiques (\emph{GPU}) on connu ces dernières années un essor particulier, car elles ont subi une véritable révolution dans leur domaine d'utilisation. Les premiers pas du \emph{GPGPU} (\emph{General-Purpose computing on Graphics Processing Units }) ont consisté en l'utilisation de langages de rendu graphique, \emph{Cg} par exemple, pour en faire un usage plus généraliste, à savoir le calcul intensif pour des domaines applications qui relèvent plus du \emph{HPC}.  Cette première évolution à démontré que l'architecture des processeurs graphiques était bien adaptée au calcul intensif, mais le détournement des langages graphiques pour un usage généraliste était trop complexe pour le développeur habitué à programmer en langages C/C++. La définition d'un modèle de programmation approprié est alors devenu une évidence pour les constructeurs de cartes graphiques, mais aussi une grande opportunité pour eux de concurrencer les constructeurs de processeurs généralistes sur leur propre terrain.\\
+CUDA (\emph{Compute Unified Device Architecture}) de Nvidia est sans doute la plus importante des initiatives dans ce sens. En effet, CUDA constitue un écosystème complet de programmation parallèle sur les architectures des cartes graphiques. Il définit à la fois une architecture matérielles constituée d'un ensemble de processeurs parallèles organisés en Multi-processeurs SIMD et une hiérarchie mémoire adaptée au problèmes massivement parallèles, similaires aux traitements caractérisant le rendu graphique avancé. Un modèle de programmation propriétaire CUDA, a été développé pour l'exploitation de ce parallélisme. Celui-ci se décline sous forme de plusieurs outils de programmation : 
+\begin{itemize}
+\item Une extension au langage C définissant de nouveaux types et mots clés propres aux architectures CUDA.
+\item Une API Runtime permettant l'exécution d'un modèle haut-niveau de programmation basé sur le parallélisme de donnée.
+\item Une API Driver permettant un contrôle plus fin de l'application mais aux prix d'une programmation plus verbeuse que celle de l'API de Runtime.
+\end{itemize}
+
+\subsection{Comparaison des Architectures Matérielles}
+Au delà des performances intrinsèques sur un algorithme donnée, obtenues sur une architectures données, il nous ai paru important de comparer dans un premier temps les architectures utilisées lors de la comparaison de l'algorithme de Harris sur les différentes plate-formes parallèles émergente. Cette comparaison peut se faite sous différentes critères mais les plus pertinents pour l'exploitation efficace du parallélisme sont les formes de parallélisme et la hiérarchie mémoire. Le tableaux \ref{compare_archi} contient cette comparaison :
+\begin{table}
+\centering
+\begin{tabular}{|p{0.25\columnwidth}||p{0.25\columnwidth}|p{0.25\columnwidth}|p{0.25\columnwidth}|}
+\hline
+    & \textbf{Multi-core} & \textbf{Cell BE} & \textbf{Nvidia CUDA} \\
+  \hline
+   \textbf{Type d'Architecture} & Homogène (SMP à mémoire partagée) & Hétérogène  (à mémoire distribuée) & SIMD (Stream Processors)\\
+ \hline
+ \textbf{Parallélisme d'Instructions} & oui & oui & non\\
+ \hline
+ \textbf{Parallélisme de Données} & oui & oui & oui\\
+ \hline
+ \textbf{Parallélisme de Tâches} &  oui & oui & non\\
+ \hline
+ \hline
+\textbf{Hiérarchie Mémoire} & Partagée (Plusieurs Niveaux de Cache)  & Distribuée (Mémoire Privées dans SPE) & Hybride (Mémoire Partagée, Globale, Texture ... )\\
+\hline
+\textbf{Optimisation de la Mémoire} & Partagée (Plusieurs Niveaux de Cache)  & Explicite (programmation du DMA) & Explicite (Utilisation des différents niveaux mémoire)\\
+\hline
+\end{tabular}
+
+\caption{Comparaison des Architectures}
+\label{compare_archi}
+\end{table}
+
+\subsection{Comparaison des Modèles de Programmation}
