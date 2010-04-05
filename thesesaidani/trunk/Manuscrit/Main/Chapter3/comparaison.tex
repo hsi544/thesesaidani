@@ -18,9 +18,9 @@ Au delà des performances intrinsèques sur un algorithme donnée, obtenues sur une
 \centering
 \begin{tabular}{|p{0.25\columnwidth}||p{0.25\columnwidth}|p{0.25\columnwidth}|p{0.25\columnwidth}|}
 \hline
-    & \textbf{Multi-core} & \textbf{Cell BE} & \textbf{Nvidia CUDA} \\
+   Architetcure & \textbf{Multi-core} & \textbf{Cell BE} & \textbf{Nvidia CUDA} \\
   \hline
-   \textbf{Type d'Architecture} & Homogène (SMP à mémoire partagée) & Hétérogène  (à mémoire distribuée) & SIMD (Stream Processors)\\
+   \textbf{Type} & Homogène (SMP à mémoire partagée) & Hétérogène  (à mémoire distribuée) & SIMD (Stream Processors)\\
  \hline
  \textbf{Parallélisme d'Instructions} & oui & oui & non\\
  \hline
@@ -34,9 +34,88 @@ Au delà des performances intrinsèques sur un algorithme donnée, obtenues sur une
 \textbf{Optimisation de la Mémoire} & Partagée (Plusieurs Niveaux de Cache)  & Explicite (programmation du DMA) & Explicite (Utilisation des différents niveaux mémoire)\\
 \hline
 \end{tabular}
-
 \caption{Comparaison des Architectures}
 \label{compare_archi}
 \end{table}
 
 \subsection{Comparaison des Modèles de Programmation}
+Les modèles de programmation représentent l'interface entre le développeur et l'architecture matérielle qui lui permet d'exploiter pleinement les dispositifs de celle-ci. A ce titre, la comparaison de ces modèles de programmation entre les différentes plate-formes parallèles nous ai paru nécessaire. Il est évident que la comparaison ne peut pas permettre de dégager une architecture, ou un modèle de programmation idéaux, mais plutôt une adéquation entre un modèle et une architecture données ou encore une adéquation entre ce couple et un domaine d'application, dans notre cas le traitement d'images.
+
+\begin{table}
+\centering
+\begin{tabular}{|p{0.33\columnwidth}||p{0.33\columnwidth}|p{0.33\columnwidth}|}
+\hline
+    \textbf{OpenMP} & \textbf{Multi-core} & \textbf{Cell BE} \\
+ \hline
+ \hline
+ \textbf{Implémentation} & oui & oui \\
+ \hline
+ \textbf{Adéquation avec l'architecture} & 
+                                                                          \begin{itemize} 
+                                                                            \item Bonne au niveau mémoire (mémoire partagée)
+                                                                            \item Les SMP sont plus faciles à gérer pour OpenMP
+                                                                          \end{itemize} & 
+                                                                                                                                                                               \begin{itemize}
+                                                                                                                                                                                  \item Mauvaise au niveau mémoire (mémoire distribuée)
+                                                                                                                                                                                  \item L'architecture hétérogène du Cell complique la répartition de charge
+                                                                                                                                                                                \end{itemize} \\
+ \hline
+ \textbf{Exploitation du Parallélisme} & 
+                                                                         \begin{itemize} 
+                                                                           \item Parallélisme de Tâches 
+                                                                           \item Parallélisme de Données 
+                                                                           \item Vectorisation et Parallélisme d'instructions bien gérés par le compilateur
+                                                                         \end{itemize}&                       
+                                                                                                                                                                                                                          \begin{itemize}
+                                                                                                                                                                                                                             \item Parallélisme de Tâches uniquement 
+                                                                                                                                                                                                                             \item Vectorisation mal gérée par le compilateur
+                                                                                                                                                                                                                          \end{itemize}\\
+ \hline
+ \hline
+\textbf{Gestion de la mémoire} & Implicite (Gérée par le compilateur)  & Explicite (à la main par le programmeur) \\
+\hline
+\end{tabular}
+\caption{OpenMP et les architectures parallèles}
+\label{compare_models}
+\end{table}
+
+\begin{table}
+\centering
+\begin{tabular}{|p{0.33\columnwidth}||p{0.33\columnwidth}|p{0.33\columnwidth}|}
+\hline
+    \textbf{PThreads} & \textbf{Multi-core} & \textbf{Cell BE} \\
+ \hline
+ \hline
+ \textbf{Implémentation} & oui & oui \\
+ \hline
+ \textbf{Adéquation avec l'architecture} & 
+                                                                          \begin{itemize} 
+                                                                            \item Modèle plus flexible 
+                                                                            \item Programmation très verbeuse
+                                                                           \end{itemize} & 
+                                                                                                                                                                               \begin{itemize}
+                                                                                                                                                                                  \item A constitué pendant longtemps le seul outil de programmation pour le Cell
+                                                                                                                                                                                  \item La flexibilité permet une exploitation plus riche de l'architecture
+                                                                                                                                                                                \end{itemize} \\
+ \hline
+ \textbf{Exploitation du Parallélisme} & 
+                                                                         \begin{itemize} 
+                                                                           \item Détermination du parallélisme gérée par le programmeur
+                                                                           \item Synchronisation gérée par le programmeur
+                                                                           \item Vectorisation et optimisation bas-niveau 
+                                                                         \end{itemize}&                       
+                                                                                                                                                                                                                          \begin{itemize}
+                                                                                                                                                                                                                             \item Parallélisme de Tâches uniquement 
+                                                                                                                                                                                                                             \item Vectorisation mal gérée par le compilateur
+                                                                                                                                                                                                                          \end{itemize}\\
+ \hline
+ \hline
+\textbf{Gestion de la mémoire} & Implicite (Gérée par le compilateur)  & Explicite (à la main par le programmeur) \\
+\hline
+\end{tabular}
+\caption{OpenMP et les architectures parallèles}
+\label{compare_models}
+\end{table}
+
+
+
