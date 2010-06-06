@@ -13,7 +13,8 @@ CUDA (\emph{Compute Unified Device Architecture}) de Nvidia est sans doute la pl
 \end{itemize}
 
 \subsection{Comparaison des Architectures Matérielles}
-Au delà des performances intrinsèques sur un algorithme donnée, obtenues sur une architectures données, il nous ai paru important de comparer dans un premier temps les architectures utilisées lors de la comparaison de l'algorithme de Harris sur les différentes plate-formes parallèles émergente. Cette comparaison peut se faite sous différentes critères mais les plus pertinents pour l'exploitation efficace du parallélisme sont les formes de parallélisme et la hiérarchie mémoire. Le tableaux \ref{compare_archi} contient cette comparaison :
+Au delà des performances intrinsèques sur un algorithme donnée, obtenues sur une architectures données, il nous ai paru important de comparer dans un premier temps les architectures utilisées lors de la comparaison de l'algorithme de Harris sur les différentes plate-formes parallèles émergente. Cette comparaison peut se faite sous différentes critères mais les plus pertinents pour l'exploitation efficace du parallélisme sont les formes de parallélisme et la hiérarchie mémoire. Le tableaux \ref{compare_archi} contient cette comparaison.
+Au delà des comparaisons contenu dans le tableau, il est important de noter que les architectures même si elles possèdent plusieurs points communs les architectures diffèrent par leur leur nature. Ainsi, les processeurs multi-core sont des machines complexes, capables de gérer un ou plusieurs systèmes exploitation en plus de tâches purement calculatoires, ceci explique leur architecture complexe qui permet d'avoir une généricité dans les tâches exécutées. Les GPU à l'opposé, ont été conçue initialement pour exécuter des tâches de rendu graphique 3D, leurs architectures sont intimement liées à ce domaine d'application et sont ainsi non adaptés à d'autres types d'applications  que celles massivement parallèle ne contenant pas de flot de contrôle complexe, elle ne peuvent fonctionner qu'avec la présence d'un processeur du type CPU. Le Cell enfin, est une architecture hétérogène qui tient plus des processeurs présents dans l'embarqué que des architectures HPC classiques. En effet, celui-ci a été conçu à l'image d'un DSP capable d'exécuter une quantité de calcul flottants en simple et double précisions tout en ayant l'avantage des systèmes embarqués temps réels au niveau de la garantie d'un temps d'exécution prédictible. Dans le domaine du traitement d'images la majorité des applications sont {Data Parallel} ce qui donne un avantage certains aux architectures GPU en terme d'adéquation avec les algorithmes, par contre certains facteurs comme les fréquences d'horloges ainsi que les contraintes des bus de transferts mémoire qui sont critiques dans notre domaine d'application, rétablissent un équilibre avec les autres types d'architectures.
 \begin{table}
 \centering
 \begin{tabular}{|p{0.25\columnwidth}||p{0.25\columnwidth}|p{0.25\columnwidth}|p{0.25\columnwidth}|}
@@ -76,7 +77,7 @@ Les modèles de programmation représentent l'interface entre le développeur et l'
 \hline
 \end{tabular}
 \caption{OpenMP et les architectures parallèles}
-\label{compare_models}
+\label{compare_models01}
 \end{table}
 
 \begin{table}
@@ -113,9 +114,89 @@ Les modèles de programmation représentent l'interface entre le développeur et l'
 \textbf{Gestion de la mémoire} & Implicite (Gérée par le compilateur)  & Explicite (à la main par le programmeur) \\
 \hline
 \end{tabular}
-\caption{OpenMP et les architectures parallèles}
-\label{compare_models}
+\caption{Pthreads et les architectures parallèles}
+\label{compare_models02}
 \end{table}
 
+\begin{table}
+\centering
+\begin{tabular}{|p{0.5\columnwidth}||p{0.5\columnwidth}|}
+\hline
+    \textbf{CUDA} & \textbf{Architectures Nvidia CUDA} \\
+ \hline
+ \hline
+ \textbf{Adéquation avec l'architecture} & 
+                                                                          \begin{itemize} 
+                                                                            \item Modèle dédié à l'architecture 
+                                                                            \item Programmation de complexité intermédiaire
+                                                                           \end{itemize}  \\
+ \hline
+ \textbf{Exploitation du Parallélisme} & 
+                                                                         \begin{itemize} 
+                                                                          \item Parallélisme de données uniquement
+                                                                           \item Détermination du parallélisme gérée par le programmeur
+                                                                           \item Synchronisation gérée par le programmeur
+                                                                           \item Optimisations des transferts mémoire et du taux d'occupation des multiprocesseurs 
+                                                                         \end{itemize}\\
+ \hline
+ \hline
+ \textbf{Gestion de la mémoire} & Explicite (à la main par le programmeur) \\
+\hline
+\end{tabular}
+\caption{CUDA et les Architectures Nvidia}
+\label{compare_models03}
+\end{table}
 
+\subsubsection{Mise en oeuvre du code parallèle}
+Un des poins critiques pour le passage d'un code d'une version séquentielle vers une version partiellement ou entièrement parallèle est celui du temps de développement nécessaire à cette tâche. Afin de simplifier la comparaison, on se pose dans le cas ou le code possède un fort potentiel de parallélisation et les portions de code exploitables ont été identifiés. L'hypothèse supplémentaires pour avoir une comparaison objective, est la possibilité d'exploiter la forme de parallélisme sur toute les architectures et avec les modèles de programmation associés. Dans notre cas, ceci est effectivement le cas, notre application exploitant essentiellement le parallélisme de données, qui est exploitable sur toutes les architectures et à la fois par OpenMP, Pthreads et CUDA.
+\paragraph{Pthreads}
+Le modèle de programmation par threads était présent dès les débuts de la programmation parallèle. C'est un modèle complexe de mise-en-ouvre car très proche de l'architecture. Celui-ci était pendant longtemps la seul alternative pour la programmation du processeur Cell, ce qui a rendu sa programmation fastidieuse, en plus des aspects de gestion explicite des transferts mémoire. La mise en oeuvre du code parallèle nécéssite un refonte complète du code et une attention particulière aux détails ce qui rallonge le temps de développement mais aussi de debug et de validation.
 
+\paragraph{OpenMP}
+OpenMP est une infrastructure basée sur des directives de compilation et une API de runtime permettant de masquer les aspects les plus désagréables des Ptheads. Celui-ci repose en effet sur les threads, tout en évitant au programmeur tout les aspects bas-niveau de la parallélisation. Il permet des temps de développement assez courts, si le code de base n'est pas très complexe. Il a également l'avantage de permettre de garder le code séquentiel dans sa forme originale.
+
+\paragraph{CUDA}
+ La programmation parallèle avec le langage CUDA sur les GPU est globalement accessible aux développeurs C/C++. La mise en oeuvre du code parallèle requière une modification du code original pour coller au modèle de programmation CUDA. Selon le finesse de contrôle souhaitée, la programmation est plus ou moins complexe. L'API de Runtime est plus haute en niveau d'abstraction que l'API Driver. La première est accessible aisément au programmeur et permet une mise ne oeuvre rapide. La seconde API plus bas niveau permet un contrôle plus fin de l'application au prix d'une programmation plus bas niveau et donc plus complexe.
+ 
+\subsection{Architectures Matérielles et Environnement de Développement}
+\subsubsection{Processeurs Multi-core}
+  \begin{itemize}
+    \item Bi-dual coeurs PowerPC G5 à 2.5 GHz (PPC970MP) : Compilateur GCC 4.2, Librairie Pthreads et OpenMP.
+    \item Bi-quadri coeurs Intel Penryn à 3.0 GHz (X3370) :  Compilateur ICC 11.0, Librairie Pthreads et OpenMP.
+   \end{itemize}
+
+\subsubsection{Processeur Cell BE}
+ \begin{itemize}
+   \item Cell BE à 3.2 GHz : Compilateur PPU-GCC, SPU-GCC, Cell SDK 3.0Librairie Pthreads et OpenMP cbe-xlc.
+  \end{itemize}
+
+\subsubsection{Nvidia CUDA}
+ \begin{itemize}
+   \item Nvidia GeForce 8800 GTX à 575 MHz (128 stream cores) : Compilateur \textbf{\emph{nvcc}} Langage CUDA.
+  \end{itemize}
+
+\subsection{Mesure de Performance}
+L'évaluation des performances s'est faite sur les tailles d'images allant de $128\times128$ jusqu'à $2048\times2048$. Les résultats sont donnés en $cpp$ ($cpp=\frac{temps*Frequence}{taille^ {2}}$). Les versions implémentées sont celles présentées auparavant dans la section \ref{parallel_schemes}
+ 
+ \begin{table}
+ \begin{tabular}{|p{0.25\columnwidth}||p{0.25\columnwidth}|p{0.25\columnwidth}|p{0.25\columnwidth}|}
+\hline
+Architecture &   Planar & Halfpipe & Gain \\
+\hline
+\rowcolor {gray} PPC970MP &   Planar & Halfpipe & Gain \\
+\hline
+Intel X3370 &   Planar & Halfpipe & Gain \\
+\hline
+Cell BE &   Planar & Halfpipe & Gain \\
+\hline
+GeForce 8800 GTX  &   Planar & Halfpipe & Gain \\
+\hline
+
+\end{tabular}
+ \caption{Comparaison des Implémentations de l'algorithme de Harris sur les Architectures Parallèles}
+ \label{compare_perf_arch}
+ \end{table}
+ 
+ 
+ 
+ 
