@@ -179,19 +179,18 @@ OpenMP est une infrastructure basée sur des directives de compilation et une API
 L'évaluation des performances s'est faite sur les tailles d'images allant de $128\times128$ jusqu'à $2048\times2048$. Les résultats sont donnés en $cpp$ ($cpp=\frac{temps*Frequence}{taille^ {2}}$). Les versions implémentées sont celles présentées auparavant dans la section \ref{parallel_schemes}
  
  \begin{table}
- \begin{tabular}{|p{0.25\columnwidth}||p{0.25\columnwidth}|p{0.25\columnwidth}|p{0.25\columnwidth}|}
+ \begin{tabular}{|p{0.16\columnwidth}||p{0.16\columnwidth}|p{0.16\columnwidth}|p{0.16\columnwidth}|p{0.16\columnwidth}|p{0.16\columnwidth}|}
 \hline
-\textbf{Architecture} &   \textbf{Planar} & \textbf{Halfpipe} & \textbf{Gain }\\
+\textbf{Architecture} & \textbf{Planar $p=1$} &\textbf{Planar $p=pmax$} & \textbf{Halfpipe $p=1$} & \textbf{Halfpipe $p=pmax$} & \textbf{Gain $p = pmax$}\\
 \hline
-\rowcolor {medium-gray} PPC970MP &   Planar & Halfpipe & Gain \\
+\rowcolor {medium-gray} PPC970MP ($pmax = 4$)&   43 & 2.9 & Gain & *&* \\
 \hline
-Intel X3370 &   Planar & Halfpipe & Gain \\
+Intel X3370 ($pmax = 8$)&   Planar & Halfpipe & Gain & *& *\\
 \hline
-\rowcolor {medium-gray}Cell BE &   Planar & Halfpipe & Gain \\
+\rowcolor {medium-gray}Cell BE ($pmax = 8$)&   Planar & Halfpipe & Gain &* &*\\
 \hline
-GeForce 8800 GTX  &   Planar & Halfpipe & Gain \\
+GeForce 8800 GTX  &   120 & 15 & Gain & *&* \\
 \hline
-
 \end{tabular}
  \caption{Comparaison des Implémentations de l'algorithme de Harris sur les Architectures Parallèles}
  \label{compare_perf_arch}
