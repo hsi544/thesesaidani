@@ -14,7 +14,7 @@ CUDA (\emph{Compute Unified Device Architecture}) de Nvidia est sans doute la pl
 
 \subsection{Comparaison des Architectures Matérielles}
 Au delà des performances intrinsèques sur un algorithme donnée, obtenues sur une architectures données, il nous ai paru important de comparer dans un premier temps les architectures utilisées lors de la comparaison de l'algorithme de Harris sur les différentes plate-formes parallèles émergente. Cette comparaison peut se faite sous différentes critères mais les plus pertinents pour l'exploitation efficace du parallélisme sont les formes de parallélisme et la hiérarchie mémoire. Le tableaux \ref{compare_archi} contient cette comparaison.
-Au delà des comparaisons contenu dans le tableau, il est important de noter que les architectures même si elles possèdent plusieurs points communs les architectures diffèrent par leur leur nature. Ainsi, les processeurs multi-core sont des machines complexes, capables de gérer un ou plusieurs systèmes exploitation en plus de tâches purement calculatoires, ceci explique leur architecture complexe qui permet d'avoir une généricité dans les tâches exécutées. Les GPU à l'opposé, ont été conçue initialement pour exécuter des tâches de rendu graphique 3D, leurs architectures sont intimement liées à ce domaine d'application et sont ainsi non adaptés à d'autres types d'applications  que celles massivement parallèle ne contenant pas de flot de contrôle complexe, elle ne peuvent fonctionner qu'avec la présence d'un processeur du type CPU. Le Cell enfin, est une architecture hétérogène qui tient plus des processeurs présents dans l'embarqué que des architectures HPC classiques. En effet, celui-ci a été conçu à l'image d'un DSP capable d'exécuter une quantité de calcul flottants en simple et double précisions tout en ayant l'avantage des systèmes embarqués temps réels au niveau de la garantie d'un temps d'exécution prédictible. Dans le domaine du traitement d'images la majorité des applications sont {Data Parallel} ce qui donne un avantage certains aux architectures GPU en terme d'adéquation avec les algorithmes, par contre certains facteurs comme les fréquences d'horloges ainsi que les contraintes des bus de transferts mémoire qui sont critiques dans notre domaine d'application, rétablissent un équilibre avec les autres types d'architectures.
+Au delà des comparaisons contenues dans le tableau, il est important de noter que les architectures même si elles possèdent plusieurs points communs les architectures diffèrent par leur leur nature. Ainsi, les processeurs multi-core sont des machines complexes, capables de gérer un ou plusieurs systèmes exploitation en plus de tâches purement calculatoires, ceci explique leur architecture complexe qui permet d'avoir une généricité dans les tâches exécutées. Les GPU à l'opposé, ont été conçue initialement pour exécuter des tâches de rendu graphique 3D, leurs architectures sont intimement liées à ce domaine d'application et sont ainsi non adaptés à d'autres types d'applications  que celles massivement parallèle ne contenant pas de flot de contrôle complexe, elle ne peuvent fonctionner qu'avec la présence d'un processeur du type CPU. Le Cell enfin, est une architecture hétérogène qui tient plus des processeurs présents dans l'embarqué que des architectures HPC classiques. En effet, celui-ci a été conçu à l'image d'un DSP capable d'exécuter une quantité de calcul flottants en simple et double précisions tout en ayant l'avantage des systèmes embarqués temps réels au niveau de la garantie d'un temps d'exécution prédictible. Dans le domaine du traitement d'images la majorité des applications sont {Data Parallel} ce qui donne un avantage certains aux architectures GPU en terme d'adéquation avec les algorithmes, par contre certains facteurs comme les fréquences d'horloges ainsi que les contraintes des bus de transferts mémoire qui sont critiques dans notre domaine d'application, rétablissent un équilibre avec les autres types d'architectures. Les travaux qui sont exposés dans ce qui suite on été publiés dans \cite{gretsi_09}.
 \begin{table}
 \centering
 \begin{tabular}{|p{0.25\columnwidth}||p{0.25\columnwidth}|p{0.25\columnwidth}|p{0.25\columnwidth}|}
@@ -159,42 +159,123 @@ OpenMP est une infrastructure basée sur des directives de compilation et une API
  La programmation parallèle avec le langage CUDA sur les GPU est globalement accessible aux développeurs C/C++. La mise en oeuvre du code parallèle requière une modification du code original pour coller au modèle de programmation CUDA. Selon le finesse de contrôle souhaitée, la programmation est plus ou moins complexe. L'API de Runtime est plus haute en niveau d'abstraction que l'API Driver. La première est accessible aisément au programmeur et permet une mise ne oeuvre rapide. La seconde API plus bas niveau permet un contrôle plus fin de l'application au prix d'une programmation plus bas niveau et donc plus complexe.
  
 \subsection{Architectures Matérielles et Environnement de Développement}
-\subsubsection{Processeurs Multi-core}
-  \begin{itemize}
-    \item Bi-dual coeurs PowerPC G5 à 2.5 GHz (PPC970MP) : Compilateur GCC 4.2, Librairie Pthreads et OpenMP.
-    \item Bi-quadri coeurs Intel Penryn à 3.0 GHz (X3370) :  Compilateur ICC 11.0, Librairie Pthreads et OpenMP.
-   \end{itemize}
+Les architectures qui ont servi pour les benchmarks sont listées ci-dessous (Tab. \ref{archi_list}). Le panel comporte à la fois des processeurs du type multi-coeurs PowerPC et Intel, une gamme de GPU Nvidia avec les famille d'architecture G80 et GT200. Enfin l'architecture hétérogène du Cell est également comparée.
+\begin{table}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\rowcolor {medium-gray}\textbf{Processeur}          & \textbf{Référence}    & \textbf{Nb coeurs} & \textbf{Techno (nm)} & \textbf{Fréq (Ghz)} & \textbf{Cache (Mo)} & \textbf{TDP(W)}\\
+\hlinePowerPC G4       & PPC4470     & 1       &130 &1.0 &512 Ko &10 \\ 
+\hline\rowcolor {medium-gray}bi PowerPC G5  & PPC970MP  & 2 x 2 & 90 & 2,5 & 2 x 512 Ko & 70\\ 
+\hlinePenryn                 & U9300           & 2       & 45 & 1.0 & 3   & 10\\ 
+\hline\rowcolor {medium-gray}Penryn                & P8700            & 2       & 45 & 2.53 & 3 & 25\\ 
+\hlinePenryn                & T9600            & 2       & 45 & 2.8    & 6 & 35\\ 
+\hline\rowcolor {medium-gray}Yorkfield             & Q9550           & 4       & 45 & 2.8    & 12 & 95\\ 
+\hlinebi Yorkfield        & X3370           & 2 x 4 & 45 & 3.0 &  2x12   & 260\\ 
+\hline\rowcolor {medium-gray}bi Nehalem        & X5550           & 2 x 4 & 45 & 2.67 &  2x8   & 260\\ 
+\hlineCell                      & CellXR8i      & 8 & 65 & 3.2 & 8 x 256 Ko & 70\\ 
+\hline\rowcolor {medium-gray}GeForce             & 9400M          & 16 & 55 & 1.110 & - & 12\\ 
+\hlineGeForce             & 8600M GT    & 32 & 65 & 0.900 &- &60\\ 
+\hline\rowcolor {medium-gray}GeForce             & 120 GT          & 32 & 55 &1.400 & - & 50\\ 
+\hlineGeForce             & FX 4600        & 112 & 65  & 1.400 & -  & 155\\ 
+\hline\rowcolor {medium-gray}GeForce             & 285 GTX       & 240 & 55 & 1.460 &- & 183\\
+\hline
+\end{tabular}
+ \caption{Liste des Architectures Matérielles évaluées pour la comparaison de performances}
+ \label{archi_list}
+\end{table}
 
-\subsubsection{Processeur Cell BE}
- \begin{itemize}
-   \item Cell BE à 3.2 GHz : Compilateur PPU-GCC, SPU-GCC, Cell SDK 3.0Librairie Pthreads et OpenMP cbe-xlc.
-  \end{itemize}
-
-\subsubsection{Nvidia CUDA}
- \begin{itemize}
-   \item Nvidia GeForce 8800 GTX à 575 MHz (128 stream cores) : Compilateur \textbf{\emph{nvcc}} Langage CUDA.
-  \end{itemize}
 
 \subsection{Mesure de Performance}
-L'évaluation des performances s'est faite sur les tailles d'images allant de $128\times128$ jusqu'à $2048\times2048$. Les résultats sont donnés en $cpp$ ($cpp=\frac{temps*Frequence}{taille^ {2}}$). Les versions implémentées sont celles présentées auparavant dans la section \ref{parallel_schemes}
- 
- \begin{table}
- \begin{tabular}{|p{0.16\columnwidth}||p{0.16\columnwidth}|p{0.16\columnwidth}|p{0.16\columnwidth}|p{0.16\columnwidth}|p{0.16\columnwidth}|}
+L'évaluation des performances s'est faite sur les tailles d'images allant de $128\times128$ jusqu'à $2048\times2048$. Les résultats sont donnés en $cpp$ ($cpp=\frac{temps*Frequence}{taille^ {2}}$). Les versions implémentées sont celles présentées auparavant dans la section \ref{parallel_schemes}.\\
+Ce que l'on peut observer à partir des résultats dans le tableau \ref{ompare_perf_arch} en premier lieu, c'est que les transformations visant à optimiser la bande passante mémoire sont applicables à toutes les architectures ciblées pour le benchmark. Cela signifie que les transformations en questions sont à un niveau d'abstraction suffisant pour pouvoir être appliquées à tout type d'architectures. On peut noter également une accélération super-linéaire sur la version \emph{Planar} sur le \textbf{Intel X3370} du au fait qu'une pression particulière est exercée sur la mémoire cache dans cette version, ce qui dégrade sensiblement la version mono-core. L'autre observation importante est celle concernant l'efficacité. En effet, l'architecture du processeur Cell reste la plus scalable, c'est celle ou l'accélération pour $p$ cores  est proche de la valeur max.
+Ce qui es notable également, c'est que le GPU reste très loin en performance des architectures CPU ou du Cell, car malgré les 128 \emph{stream processors} la meilleure version reste loin des meilleures versions sur le Cell ou les multi-core.
+ Il apparaît que les GPP, grâce à l?amplitude des gains (l'éfficacité cumulée des transformations algorithmes et optimisations logicielles) sont les plus rapides. Les deux premières places reviennent aux octocoeurs Yorkfield et Nehalem. Le Cell se classe en quatrième position, en étant 2,9 fois plus lent que le Nehalem. En ne prenant en compte que le temps de calcul, le plus rapide des GPU arrive en troisième position.Mais en prenant en compte le temps de transfert, le temps total pour le GTX 285 est multiplié par 8 et passe à 2,1 ms. Cela ramène les performances d?une machine many-cores à celle d'un processeur dual core. Concernant les GPU mobiles, l'écart se creuse, car même en ne prenant en compte que le temps de calcul, le 8600M GT et ses 32 PE n'est qu'au niveau du Penryn P8700 qui n?est plus dans sa zone d'efficacité(sortie de cache). Comparé au Penryn T9600 qui n'a pas encore eu de sortie de cache, il est alors 5 fois plus lent.
+
+
+\begin{table}
+\begin{tabular}{|p{0.2\columnwidth}|p{0.1\columnwidth}|p{0.1\columnwidth}|p{0.1\columnwidth}|p{0.1\columnwidth}|p{0.1\columnwidth}|p{0.1\columnwidth}|p{0.1\columnwidth}|}
 \hline
-\textbf{Architecture} & \textbf{Planar $p=1$} &\textbf{Planar $p=pmax$} & \textbf{Halfpipe $p=1$} & \textbf{Halfpipe $p=pmax$} & \textbf{Gain $p = pmax$}\\
+\rowcolor {medium-gray}\textbf{Architecture}          & \textbf{Programmation}    & \textbf{Planar $p=1$} & \textbf{Planar $p=p_{max}$} & \textbf{HalfPipe $p=1$} & \textbf{HalfPipe $p=p_{max}$}  & \textbf{Gain} & \textbf{Temps}\\
 \hline
-\rowcolor {medium-gray} PPC970MP ($pmax = 4$)&   43 & 2.9 & Gain & *&* \\
+G4  &  scalaire & 518  & - & 248 & - &  & \\ & SIMD & 189 & - & 73.4 & - & x7.1 & 19.2 \\
 \hline
-Intel X3370 ($pmax = 8$)&   Planar & Halfpipe & Gain & *& *\\
+\rowcolor {medium-gray}G5  &  scalaire & 254  & 79 & 35 &15 & & \\ \rowcolor {medium-gray}& SIMD & 79 & 43 & 8.9 &2.9 & x87.6 & 0.32 \\
 \hline
-\rowcolor {medium-gray}Cell BE ($pmax = 8$)&   Planar & Halfpipe & Gain &* &*\\
+Penryn U9300 &  scalaire & 152.0  & 94.0 & 40.2 & 23.6 & & \\ & SIMD & 35.6 & 29.4 & 13.8 & 11.8 & x12.9 & 2.58 \\
 \hline
-GeForce 8800 GTX  &   120 & 15 & Gain & *&* \\
+\rowcolor {medium-gray}Penryn P8700 &  scalaire & 151.0  & 88.3 & 34.8 & 22.6 & & \\ \rowcolor {medium-gray}& SIMD & 56.8 & 56.6 & 24.0 & 22.2  & x6.8 & 2.30 \\
+\hline
+Penryn T9600 &scalaire& 140.7 & 81.6 &32.0 &16.1\\
+ & SIMD & 53.7 & 51.6 & 8.4 & 4.7 & x35.0 & 0.44 \\
+\hline
+\rowcolor {medium-gray}Yorkfield & scalaire &140 &38 &45 &11.0 & &\\
+ \rowcolor {medium-gray}& SIMD & 48.0 & 11.0 & 20.0 & 6.3 & x 22.2 & 0.59 \\
+
+\hline
+bi-Yorkfield scalaire & 145 & 16.9 & 32 &4.3 & & \\
+& SIMD & 55.0 & 3.6 & 8.4 & 1.6 & x90.6 & 0.14 \\
+\hline
+\rowcolor {medium-gray}bi-Nehalem & scalaire &49 &7.2 &24.5& 3.4 & &\\
+ \rowcolor {medium-gray}& SIMD & 18.6 & 3.3 & 6.0 & 1.4 & x35.0 & 0.11 \\
+\hline
+Cell & scalaire & 857 & 402 &199 &140\\
+ & SIMD & 79.5 & 12.6 & 29.8 & 4.0 & x217 & 0.33 \\
+\hline
+\rowcolor {medium-gray}GeForce 9400M & scalaire &  & 27.6 & & 21.9 & x1.3 & 5.18 \\
+\hline
+GeForce 8600M & scalaire & & 11.7 & & 7.7 & x1.5 & 2.23\\
+\hline
+\rowcolor {medium-gray}GeForce GT120 & scalaire & & 10.2 & & 6.9 & x 1.5 & 1.30\\
+\hline
+Quadro FX4600 & scalaire & & 5.9 & & 4.3 & x1.4 & 0.81 \\
+\hline
+\rowcolor {medium-gray}GeForce GTX285 & scalaire & & 2.2 & & 1.5 & x1.5 & 0.26 \\
 \hline
 \end{tabular}
  \caption{Comparaison des Implémentations de l'algorithme de Harris sur les Architectures Parallèles}
  \label{compare_perf_arch}
- \end{table}
+\end{table}
+
+
+ 
+ Le second benchmark consiste à estimer l'énergie consommée ($E = t \times P$) en se basant le TDP constructeur. Les résultats sont intéressants et paradoxaux. Si c'esteffectivement un processeur pour portable qui est le plus efficace (Penryn T9600), ce n'est pas celui qui consomme le moins (Penryn U9300). Ce dernier, avec un TDPde 10 W, fait jeu égal avec l?octo-processeur Yorkfield et un TDP de 190 W! La seconde meilleure performance revient au Cell. La performance du Cell vis-à-vis desprocesseurs généralistes (Intel, AMD et IBM) avait déjà été observée lors de précédents congrès Super Computing/Top500 avec l'apparition d'un classement de GreenComputing : pour les grands besoins en puissance de calcul, le Cell est le modèle de calcul le plus efficace énergétiquement : les machines Roadrunner, composés deCell, de GPP et de GPU sont actuellement parmi les plus efficaces (en MFlops/Watt).\\Concernant les GPU, ils arrivent tous en fin de classement, même si, seul le $cpp$ de calcul est pris en compte. Le plus efficace étant paradoxalement celui qui consommele plus (GTX 285).\\Il est intéressant d?observer l'efficacité énergétique de ces machines pour des images plus petites : 300x300. Dans ce cas, toutes les machines sont surdimensionnées: le bi-Yorkfield affichant une cadence de traitement de 26 315 images/sec et le "petit" Penryn U9300 une cadence de 2 777 images/sec. L?ordre de performance estmaintenant respecté : le U9300 est le plus efficace et le Cell se positionnent devant les processeurs octocoeurs.\\Jusqu?à maintenant, les performances des machines étaient évaluées pour des  tailles fixes d?images. Il peut être intéressant de prendre le problème à l'envers etde s'interroger sur l?intervalle de taille d?image pour lequel ces processeurs sont efficaces.\\Si l'efficacité du Cell est constante (absence de cache) et celle des GPU croît avec la taille des images (problème de l?alimentation des données), les GPP ne sontefficaces que tant que les données tiennent dans les caches (à moins d'implanter des buffers circulaires). Une configuration de type serveur est plus efficace (bus rapide)plus longtemps (2 processeurs quadricoeurs Yorkfield ont un total de 24 Mo de cache L2) qu?une configuration portable (les dual coeurs ont entre 4 et 6 Mo de cache L2).En recalculant l'efficacité des Penryn pour une taille d?image 300 x300 au lieu de 512x512, le classement des processeurs efficaces est modifié (Tab 9). Le PenrynU9300 qui était aussi efficace que le bi-Yorkfield devient alors 2; 5 fois plus efficace.\\
+ La taille des caches est un facteur primordial pour les performances des GPP, plus même que le nombre de coeurs (pour le moment). Les optimisations présentées, en repoussantle moment des sorties de cache (version Halfpipe) et en diminuant leur amplitude, voire en les annulant (version Fullpipe et a priori version Halfpipe avec bufferscirculaires), sont nécessaires pour limiter l'accroissement de la taille des caches tout en ayant de bonnes performances pour des images de grande taille.
+ 
+  \begin{table}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\rowcolor {medium-gray}\textbf{Architecture}    & \textbf{Techno (nm)}    & \textbf{ Puissance (W)} & \textbf{Temps (ms)} & \textbf{Energie (mJ)} \\
+Penryn U9300 & 45 &10       & 0.360 & 3.6 \\
+\hline\rowcolor {medium-gray}Penryn P8700 & 45 & 25      & 0.157 & 3.9 \\
+\hlinePenryn T9600 & 45 & 35      & 0.148 & 5.2 \\
+\hline\rowcolor {medium-gray}bi-Yorkfield      & 45 & 2x95  & 0.048 & 9.1 \\
+\hlinebi-Nehalem     & 45 & 2x130 & 0.038 & 9.8 \\
+\hline\rowcolor {medium-gray}Cell & 65 & 70 & 0.113 & 7.9\\
+\hline
+ \end{tabular}
+ \caption{Comparaison des Architectures en Energie Consommée}
+ \label{compare_conso}
+\end{table}
+
+\subsection{conclusion}
+Nous avons évalué les performances de notre algorithme de référence sur des  GPP, de GPU et le Cell. A travers les métriques utilisées, il a été mis en évidence l?importance des transformations algorithmiques qui combinées aux instructions SIMD et à la parallélisation multicoeur font que les processeurs généralistes restent compétitifs face aux nouvelles architectures (Cell et GPU) un facteur x90 a été atteint. Grâce à cela, ils dépassent les performances brutes du Cell. De plus, et contrairement au Cell, le nombre de coeurs des machines généralistes a réussi à croître rapidement : Intel et AMD annoncent des processeursoctocoeurs et des machines bi ou quadri processeurs (soit un maximum de 32 coeurs).\\Certains processeurs pour serveur sont déclinés en version basse-consommation, ce qui les rend plus compétitifs encore, tout en maintenant un modèle de programmationsimple et des temps de développement rapides.\\
+ %\begin{table}
+ %\begin{tabular}{|p{0.20\columnwidth}||p{0.10\columnwidth}|p{0.10\columnwidth}|p{0.10\columnwidth}|p{0.10\columnwidth}|p{0.10\columnwidth}|p{0.10\columnwidth}|}
+%\hline
+%\textbf{Architecture} & \textbf{Planar $p=1$} &\textbf{Planar $p=pmax$} & \textbf{Gain $p = pmax$} & \textbf{Halfpipe $p=1$} & \textbf{Halfpipe $p=pmax$} & \textbf{Gain $p = pmax$}\\
+%\hline
+%\rowcolor {medium-gray} PPC970MP ($pmax = 4$)&   79 & 43 & 1.83 & 8.9 &2.9 & 3.06\\
+%\hline
+%Intel X3370 ($pmax = 8$)&   55 & 3.6 & 15.26 & 8.4& 1.6 & 5.25\\
+%\hline
+%\rowcolor {medium-gray}Cell BE ($pmax = 8$)&   79.5 & 12.6 & 6.30 & 29.8 & 4.0 & 7.45\\
+%\hline
+%GeForce 8800 GTX  &   x & 120 & x & x & 15 & x \\
+%\hline
+%\end{tabular}
+ %\caption{Comparaison des Implémentations de l'algorithme de Harris sur les Architectures Parallèles}
+ %\label{compare_perf_arch}
+ %\end{table}
  
  
  
