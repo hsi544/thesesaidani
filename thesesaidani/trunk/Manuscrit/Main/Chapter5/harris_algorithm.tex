@@ -56,7 +56,7 @@ Une illustration d'une détection de points d'intérêt sur une image 512$\times$51
 \begin{figure}[!htb]
 	\centering
 \begin{tabular}{cc}
-	\includegraphics[width= 0.5\columnwidth]{Chapter3/figures/house1} & \includegraphics[width= 0.5\columnwidth]{Chapter3/figures/house_harris_map}
+	\includegraphics[width= 0.5\columnwidth]{Chapter5/figures/house1} & \includegraphics[width= 0.5\columnwidth]{Chapter5/figures/house_harris_map}
 	\end{tabular}
 	\caption{Illustration de la détection de points d'intérêts sur une image niveaux de gris 512$\times$512}
 	\label{fig_house}
@@ -65,7 +65,7 @@ Une illustration d'une détection de points d'intérêt sur une image 512$\times$51
 \subsection{Détails de l'Implémentation}
 \begin{figure}[!htb]
 	\centering
-	\includegraphics[width= \columnwidth]{Chapter3/figures/harris_NB}
+	\includegraphics[width= \columnwidth]{Chapter5/figures/harris_NB}
 	\caption{Implémentation de l'algorithme de Harris sous forme de graphe flot de données}
 	\label{fig_HarrisAlgorithm}
 \end{figure}
@@ -91,7 +91,7 @@ Ces optimisations relèvent plutôt du domaine du traitement du signal et des imag
 \subsubsection{Séparabilité des Noyaux}
 \begin{figure}[!htb]
 	\centering
-	\includegraphics[width= \columnwidth]{Chapter3/figures/convolution_sep}
+	\includegraphics[width= \columnwidth]{Chapter5/figures/convolution_sep}
 	\caption{Exemple de convolution par un filtre Gaussien $3\times3$ (a)version avec noyaux 2D (b) version avec deux noyaux 1D , résultant de la séparation du noyau 2D.}
 	\label{fig_convosep}
 \end{figure}
@@ -157,7 +157,7 @@ Lorsque l'on sépare les noyaux de convolution, le calcul se fait en deux passes 
 \subsubsection{Chevauchement des Noyaux}
 \begin{figure}[!htb]
 	\centering
-	\includegraphics[width= \columnwidth]{Chapter3/figures/convolution_overlap}
+	\includegraphics[width= \columnwidth]{Chapter5/figures/convolution_overlap}
 	\caption{Chevauchement des données pour un calcul d'un filtre Gaussien $3\times3$, certaines données sont conservées en décalant le masque de convolution.}
 	\label{fig_convoover}
 \end{figure}
@@ -239,7 +239,7 @@ Les tableau \ref{tab_sepaover_arith} et \ref{tab_sepaover_mem} donnent la différ
 \label{sectioncompo}
 \begin{figure}[!htb]
 	\centering
-  \includegraphics[width= \columnwidth]{Chapter3/figures/funccompo}
+  \includegraphics[width= \columnwidth]{Chapter5/figures/funccompo}
   	\label{fig_compo}
 	\caption{Règle de composition de fonctions.\textbf{(a)} composition de deux opérateurs point à point \textbf{(b)} composition d'un noyaux de convolution suivi d'un opérateur point à point \textbf{(c)} composition d'un opérateur point à point  suivi d'un noyaux de convolution \textbf{(d)} composition de deux noyaux de convolution successifs}
 \end{figure}
@@ -325,7 +325,7 @@ D'après les observations ci-dessus, la composition de fonction peut être un bon 
 \subsection{Optimisation des Transferts Mémoire}
 \begin{figure}[!htb]
 	\centering
-  \includegraphics[width= \columnwidth]{Chapter3/figures/cellnoc}
+  \includegraphics[width= \columnwidth]{Chapter5/figures/cellnoc}
   \label{fignoc}
 	\caption{Réseau d'interconnexion du Cell}
 \end{figure}
@@ -335,7 +335,7 @@ Dans le modèle de programmation utilisé qui est basé sur le \emph{SDK} du Cell e
 \paragraph{Taille du Transfert}
 \begin{figure}[htb]
   \centering
-  \includegraphics[width= 0.8\columnwidth]{Chapter3/figures/bwsize}
+  \includegraphics[width= 0.8\columnwidth]{Chapter5/figures/bwsize}
   \label{figbwsize}
   \caption{Influence de la taille du transfert DMA sur la bande-passante}
 \end{figure}
@@ -350,14 +350,14 @@ Le premier paramètre influant sur la bande passante est la taille du bloc de don
 \paragraph{Nombre de Transferts Concurrents}
 \begin{figure}[htb]
   \centering
-  \includegraphics[width= 0.8\columnwidth]{Chapter3/figures/bwcontention}
+  \includegraphics[width= 0.8\columnwidth]{Chapter5/figures/bwcontention}
   \label{figbwncontention}
   \caption{Influence du nombre de transferts dans le cas d'une communication LS<->LS}
 \end{figure}
 
 \begin{figure}[htb]
   \centering
-  \includegraphics[width= 0.8\columnwidth]{Chapter3/figures/bwnspes}
+  \includegraphics[width= 0.8\columnwidth]{Chapter5/figures/bwnspes}
   \label{figbwnspes}
   \caption{Influence du nombre de transferts dans le cas d'une communication MS<->LS}
 \end{figure}
@@ -376,7 +376,7 @@ La taille de la tuile est un paramètre primordial lorsqu'il s'agit de découper l
 \paragraph{Dimensions de la Tuile}
 \begin{figure}[htb]
   \centering
-  \includegraphics[width=\columnwidth]{Chapter3/figures/qreloads}
+  \includegraphics[width=\columnwidth]{Chapter5/figures/qreloads}
   \label{qreloads}
   \caption{Redondances de données pour un opérateur de convolution $3 \times 3$}
 \end{figure}
@@ -414,7 +414,7 @@ Le minimum de la fonction $Q$ est atteint lorsque : \begin{equation}\frac{\parti
 ce qui donne \begin{equation}h = w = \sqrt{\lambda} \nonumber \end{equation}
 \begin{figure}[htb]
   \centering
-  \includegraphics[width=\columnwidth]{Chapter3/figures/meshtile}
+  \includegraphics[width=\columnwidth]{Chapter5/figures/meshtile}
   \caption{Tracé de la fonction $Q(h,w)$ dans l'espace}
   \label{meshtile}\end{figure}
 Ce qui permet de déduire que la forme de la tuile qui minimise la quantité de données transférée est une forme carrée. D'autre par lorsque l'on observe le tracé de la fonction $Q$ sur la figure \ref{meshtile} on peut constater que cette fonction décroit quand $h$ et $w$ augmentent et que la valeur de $Q$ est minimale pour une surface de tuile donnée ($h \times w = C^{te}$) lorsque $h = w$ ce qui correspond à la première bissectrice du plan $(hw)$. Ceci permet d'affirmer d'une part que la tuile carrée est optimale pour une surface donnée et que la valeur de $Q$ diminue d'autant plus lorsque $h$ et $w$ augmentent. Les valeurs de $h$ et $w$ sont alors limitées par l'espace mémoire disponible pour une tuile dans la mémoire locale des SPEs.\\
@@ -424,7 +424,7 @@ Dans ce qui suit, nous abordons l'optimisation de notre algorithme à un niveau d
 \subsubsection{SPMD Conventionnel}
 \begin{figure}[!htb]
 	\centering
-  \includegraphics[width= \columnwidth]{Chapter3/figures/harris-spmd}
+  \includegraphics[width= \columnwidth]{Chapter5/figures/harris-spmd}
   \label{harris-spmd}
 	\caption{Schéma de Parallélisation SPMD Conventionnel}
 \end{figure}
@@ -432,7 +432,7 @@ Dans ce schéma de déploiement, l'image est divisée en 8 régions de même taille, 
 \subsubsection{Pipeline Conventionnel}
 \begin{figure}[!htb]
 	\centering
-  \includegraphics[width= \columnwidth]{Chapter3/figures/harris-pipeline}
+  \includegraphics[width= \columnwidth]{Chapter5/figures/harris-pipeline}
 	\caption{Schéma de Parallélisation Pipeline}
 	\label{harris-pipeline}
 \end{figure}
@@ -440,7 +440,7 @@ Cette implémentation de l'algorithme consiste à déployer le graphe d'opérateur s
 \subsubsection{Chainage d'opérateur par paires}
 \begin{figure}[!htb]
 	\centering
-  \includegraphics[width= \columnwidth]{Chapter3/figures/harris-hchain}
+  \includegraphics[width= \columnwidth]{Chapter5/figures/harris-hchain}
 	\caption{Schéma de Parallélisation Chainage d'opérateurs par paires}
 	\label{harris-pipeline}
 \end{figure}
@@ -448,7 +448,7 @@ Dans cette version deux opérateurs successifs sont placés sur le même SPE. Ainsi
 \subsubsection{Chainage et fusion d'opérateur par paires}
 \begin{figure}[!htb]
 	\centering
-  \includegraphics[width= 0.6\columnwidth]{Chapter3/figures/harris-hchainhpipe}
+  \includegraphics[width= 0.6\columnwidth]{Chapter5/figures/harris-hchainhpipe}
 	\caption{Schéma de Parallélisation Chainage et fusion d'opérateurs par paires}
 	\label{harris-pipeline}
 \end{figure}
@@ -456,7 +456,7 @@ Cette version est une variante de celle qui la précède. L'idée étant de fusionne
 \subsubsection{Chaînage entier et fusion d'opérateur par paires}
 \begin{figure}[htb]
 	\centering
-  \includegraphics[width= 0.6\columnwidth]{Chapter3/figures/harris-hchainfpipe}
+  \includegraphics[width= 0.6\columnwidth]{Chapter5/figures/harris-hchainfpipe}
 	\caption{Schéma de Parallélisation Chaînage et fusion d'opérateurs par paires}
 	\label{harris-pipeline}
 \end{figure}
@@ -471,7 +471,7 @@ La plate-forme sur laquelle a été menée l'évaluation des performance est un Blad
 \subsection{Comparaison des Schémas de Parallélisation}
 \begin{figure}[htb]
 	\centering
-  \includegraphics[width= 0.8\columnwidth]{Chapter3/figures/BenchCompareModels}
+  \includegraphics[width= 0.8\columnwidth]{Chapter5/figures/BenchCompareModels}
 	\caption{Comparaison des modèles en cycles par point}
 	\label{comparemodels}
 \end{figure}
@@ -485,7 +485,7 @@ Dans ce qui précède nous avons pu constater que le placement optimal d'un graphe
 \subsection{Influence de la Taille de la Tuile}
 \begin{figure}[htb]
 	\centering
-  \includegraphics[width= \columnwidth]{Chapter3/figures/SizeTile}
+  \includegraphics[width= \columnwidth]{Chapter5/figures/SizeTile}
 	\caption{Influence de la taille de la tuile sur la performance pour la version chainage entier et fusion d'opérateur par paires 1 SPU}
 	\label{tilesize}
 \end{figure}
@@ -519,14 +519,14 @@ La comparaison de la performance globale des différents schémas d'implémentation
 
 \begin{figure}[htb]
 	\centering
-  \includegraphics[width= 0.8\columnwidth]{Chapter3/figures/Speedup}
+  \includegraphics[width= 0.8\columnwidth]{Chapter5/figures/Speedup}
 	\caption{Mesure du \emph{Speedup} en fonction du nombre de SPEs}
 	\label{speedup}
 \end{figure}
 
 \begin{figure}[htb]
 	\centering
- \includegraphics[width= 0.8\columnwidth]{Chapter3/figures/Efficiency}
+ \includegraphics[width= 0.8\columnwidth]{Chapter5/figures/Efficiency}
 	\caption{Mesure de l'Efficacité en fonction du nombre de SPEs}
 	\label{efficiency}
 \end{figure}
@@ -541,9 +541,9 @@ Efficiency = \frac{\mbox{Temps d'Exécution sur 1 Processeur}}{P \times \mbox{Tem
 Ces mesures sont essentielles pour l'adaptation d'un code séquentiel à une machine parallèle. Elles permettent d'une part de détecter des limitations d'un système parallèle pour la parallélisation d'un code. Par exemple, on peut évaluer la complexité due au contrôle des \emph{threads} et à leur synchronisation. D'autre part, on peut mesurer l'efficacité du réseau d'interconnection à distribuer les données de manière parallèle au différents noeuds. Elles peuvent également justifier l'ajout d'une quantité supplémentaires de processeurs si cela n'altère pas la performance en induisant un coût de gestion supplémentaire. \\
 \indent D'après les figures \ref{speedup} et \ref{efficiency} on peut constater que le Cell est une architecture ayant une bonne "scalabilité". En effet, on peut noter dans les deux cas étudiés à la fois, un \emph{speedup} proche de $P$ le nombre de SPEs et une efficacité proche de 1. On peut tout de même noter certaines différences entre les deux implémentations étudiées, d'une part la version SPMD et d'autre part la versions avec composition de fonctions et chainage sur le même SPE. La première implique une pression importante sur le bus de données car presque tous les lectures/écritures mémoire se font sur la mémoire externe. Au contraire, la seconde minimise le trafic vers la mémoire externe. Ceci explique, la différence au niveau de l'efficacité et permet de déduire que plus le ratio transfert/calcul est grand est moins le passage à l'échelle est bon.
 
-\section{Comparaison avec d'autres Architectures Parallèles}
-\input{Chapter3/comparaison}
-\section{Conclusion Générale}
+%\section{Comparaison avec d'autres Architectures Parallèles}
+%\input{Chapter3/comparaison}
+\section{Conclusion}
 Dans ce chapitre nous avons mis en oeuvre la parallélisation de code de traitement d'images sur notre architecture parallèle. L'algorithme qui a été choisi est le détecteur de points d'intérêts de \emph{Harris} qui est à la fois représentatif des traitements bas-niveau, présent dans plusieurs traitement plus complexes et permet plusieurs schémas de parallélisation et d'optimisation. Plusieurs techniques d'optimisation on été présentées : certaines sont spécifiques au traitement du signal et des images et sont applicables à d'autres architectures. D'autres techniques sont plus spécifiques et relèvent de l'adéquation entre l'algorithme et l'architecture spécifique du processeur Cell. L'accent à été mis sur l'optimisation des transferts mémoire à plusieurs niveaux et de plusieurs manières, car elles constituent le principal facteur limitant la performance pour notre domaine d'applications.  Plusieurs schémas de parallélisation ont été mis en oeuvre afin d'avoir une idée globale de squelette de parallélisation qui donne les meilleures performances. Les performances ont été mesurées de plusieurs manières et à différents niveau : au niveau des noyaux de calculs une estimation et une mesure des gains apportés par les optimisation bas-niveau ont été effectuées. Au niveau des transferts une mesure de la bande passante fut menée en fonction du schéma de parallélisation, et l'influence de la taille et de la forme de la tuile de calcul ont été étudiées. Enfin, des métriques de passage à l'échelle (\emph{Scalability}) on été utilisées afin de mesurer l'efficacité de la parallélisation de notre algorithme sur le processeur Cell.
 Une étude comparative complète à été effectué toujours en utilisant le même algorithme de référence. Les architectures parallèles émergentes du type multi-core GPP, Cell et GPU on été comparées selon plusieurs critère : modèle de programmation, performance temporelle pure et efficacité énergétique. La dernière comparaison permet de faire un choix d'un coupe architecture/modèle de programmation pour les application de traitement d'images bas-niveau.
 
