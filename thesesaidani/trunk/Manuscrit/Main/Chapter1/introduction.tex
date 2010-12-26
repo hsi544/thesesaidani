@@ -1,5 +1,5 @@
 Les logiciels ont été conçus historiquement pour une exécution en série. Les programmes devaient s'exécuter sur une seule machine contenant une seule unité de traitement centrale (\emph{CPU}) et le problème est décomposé en une suite d'instructions qui sont exécutées les unes après les autres. Ainsi, une seule instruction peut être exécutée à la fois. Le calcul parallèle est par opposition à la précédente approche, l'utilisation simultanée de plusieurs ressources de calcul pour résoudre un problème. Un logiciel peut ainsi s'exécuter sur plusieurs \emph{CPU}. Le problème est décomposé en plusieurs parties qui peuvent être résolues de manière concurrente. Ces parties sont à leur tour décomposées en plusieurs instructions et chaque paquet d'instructions s'exécute de manière indépendante l'un de l'autre. Les ressources de calculs incluent une seule machine avec plusieurs processeurs, un nombre arbitraire de machines connectées via un réseau ou alors une combinaison des deux. Une bonne partie des problèmes de calcul intensif possèdent certaines caractéristiques qui en font de bons candidats à la parallélisation. Parmi ces caractéristiques : la possibilités de les décomposer en plusieurs sous-problèmes qui peuvent être résolus simultanément et la possibilités d'être résolus en moins de temps avec plusieurs ressources qu'avec une seule. Le calcul parallèle était auparavant, réservé exclusivement à la modélisation de problèmes et de phénomènes scientifiques provenant de la réalité tels que l'environnement, la physique nucléaire, les biotechnologies, la géologie et les mathématiques. A ce jour, le calcul parallèle s'est ouvert à d'autres domaines grâce notamment à l'évolution fulgurante de la technologie des semi-conducteurs qui a rendu les plate-formes haute performance plus accessibles. On peut citer des applications comme les bases de données, l'exploration pétrolière, les moteurs de recherche, la modélisation financière, les technologies de diffusion multimédia et les applications graphiques et de réalité augmentée.
-\section{Concepts Généraux}
+\section{Concepts généraux}
 \subsection{Architecture de \emph{Von Neumann}}
 \begin{figure}[!htb]
 	\centering
@@ -8,7 +8,7 @@ Les logiciels ont été conçus historiquement pour une exécution en série. Les pro
 	\label{figvonneumann}
 \end{figure}
 Ce modèle fut inventé par le mathématicien hongrois \emph{John von Neumann} qui a posé les premières bases de la conception d'un ordinateur dans son papier de 1945 \cite{vonneumann}. A partir de ce moment tous les ordinateurs ont été conçus sur ces bases. L'architecture \emph{von Neumann} \ref{figvonneumann} est constituée de 4 composants principaux: une mémoire, une unité de contrôle, une unité arithmétique et logique(\emph{ALU}) des Entrées/Sorties (\emph{I/O}). La mémoire à accès aléatoire (\emph{RAM}) en lecture/écriture est utilisée pour stocker les instructions ainsi que les données. L'unité de contrôle va chercher les instructions ou les données de la mémoire, décode les instructions et coordonne séquentiellement les opérations afin d'accomplir la tâche programmée. L'ALU effectue les opérations arithmétiques de base. les I/O font l'interface avec l'utilisateur humain.
-\subsection{Classification de Flynn des Machines Parallèles}
+\subsection{Classification de Flynn des machines parallèles}
 Il existe plusieurs manières de classer les machines parallèles. Toutefois, il existe une classification qui est largement utilisée depuis 1966 et qui est celle de \emph{Flynn} \cite{flynn} (\emph{Flynn's Taxonomy}). Cette classification distingue les architectures parallèles selon deux paramètres indépendants qui sont les instructions et les données : chacun de ces deux paramètres peut avoir deux états possibles \emph{Single} ou \emph{Multiple}. Ainsi le tableau \ref{flynn} illustre la classification de Flynn.
 \begin{table}
 \centering
@@ -28,9 +28,9 @@ Multiple Instruction Single Data& Multiple Instruction Multiple Data\\
 \label{flynn}
 \end{table}
 
-\subsubsection{Single Instruction, Single Data (SISD)}
+\subsubsection{Single instruction, single data (SISD)}
 Une machine série qui ne peut exécuter qu'un seul flux d'instructions en un cycle d'horloge \emph{CPU}. De plus, un seul flux de données est utilisé comme entrée en un cycle d'horloge. L'exécution du programme y est déterministe et il constitue le type de machines à la fois le plus ancien est le plus répandu de nos jours.
-\subsubsection{Single Instruction, Multiple Data (SIMD)}
+\subsubsection{Single instruction, multiple data (SIMD)}
 C'est un type de machines parallèles dont les processeurs exécutent la même instruction en un cycle d'horloge donné. Cependant, chaque unité de traitement peut opérer sur un élément de données différent. Ce type de machines est bien taillé pour des problèmes réguliers tels que le traitement d'images et le rendu graphique. L'exécution des programmes y est synchrone et déterministe. Deux variantes de ces machines existent : 
 \begin{itemize}
 \item Processor Arrays: Connection Machine CM-2, MasPar MP-1 \& MP-2, ILLIAC IV
@@ -38,16 +38,16 @@ C'est un type de machines parallèles dont les processeurs exécutent la même inst
 \end{itemize}
 De plus, la majorité des processeurs des stations de travail actuelles et des unités de traitement graphiques, comportent une unité de traitement spécialisée SIMD, on parle alors de \emph{SWAR} (\emph{SIMD Within A Register}).
 
-\subsubsection{Multiple Instruction, Single Data (MISD)}
+\subsubsection{Multiple instruction, single data (MISD)}
 Un seul flux de données alimente plusieurs unités de traitement et chaque unité de traitement opère sur les données de manière indépendante grâce à un flot d'instructions indépendantes. 
-\subsubsection{Multiple Instruction, Multiple Data (MIMD)}
+\subsubsection{Multiple instruction, multiple data (MIMD)}
 C'est actuellement le type le plus commun de machines parallèles. Chaque processeur de ces machines peut exécuter un flux d'instructions différent et peut opérer sur un flux de données différent. L'exécution peut être synchrone ou asynchrone, déterministe ou non-déterministe. On peut citer les \emph{Supercomputers} actuels, les clusters de machines parallèles mis en réseau, les grilles de calculs, les multi-processeurs SMP (\emph{Symetric Multi-Processor}) et les processeurs multi-core. De plus, plusieurs de ces machines contiennent des unités de traitement SIMD.
 
-\section{Architectures Mémoire des Machines Parallèles}
+\section{Architectures mémoire des machines parallèles}
 Dans la suite nous donnons une classification des machines parallèles selon le type de leur hiérarchie mémoire. Cette classification permet d'une part de distinguer les machines parallèles d'un autre point de vue que celui du CPU et permet également de mieux comprendre les motivations des modèles de programmation pour les machines parallèles.
-\subsection{Les Machines Parallèles à Mémoire Partagée}
+\subsection{Les machines parallèles à mémoire partagée}
 Il existe plusieurs variantes de ces machines mais toutes partagent une propriété commune qui est la capacité de tous les processeurs d'accéder toute la mémoire comme un espace d'adressage global. Ainsi, plusieurs processeurs peuvent opérer d'une manière indépendante mais partagent la même ressource mémoire. Un changement opéré par un processeurs dans un emplacement mémoire est visible à tous les autres processeurs. Cette classe de machines peut être divisée en deux sous-classes basées sur les temps d'accès à la mémoire : UMA et NUMA.
-\subsubsection{Uniform Memory Access (UMA)}
+\subsubsection{Uniform memory access (UMA)}
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[width=0.7\columnwidth]{Chapter1/figures/SMUMA}
@@ -55,7 +55,7 @@ Il existe plusieurs variantes de ces machines mais toutes partagent une propriét
 	\label{figSMUMA}
 \end{figure}
 Ce sont principalement les machines de type SMP qui possèdent plusieurs processeurs identiques et qui peuvent accéder de manière égale et en un temps identique à la mémoire. Elles sont parfois appelées CC-UMA - Cache Coherent UMA. La cohérence de cache signifie que si un processeur met à jour un emplacement de la mémoire tous les autres processeurs sont au courant de ce changement. Cette fonctionnalité est assurée au niveau du \emph{hardware}.
-\subsubsection{Non-Uniform Memory Access (NUMA)}
+\subsubsection{Non-uniform memory access (NUMA)}
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[width=0.7\columnwidth]{Chapter1/figures/SMNUMA}
@@ -64,9 +64,9 @@ Ce sont principalement les machines de type SMP qui possèdent plusieurs processe
 \end{figure}
 Ce type de machines est souvent conçu en connectant deux ou plusieurs SMPs. Un SMP peut avoir un accès direct à la mémoire d'un autre SMP. Le temps d'accès à une mémoire donnée n'est pas égal pour tous les processeurs et lorsque un noeud est traversé l'accès est plus lent. Si la cohérence de cache est garantie on parle alors de CC-NUMA.
 
-\subsubsection{Avantages et Inconvénients}
+\subsubsection{Avantages et inconvénients}
 Parmi les avantages de ce type d'architectures mémoire est une perspective simplifiée de la mémoire du point de vue du programmeur. Le partage des données entre les tâches est à la fois rapide et uniforme. Le premier inconvénient est le manque de mise à l'échelle (\emph{scalability}) entre la mémoire et les CPUs. Le fait d'augmenter le nombre de CPUs augmente le trafic sur le bus mémoire et provoque un goulot d'étranglement et la gestion de la cohérence devient de plus en plus complexe. Le programmeur est responsable de la synchronisation des tâches qui garantit un accès correcte à la mémoire globale. Par conséquent, la conception de machine parallèles à mémoire partagée avec de plus en plus de processeurs devient difficile et coûteuse. 
-\subsection{Les Machines Parallèles à Mémoire Distribuée}
+\subsection{Les Machines parallèles à mémoire distribuée}
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[width=0.7\columnwidth]{Chapter1/Figures/DMEM}
@@ -74,9 +74,9 @@ Parmi les avantages de ce type d'architectures mémoire est une perspective simpl
 	\label{figDMEM}
 \end{figure}
 Comme les machines à mémoire partagée, les machines à mémoire distribuée varient mais elles partagent tout de même un point commun : elles requièrent un réseau de communication pour connecter la mémoire inter-processeurs. Les différents processeurs possèdent leur propre mémoire locale. Les adresses mémoire d'un processeur donné ne correspondent pas à celles d'un autre et par conséquent le concept de mémoire globale n'existe pas. Puisque chaque processeur possède sa propre mémoire privée il opère de manière indépendante. En effet, chaque changement opéré sur sa mémoire locale n'a aucun effet sur la mémoire des autres processeurs ce qui exclue le concept de cohérence de cache. Lorsqu'un processeur à besoin des données contenues dans la mémoire d'un autre processeur, le programmeur est en charge de définir quand et comment les données sont transférées. Ce dernier est aussi responsable de la synchronisation.  
-\subsubsection{Avantages et Inconvénients}
+\subsubsection{Avantages et inconvénients}
 L'avantage majeur de ce type d'architectures est le fait que la mémoire soit \emph{scalable} avec le nombre de processeurs. En effet, la taille de la mémoire croit proportionnellement avec le nombre de processeurs. Chaque processeur peut aussi accéder rapidement à sa mémoire locale sans interférence et sans engendrer de surcout du au maintien de la cohérence de cache. Le principal inconvénient de ce type d'architectures mémoire et la gestion explicite par le logiciel des communications entre les processeurs. Les accès à la mémoire se font souvent à des temps non-uniformes et la présence de plusieurs espaces d'adressage rend complexe l'adaptation de programmes écrits pour une mémoire partagée.
-\subsection{Les Machines Parallèles à Mémoire Hybride}
+\subsection{Les Machines parallèles à mémoire hybride}
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[width=0.7\columnwidth]{Chapter1/figures/HMEM}
@@ -85,50 +85,50 @@ L'avantage majeur de ce type d'architectures est le fait que la mémoire soit \em
 \end{figure}
 Les machines les plus rapides du monde emploient des architectures mémoire dites hybrides qui regroupent les deux types précédents: partagée et distribuée. La composante mémoire partagée est souvent une machine SMP. La composante distribuée quant à elle consiste en la mise en réseau de plusieurs machines SMP. Les différents SMPs ne peuvent adresser que leur propre mémoire et le transfert de données entre deux SMPs requiert des communications au travers du réseau. Selon le niveau dans lequel on se trouve, ce type de machines possède les inconvénients et avantages des deux précédentes architectures mémoire.
 
-\section{Modèles de Programmation Parallèle}
+\section{Modèles de programmation parallèle}
 Il existe plusieurs modèles de programmation pour les machines parallèles. Ces modèles existent à un niveau d'abstraction au dessus de l'architecture matérielle et de celle de la mémoire. Même si à première vue les modèles de programmation sont intimement liés à l'architecture de la machine ils sont supposés pouvoir être implémentés sur n'importe quelle machine parallèle quelque en soient les caractéristiques. Il n'existe pas de modèle de programmation idéal mais certains modèles de programmation sont bien adaptés pour une application données sur une machine donnée. Dans la suite nous décrivons les principaux modèles de programmation parallèles.
-\subsection{Le Modèle \emph{Shared Memory}}
+\subsection{Le Modèle \emph{shared memory}}
 Dans ce modèle de programmation les tâches partagent un espace d'adressage commun sur lequel ils peuvent lire et écrire des données de manière asynchrone. Plusieurs mécanismes, tels que les \emph{locks} et les sémaphores peuvent être utilisés pour contrôler l'accès à la mémoire partagée. Ce modèle de programmation est simplifié du point de vue de l'utilisateur car il n'y a pas de notion d'appartenance des données à une tâche ce qui évite les communications explicites pour transférer des données d'une tâche à une autre. Toutefois, en terme de performances ce dernier point constitue un inconvénient car il engendre un surcout d'accès à la mémoire,  de rafraichissement de cache et de trafic sur le bus lorsque plusieurs processeurs utilisent les mêmes données.
 Les implémentations de ce modèle sur les machines à mémoire partagée se résument au compilateur natif qui traduit les variables du programme en adresses mémoire globales. Il n'existe cependant pas d'implémentation de ce modèle sur des machines à mémoire distribuée.
-\subsection{Le Modèle de Programmation par \emph{Threads}}
+\subsection{Le Modèle de programmation par \emph{threads}}
 Dans le modèle de programmation par threads, un seul \emph{process} peut avoir des chemins d'exécution multiples et concurrents. On peut assimiler ce concept à un programme principal qui inclue un certain nombre de sous-routines. Le programme principal est ordonnancé pour être exécuté par le système d'exploitation, et il acquière toutes les ressources système nécessaires à son exécution. Il effectue alors un ensemble d'instructions en série et crée un certain nombre de tâches (\emph{threads}) qui peuvent être ordonnancées et exécutées par l'OS de manière concurrente. Chaque \emph{thread} possède ses données locales mais partage également les ressources du programme principal avec les autres \emph{threads}. Chaque \emph{thread} possède un accès à la mémoire globale car il partage l'espace d'adressage du programme principal. La charge du travail d'un \emph{thread} peut être considérée comme une sous-routine du programme principal mais qui peut s'exécuter en parallèle d'un autre \emph{thread}. Les \emph{threads} communiquent entre eux via la mémoire globale ce qui nécessite des opérations de synchronisation afin de garantir l'exclusivité de l'accès à un emplacement donnée à un instant donné pour un seul \emph{thread}. Les \emph{threads} ont une durée de vie variable et peuvent être crées et détruits tout au long du déroulement du programme. Le modèle de programmation par \emph{thread} est souvent associé aux machines à mémoire partagée. Les implémentations des \emph{threads} comportent en général une librairie de fonctions ou alors une série de directives enfouis dans le code parallèle. Dans les deux cas l'utilisateur est responsable de la définition du parallélisme. Il existe plusieurs implémentations des \emph{threads}, et la plupart des  constructeurs ont développé leur propre version ce qui a affecté la portabilité des codes parallèles. Cependant, un effort de standardisation à donné naissance à deux implémentations qui sont devenues le standard de nos jours.
-\paragraph{Les \emph{Threads} POSIX}
+\paragraph{Les \emph{threads} POSIX}
 Ils sont basés sur une librairie de programmation parallèle et spécifiés par le standard \emph{IEEE POSIX 1003.1c standard (1995)} \cite{pthreads_std}. Ils sont implémentés uniquement en langage C et plus connus sous le nom de \emph{Pthreads}. Le parallélisme y est explicite et l'interface bas-niveau force le programmeur à donner beaucoup d'attention au détails.
 \subsubsection{OpenMP}
 C'est un modèle de programmation basé sur des directives de compilation et il peut être directement utilisé sur du code série. Ce standard à été défini par un consortium de vendeurs de processeurs et de logiciel. L'API Fortran à été délivrée en 1997 alors que l'API C/C++ ne l'a été qu'une année plus tard. C'est une API portable et multi-plateforme et est très simple d'utilisation.
-\subsection{Le Modèle \emph{Message Passing}}
+\subsection{Le Modèle de programmation par passage de message}
 Dans ce modèle, la programmation parallèle se fait par passage de messages. Un ensemble de tâches utilisent leur propre mémoire locale durant le calcul. Plusieurs tâches peuvent résider sur la même machine physique ou alors sur un nombre arbitraire de machines. Les tâches échangent des données au travers des communications en envoyant et recevant des messages. Les transferts de données requièrent des opérations coopératives pour être effectuées par chaque \emph{process}. Par exemple, une opération \emph{send} doit avoir une opération duale \emph{receive}. Les implémentations du \emph{Message Passing} prennent la forme d'une librairie de sous-routines et le programmeur est responsable de la détection du parallélisme. Comme pour toute librairie, plusieurs versions ont été développées, ce qui a provoqué des problèmes de compatibilité. En 1992 le \emph{MPI Forum} a vu le jour dans le but de standardiser les implémentations du \emph{Message Passing} et a délivré deux standard MPI \cite{mpistand} en 1994 et MPI-2 en 1996. Des nos jours MPI est le modèle de programmation le plus utilisé pour le \emph{Message Passing}. Dans les implémentations MPI sur des architectures à mémoire partagée les communications réseaux sont tout simplement remplacées par des copies mémoire.
 
-\subsection{Le Modèle \emph{Data Parallel}}
+\subsection{Le Modèle \emph{data parallel}}
 Ce modèle est basé sur le parallélisme de données qui concentre le travail en parallèle sur un ensemble de données contenues dans un tableau ou dans une structure de données à plusieurs dimensions. Un ensemble de tâches travaillent collectivement sur la même structure de données mais chaque tâches opère sur une partition différente de cette structure. Les tâches effectuent toutes la même opération sur leur partition de données. Sur les architectures à mémoire partagée toutes les tâches peuvent avoir accès à la structure de données via la mémoire globale. Par contre lorsque l'architecture mémoire est distribuée les données sont divisées en morceaux qui résident dans la mémoire locale de chaque tâche. La programmation avec ce modèle se fait en général en écrivant du code avec des constructions de parallélisme de données. Ces dernières peuvent avoir la forme d'appel à des fonction d'une librairie ou à des directives reconnues par un compilateur \emph{data parallel}. Les implémentation de ce modèle sont souvent des extensions ou de nouveaux compilateurs on peut citer les compilateur \texttt{Fortran} (\texttt{F90 et F95}) et leur extension High Performance Fortran (\emph{HPF}) qui supportent la programmation \emph{data parallel}. \emph{HPF} inclue des directives qui contrôlent la distribution des données, des assertions qui peuvent améliorer l'optimisation du code généré ainsi que des construction \emph{data parallel}. Les implémentations sur les architectures mémoire distribuées de ce modèle sont sous forme d'un compilateur qui convertit le code standard en code \emph{Message Passing} (MPI) qui distribue ainsi les données sur les différents processeurs et tout cela de manière transparente du point de vue de l'utilisateur.
 
-\subsection{Autres Modèles}
+\subsection{Autres modèles}
 D'autres modèles existent et existeront dans le futur proche en plus de ceux mentionnés auparavant. On peut en mentionner trois :
-\subsubsection{Modèle Hybride}
+\subsubsection{Modèle hybride}
 Dans ce modèle deux ou plusieurs modèles sont combinés. On peut citer par exemple la combinaison de \emph{MPI} avec les \emph{Pthreads} ou avec \emph{OpenMP}. Ainsi, différents niveaux de parallélisme sont gérés, par exemple un réseau de SMPs. On peut citer également la combinaison de \emph{HPF} avec \emph{MPI} pour le même type de configuration.
-\subsubsection{Modèle Single Program Multiple Data}
+\subsubsection{Modèle single program multiple data}
 Le modèle \emph{SPMD} est un modèle haut niveau qui peut être construit sur la base d'une combinaison des modèles cités précédemment. Un seul programme est exécuté par toutes les tâches simultanément. A n'importe quel instant les tâches peuvent exécuter des instructions différentes ou similaires du même programme.Un programme \emph{SPMD} peut toutefois contenir des branchement qui permettent à une tâche de n'exécuter qu'une portion du code et toutes les tâches peuvent utiliser différentes données.
 
-\subsubsection{Modèle Multiple Program Multiple Data}
+\subsubsection{Modèle multiple program multiple data}
 Tout comme le modèle \emph{SPMD}, le modèle \emph{MPMD} est haut-niveau et peut englober l'ensemble des modèles citées précédemment. Les programmes \emph{MPMD} ont typiquement plusieurs objets exécutables. Lors de l'exécution parallèle du programme une tâche peut exécuter le même programme ou un programme différent et toutes les tâches peuvent utiliser des données différentes.
 
 \section{Parallélisation}
 Les architectures parallèles et les modèles de programmation associés étant définis. La question qui se pose alors est celle du choix à la fois de l'architecture et du modèle de programmation adéquats pour la mise en oeuvre d'une application parallèle donnée. L'efficacité des outils automatiques de parallélisation dépend souvent de plusieurs facteurs, parmi lesquelles : les caractéristiques de l'architecture matérielle et de la hiérarchie mémoire ainsi que la nature des algorithmes qui forment l'application à paralléliser.  L'utilisation d'outils automatiques n'est pas toujours efficace, il est alors parfois nécessaire de gérer manuellement le parallélisme et les optimisations qui lui sont associées. Deux choix se présentent alors :
 
-\subsection{Parallélisation Manuelle}
+\subsection{Parallélisation manuelle}
 Elle permet un contrôle précis de la performance, et une grande flexibilité en termes de schéma de parallélisation possible (différents modèles de calcul). Par contre, les temps de développement sont importants, que cela soit pour la mise en ½uvre, le débogage ou la maintenance de l'application. Les erreurs sont parfois très difficiles à trouver, et le processus d'optimisation est souvent itératif.
 
-\subsection{Parallélisation Automatique}
+\subsection{Parallélisation automatique}
 L'automatisation du processus de parallélisation de code est un problème ouvert, et les efforts effectués en la matière sont de plus en plus nombreux, en particulier avec l'avènement des nouvelles architectures parallèles et leur démocratisation. On peut trouver deux formes d'outils automatiques de parallélisation. Certains outils sont entièrement automatiques : ils prennent en entrée un code source série et détectent automatiquement le parallélisme potentiel, ils génèrent en suite le code parallèle correspondant. D'autres outils sont semi-automatiques car l'utilisateur indique les portions de codes parallélisables, c'est le cas par exemple d'OpenMP via les directives de compilation.
 L'avantage des approches automatiques est avant tout la rapidité de mise en ½uvre d'une solution à base de calcul parallèle, d'autant plus que dans la majorité des cas, le code original est directement utilisable. Par contre, le contrôle est beaucoup moins précis qu'avec une version entièrement manuelle. Il peut y avoir par exemple des erreurs dans les résultats de calcul. De plus, les modèles de programmation dans ce cas ne permettent pas une grande flexibilité dans le choix des schémas de parallélisation. Dans certains cas le gain de performance peut être médiocre, et on peut même observer une baisse de performances par rapport à la version originale. Enfin, ce genre d'outils n'est généralement efficace que sur des portions de code facilement exploitables comme les boucles. 
 Dans la suite nous allons présenter les différentes étapes de mise en ½uvre d'un code parallèle manuellement, les étapes en question vont de la détermination de l'opportunité de parallélisation jusqu'à la mise en oeuvre et l'évaluation du gain ainsi obtenu.
 
-\subsection{Processus de Parallélisation}
+\subsection{Méthodologie de parallélisation}
 
-\subsubsection{Comprendre le Problème}
+\subsubsection{Comprendre le problème}
 Avant même de commencer à développer la version parallèle d'une application, la première question qui se pose et celle de la faisabilité d'une telle solution. En effet, il existe certains problèmes dans lesquels il n'existe aucune forme de parallélisme exploitable. Une fois la faisabilité validée, on doit identifier les points-chaud de l'application (hotspots) : ce sont les portions de code qui prennent le plus de temps dans l'application. Les outils de profiling et d'analyse des performances sont très utiles pour déterminer ses portions de code critiques. Il est nécessaire ensuite, de détecter les goulots d'étranglement (\emph{bottlenecks}) qui limitent la performance de l'application : les entrés/sorties sont un bon exemple de \emph{bottlenecks}, dont la bande passante limite la performance d'une application consommant beaucoup d'entrées/sorties. Enfin dans certains cas, il peut s'avérer nécessaire de changer l'algorithme de calcul pour qu'il soit parallélisable.
 
-\subsubsection{Partitionner le Problème}
+\subsubsection{Partitionner le problème}
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[width=\columnwidth]{Chapter1/Figures/prob_part}
@@ -137,38 +137,38 @@ Avant même de commencer à développer la version parallèle d'une application, la 
 \end{figure}
 La deuxième étape de la parallélisation concerne le partitionnement du problème. Selon la nature du parallélisme contenu dans l'application : parallélisme de données ou de tâches. Il existe deux manières de décomposer le problème. La première décomposition et qui exploite le parallélisme de données consiste à diviser la structure de données en partie égales ou pas et d'assigner à chacune des tâches une partition de données sur laquelle elle effectue des calculs. Dans ce cas précis, les tâches effectuent les mêmes opérations sur les données. La décomposition fonctionnelle est la deuxième manière de partitionner  le problème, le parallélisme de tâches est alors exploité. Les tâches effectuent des portions de code différentes sur les mêmes données.
 
-\subsubsection{Gestion des Communications}
+\subsubsection{Gestion des communications}
 Les communications sont souvent problématiques en programmation parallèle. En effet, le fait de décomposer le problème engendre parfois un besoin de communication entre les tâches nécessaire au calcul. La première tâche consiste alors à déterminer si les tâches ont besoin de communiquer ou pas, ceci étant généralement déterminé par l'algorithme. Si une communication est nécessaire, il faut alors évaluer les facteurs qui influencent la vitesse des transferts qui sont la latence, et le débit. Ce dernier peut être altéré lors de situations dans lesquelles plusieurs transferts concurrents se partagent le bus de données. Lors d'une communication, il est nécessaire d'effectuer des points de synchronisation pour garantir la validité des traitements. Il faut alors évaluer le cout des opérations de synchronisation. On est souvent confrontés à des choix de conception lorsqu'il s'agit de communications entre les tâches. La multiplicité des transferts engendre autant de temps de latence que de transfert, il est alors souvent utile de regrouper les transferts en un seul bloc, ce qui n'est pas tout le temps possible, car la largeur des bus et la capacité des mémoires sont limitées.
 
-\subsubsection{Visibilité des Communications}
+\subsubsection{Visibilité des communications}
 Les communications sont visibles ou contrôlables selon le modèle de programmation. En MPI par exemple, l'utilisateur contrôle finement les communications et détermine lui-même leur déroulement, les tailles des transferts et les points de synchronisation. Par contre dans le modèle \emph{data parallel}, les communications sont transparentes du point de vue de l'utilisateur et ne sont donc pas à la portée du programmeur et tous ces aspects sont gérés automatiquement.
 
-\subsubsection{Communications Synchrones vs Asynchrones}
+\subsubsection{Communications synchrones vs asynchrones}
 Les communications synchrones sont bloquantes i.e : l'exécution du programme est suspendue jusqu'à la complétion de la transaction. Elles peuvent limiter la performance car elles augmentent les durées d'inactivité des processeurs. A l'opposé,  Les communications asynchrones permettent l'entrelacement de tâches de calcul et de transfert, et ainsi un gain de performances potentiel lorsque l'architecture permet d'effectuer en parallèle des transferts et des calculs.
 
-\subsubsection{Gestion de la Synchronisation}
+\subsubsection{Gestion de la synchronisation}
 La gestion de plusieurs ressources en parallèle, engendre un besoin de synchronisation. Les tâches ont souvent besoin de se synchroniser soit pendant un échange de données, soit à la suite d'une opération collective. Parmi les opérations de synchronisation les plus utilisées on pourra citer :
 
 \subsubsection{Les Barrières}
 Ce type de  synchronisation est utilisée pour les opérations collectives comme les réductions. Toutes les tâches effectuent leur travail et sont suspendues lorsqu'elles atteignent la barrière. Lorsque la dernière tâche atteint la barrière toutes les tâches sont synchronisées.
 
-\subsubsection{Les Locks et les Sémaphores}
+\subsubsection{Les locks et les sémaphores}
 Les \emph{locks} et les sémaphores servent généralement à protéger l'accès à une variable globale ou à rendre une section de code critique i.e : une seule tâche peut alors exécuter ses instructions durant cette portion de code. Une tâches possède alors l'accès exclusif à la ressource en effectuant un \emph{lock()} et libère la ressource en effectuant un \emph{unlock()}.
 
-\subsection{Dépendances de Données}
+\subsection{Dépendances de données}
 Les dépendances de données sont un des principaux inhibiteurs de la parallélisation. Une dépendance de données existe lorsque l'ordre d'exécution des instructions change le résultat du programme. Le concepteur de l'algorithme parallèle, doit gérer proprement les dépendances de données avec les opérations de synchronisations adéquates. Une modification de l'algorithme peut éliminer ces dépendances et permettre ainsi une parallélisation plus efficace.
 
-\subsection{Equilibrage de Charge}
+\subsection{Equilibrage de charge}
 L'équilibrage de charge ou \emph{load-balancing} est une des problématiques qui se posent lors du développement d'un code parallèle. En effet, une distribution équitable de la charge de travail est nécessaire afin de minimiser les durées d'inactivité des tâches. Lorsque les tâches effectuent le même travail l'équilibrage de charge est facile : il suffit d'attribuer aux tâches les mêmes quantités de données. Si par  contre les tâches exécutent un code différent, un ajustement de la charge de travail est parfois nécessaire.  Il subsiste certains cas où la charge n'est pas prédictible, par exemple lors du calcul de trajectoires de particules. Il faut alors effectuer du \emph{load balancing} dynamique.
 \subsubsection{Granularité}
 La granularité du parallélisme est définie comme étant le ratio calcul/communication. Il existe alors deux formes de granularités.
 \paragraph{Parallélisme à Grain Fin \emph{(Fine-Grain)}}
-Dans ce cas là, le ratio calcul/communication est faible et les opportunités d'optimisation. L'équilibrage de charge est alors simplifié puisque les  tâches passent la majorité du temps en communications et pas en calcul.\paragraph{Parallélisme à Grain Moyen \emph{(Coarse-Grain)}}
+Dans ce cas là, le ratio calcul/communication est faible et les opportunités d'optimisation. L'équilibrage de charge est alors simplifié puisque les  tâches passent la majorité du temps en communications et pas en calcul.\paragraph{Parallélisme à grain moyen \emph{(coarse-grain)}}
 Contrairement au parallélisme à grain fin le ratio calcul/communication est important. Les opportunités de gain de performance sont alors importantes car le calcul est prépondérant dans l'application. Ce type de granularité est idéal pour les architectures possédant plusieurs unités de traitement et limitées par la bande-passante mémoire. Par contre, l'équilibrage de charge n'est pas facile dans ce cas là.
 \paragraph{Choix de la Granularité}
 Le choix de la granularité dépend de l'architecture et de l'algorithme à la fois. Le parallélisme Grain-Fin peut réduire le coût dû au déséquilibre de charge.
 
-\subsection{Limites et Coût de la Parallélisation}
+\subsection{Limites et coût de la parallélisation}
 \subsubsection{Loi d'Amdhal}
 \begin{figure}[!htb]
 	\centering
@@ -202,12 +202,12 @@ Les efforts de normalisation contribuent à la portabilité du code source entre a
 
 Au vu des contraintes citées auparavant, l'objectif de nos travaux est à la fois d'établir des méthodes génériques d'optimisation de code sur architectures parallèles, et de proposer un modèle de programmation sous forme de bibliothèque logicielle pour l'aide à la parallélisation de code. Nos travaux se limitent au traitement d'images bas-niveaux mais peuvent aisément s'étendre à d'autres domaines ayant des structures de données et des algorithmes similaires. Le manuscrit relatant ces travaux est organisé comme suit:
 \begin{itemize}
-\item \textbf{Chapitre 1, Architecture du processeur Cell et environnement de développement}. Nous présentons dans ce chapitre une vue d'ensemble de l'architecture principale étudiée lors de nos travaux : le Cell Broadband Engine. Les principaux composants y sont décrits ainsi que les différents niveaux de parallélisme de l'architecture. L'environnement de développement de base fourni par IBM est également décrits avec une vue globale de l'API et des contraintes de programmation spécifiques à l'architetcure du Cell. 
-\item \textbf{Chapitre 2, Outils de programmation tierces}. Un inventaire non-exaustif des outils de programmation développés à la fois par les laboratoires de recherches, ainsi que des outils industriels sont présentés. Les modèles de programmation associés aux outils y sont présentés. Le but de cette analyse est également de comparer les approches pour en extraire les avantages et les incovénients pour l'aide au portage de code sur l'architecture du processeur Cell.
+\item \textbf{Chapitre 1, Architecture du processeur Cell et environnement de développement}. Nous présentons dans ce chapitre une vue d'ensemble de l'architecture principale étudiée lors de nos travaux : le Cell Broadband Engine. Les principaux composants y sont décrits ainsi que les différents niveaux de parallélisme de l'architecture. L'environnement de développement de base fourni par IBM est également décrit avec une vue globale de l'API et des contraintes de programmation spécifiques à l'architetcure du Cell. 
+\item \textbf{Chapitre 2, Outils de programmation tierces}. Un inventaire non-exaustif des outils de programmation développés à la fois dans le milieu académique et industriel sont présentés. Les modèles de programmation associés aux outils sont étudiés. Le but de cette analyse est également de comparer les approches pour en extraire les avantages et les incovénients en ce qui concerne l'aide à la parallélisation de code sur l'architecture du processeur Cell.
 \item \textbf{Chapitre 3, Squelettes algorithmiques pour le Cell}. Nous présentons dans ce chapitre, la bibliothèque \texttt{SKELL\_BE} à base de squelettes algorithmiques. Cet outil de développement issu d'un travail collaboratif propose un générateur de code parallèle ayant pour entrée une description haut-niveau de l'application. Cette bibliothèque reprend des schémas de parallélisation communs qui servent de composants de base pour la construction d'une application plus complexe. Une analyse du surcoût de mise en oeuvre ainsi que des performances obtenues à l'aide du modèle sont également présentées.  
-\item Chapitre 4
-\item Chapitre 5
-\item Chapitre 6
+\item \textbf{Chapitre 4, Parallélisation de la détection de coins d'Harris}. Nous présentons une étude approfondie de l'algorithme de détection de point d'interêts de Harris. Cet algorithme représentatif des applications de traitement d'images bas-nous a servi de cas d'études pour l'analyse de schémas de parallélisation et de techniques d'optimisation sur notre architecture cible. Plusieurs paramêtres algorithmiques et architectureaux sont ainsi étudiés afin de déterminer la méthodologie de portage d'application sur le processeur Cell. Le but de ces travaux est à la fois de permettre au développeur de tirer partie des dispositifs de l'architecture le mieux possible et de permettre aux concepteurs de compilateurs et d'outils de parallélisation d'avoir u socle sur lequel il puissent se reposer pour développer des processus automatiques d'optimisation.
+\item \textbf{Chapitre 5, Comparaison avec les autres architectures parallèles}. Nous proposons une étude comparatives des architectures parallèle émergentes concurrentes du processeur Cell. L'algorithme de référence est celui étudié dans le chapitre précedent . Le architectures du type SMP multi-coeurs et les architectures du type GPU sont abordées. Plusieurs critères sont mis en avant pour la comparaison, la programmabilité, les performances pures, ainsi que l'efficacité energétique.
+\item \textbf{Chapitre 6, Conclusion générale et perspectives}  Nous résumons les apports de nos travaux dans ce chapitre et donnons  les perspectives des outils développés ainsi que les évolutions dans le domaine de la parallélisation de code connues à ce jour.
 \end{itemize}
 %Le traitement d'images est une discipline du traitement du signal dont l'entrée est une image. Les techniques de traitement du signal sont appliquées à un signal de 2 dimensions pour donner en sortie soit une image, soit une certaine caractéristique de l'image. Dans notre cas on s'intéresse au traitement d'images de bas niveau, ou les opérateurs sont souvent des opérateurs point-à-point ou des noyaux de convolution. Ce type de calcul est bien adapté aux machines parallèles car il n'y a généralement pas de dépendances de données et les algorithmes de bas-niveau sont majoritairement des opérations de calcul pur. Toutefois, pour des applications de moyen-niveau, par exemple la segmentation, il existe une forte dépendance de données et les algorithmes sont souvent des imbrications de structures conditions. Ceci rend la tâche de parallélisation pour ce types d'algorithmes fastidieuse, et les accélérations sont souvent médiocres en comparaison avec l'effort fourni pour l'adaptation de l'algorithme série. La conception d'une version parallèle d'un algorithme devient une tâche fastidieuse et qui dépend de plusieurs facteurs. Il est alors important d'accorder de l'importance à plusieurs aspects déterminants pour la performance.
 %\subsection{Le Partitionnement}

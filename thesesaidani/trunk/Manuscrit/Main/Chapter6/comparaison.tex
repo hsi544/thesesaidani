@@ -1,6 +1,6 @@
 Dans cette section, on se propose de comparer l'implementation du même algorithme de détéction de points d'interéts de Harris sur d'autres architectures parallèles émergentes utilisant éventuellement d'autres modèles de programmations que le processeur Cell. Les architectures considérées dans cette étude sont des architectures du type SMP à mémoire partagée (Intel et PowerPC) ainsi que les cartes graphiques Nvidia et leur langage de programmation CUDA (\emph{Compute Unified Device Architecture}).
 
-\section{Les Processeurs Multi-Coeurs}
+\section{Les Processeurs multi-coeurs}
 Ce type de processeurs constitue aujourd'hui le \emph{main stream} en terme de conception d'architectures parallèles et est à  la fois le plus disséminé dans les machines grand public. Le parallélisme y est présent à  plusieurs niveaux car ces architectures reprennent les concepts des architectures classiques mono-coeurs et dupliquent les coeurs afin d'obtenir un niveau de parallélisme supérieur. La mémoire y est généralement partagée et la hiérarchie mémoire et basée sur plusieurs niveaux de caches communs ou pas. Les modèles et outils de programmation utilisés pour tirer profit du parallélisme de ces architectures sont les librairies de \emph{threads} \emph{Pthread} ainsi que les directives de compilation \emph{OpenMP}. En ce qui concerne les optimisations bas-niveau comme celles au niveau des instructions ou certaines optimisations SIMD, elles sont généralement bien gérés par les compilateurs modernes.
 
 \section{Les GPU Nvidia et CUDA}
@@ -13,7 +13,7 @@ CUDA (\emph{Compute Unified Device Architecture}) de Nvidia est sans doute la pl
 \item Une \emph{API Driver} permettant un contrôle plus fin de l'application mais aux prix d'une programmation plus verbeuse que celle de l'API de \emph{Runtime}.
 \end{itemize}
 
-\section{Comparaison des Architectures Matérielles}
+\section{Comparaison des architectures matérielles}
 Au delà des performances intrinsèques sur un algorithme donné, obtenues sur une architecture donnée, il nous ai paru important de comparer dans un premier temps les architectures utilisées lors de la comparaison de l'algorithme de Harris sur les différentes plate-formes parallèles émergente. Cette comparaison peut se faire sous différents critères mais les plus pertinents pour l'exploitation efficace du parallélisme sont les formes de parallélisme et la hiérarchie mémoire. Le tableaux \ref{compare_archi} contient cette comparaison.
 Au vu des comparaisons contenues dans le tableau, il est important de noter que les architectures même si elles possèdent plusieurs points communs, diffèrent par leur leur nature. Ainsi, les processeurs multi-core sont des machines complexes, capables de gérer un ou plusieurs systèmes d'exploitation en plus de tâches purement calculatoires, ceci explique leur architecture complexe qui permet d'avoir une généricité dans les tâches exécutées. Les GPU à l'opposé, ont été conçue initialement pour exécuter des tâches de rendu graphique 3D, leurs architectures sont intimement liées à ce domaine d'application et sont ainsi non-adaptées à d'autres types d'applications  que celles massivement parallèle ne contenant pas de flot de contrôle complexe, elle ne peuvent fonctionner qu'avec la présence d'un processeur du type CPU. Le \emph{Cell} enfin, est une architecture hétérogène qui tient plus des processeurs présents dans l'embarqué que des architectures \emph{HPC} classiques. En effet, celui-ci a été conçu à l'image d'un DSP capable d'exécuter une quantité de calcul flottants en simple et double précision tout en ayant l'avantage des systèmes embarqués temps réels au niveau de la garantie d'un temps d'exécution predictible. Dans le domaine du traitement d'images la majorité des applications sont {Data Parallel} ce qui donne un avantage certain aux architectures GPU en terme d'adéquation avec les algorithmes, par contre certains facteurs comme les fréquences d'horloges ainsi que les contraintes des bus de transferts mémoire qui sont critiques dans notre domaine d'application, rétablissent un équilibre avec les autres types d'architectures. Les travaux qui sont exposés dans ce qui suit on fait l'objet de deux publications dans \cite{gretsi_09} et \cite{tsi_2010}.
 \begin{table}
@@ -40,7 +40,7 @@ Au vu des comparaisons contenues dans le tableau, il est important de noter que 
 \label{compare_archi}
 \end{table}
 
-\section{Comparaison des Modèles de Programmation}
+\section{Comparaison des modèles de programmation}
 Les modèles de programmation représentent l'interface entre le développeur et l'architecture matérielle qui lui permet d'exploiter pleinement les dispositifs de celle-ci. A ce titre, la comparaison de ces modèles de programmation entre les différentes plate-formes parallèles nous ai paru nécessaire. Il est évident que la comparaison ne peut pas permettre de dégager une architecture, ou un modèle de programmation idéaux, mais plutôt une adéquation entre un modèle et une architecture donnée ou encore une adéquation entre ce couple et un domaine d'applications, dans notre cas le traitement d'images.
 
 \begin{table}
@@ -144,7 +144,7 @@ Les modèles de programmation représentent l'interface entre le développeur et l'
  \textbf{Gestion de la mémoire} & Explicite (à la main par le programmeur) \\
 \hline
 \end{tabular}
-\caption{CUDA et les Architectures Nvidia}
+\caption{CUDA et les architectures Nvidia}
 \label{compare_models03}
 \end{table}
 
@@ -160,7 +160,7 @@ OpenMP est une infrastructure basée sur des directives de compilation et une API
 \subsubsection{CUDA}
  La programmation parallèle avec le langage CUDA sur les GPU est globalement accessible aux développeurs C/C++. La mise en oeuvre du code parallèle requièrt une modification du code original pour coller au modèle de programmation CUDA. Selon le finesse de contrôle souhaitée, la programmation est plus ou moins complexe. L'API de \emph{Runtime} est plus haute en niveau d'abstraction que l'API Driver. La première est accessible aisément au programmeur et permet une mise ne oeuvre rapide. La seconde API plus bas niveau permet un contrôle plus fin de l'application au prix d'une programmation plus bas-niveau et donc plus complexe.
  
-\section{Architectures Matérielles et Environnement de Développement}
+\section{Architectures matérielles et environnement de développement}
 Les architectures qui ont servi pour les \emph{benchmarks} sont listées ci-dessous (Tab. \ref{archi_list}). Le panel comporte à la fois des processeurs du type multi-coeurs PowerPC et Intel, une gamme de GPU Nvidia avec les famille d'architecture G80 et GT200. Enfin l'architecture hétérogène du Cell est également comparée. L'architecture PowerPC G4 avec un seul coeur est également présentée en tant que référence de la version séquentielle la plus performante.
 \begin{table}
 \begin{tabular}{|c|c|c|c|c|c|c|}
@@ -201,7 +201,7 @@ GeForce             & FX 4600        & 112 & 65  & 1.400 & -  & 155\\
 \end{table}
 
 
-\section{Mesure de Performance Temporelle}
+\section{Mesure de performance temporelle}
 L'évaluation des performances s'est faite sur les tailles d'images allant de $128\times128$ jusqu'à $2048\times2048$. Les résultats sont donnés en $cpp$ ($cpp=\frac{temps*Frequence}{taille^ {2}}$). Les versions implémentées sont celles présentées auparavant dans la section \ref{parallel_schemes}.\\
 Ce que l'on peut observer à partir des résultats dans le tableau \ref{compare_perf_arch} en premier lieu, c'est que les transformations visant à optimiser la bande passante mémoire sont applicables à toutes les architectures ciblées pour le benchmark. Cela signifie que les transformations en questions sont à un niveau d'abstraction suffisant pour pouvoir être appliquées à tout type d'architectures. On peut noter également une accélération super-linéaire sur la version \emph{Planar} sur le \textbf{Intel X3370} du au fait qu'une pression particulière est exercée sur la mémoire cache dans cette version, ce qui dégrade sensiblement la version mono-core. L'autre observation importante est celle concernant l'efficacité. En effet, l'architecture du processeur Cell reste la plus scalable, c'est celle ou l'accélération pour $p$ cores  est la plus proche de la valeur maximale théorique.
 Ce qui est notable également, c'est que le GPU reste très loin en performance des architectures CPU ou du Cell, car malgré les centaines de \emph{stream processors} la meilleure version reste loin des meilleures versions sur le Cell ou les multi-core, exception faite de l'architecture de l'architecture GTX285 de seconde génération (GT200) qui contient 240 \emph{stream processors} et ou les contraintes d'alignement de la mémoire (\emph{memory coalescing}) et beaucoup plus souple que sur les architectures CUDA de première génération (G80).
@@ -254,11 +254,11 @@ Quadro FX4600 & scalaire & & 5.9 & & 4.3 & x1.4 & 0.81 \\
 \rowcolor {light-gray}GeForce GTX285 & scalaire & & 2.2 & & 1.5 & x1.5 & 0.26 \\
 \hline
 \end{tabular}
- \caption{Comparaison des Implémentations de l'algorithme de Harris sur les Architectures Parallèles}
+ \caption{Comparaison des implémentations de l'algorithme de Harris sur les architectures parallèles}
  \label{compare_perf_arch}
 \end{table}
 
-\section{Mesure d'Efficacité Energétique}
+\section{Mesure d'efficacité energétique}
  Le second benchmark consiste à estimer l'énergie consommée ($E = t \times P$) en se basant sur les TDP (\emph{Thermal Design Power}) annoncés par les constructeurs. Les résultats sont intéressants et paradoxaux. Si c'est effectivement un processeur de la gamme pour mobile qui est le plus efficace (Penryn T9600), ce n'est pas celui qui consomme le moins (Penryn U9300). Ce dernier, avec un TDP de 10 W, fait jeu égal avec l'octo-processeur Yorkfield et un TDP de 190 W. La seconde meilleure performance revient au Cell. La performance du Cell vis-à-vis des processeurs généralistes (Intel, AMD et IBM) avait déjà été observée lors de précédents congrès Super Computing/Top500 avec l'apparition d'un classement de Green Computing : pour les grands besoins en puissance de calcul, le Cell est le modèle de calcul le plus efficace énèrgétiquement : les machines Roadrunner, composés de Cell, de GPP et de GPU sont actuellement parmi les plus efficaces (en MFlops/Watt).\\
 Concernant les GPU, ils arrivent tous en fin de classement, même si, seul le $cpp$ de calcul est pris en compte. Le plus efficace étant paradoxalement celui qui consomme le plus (GTX 285).\\
 Il est intéressant d'observer l'efficacité énergétique de ces machines pour des images plus petites : 300x300. Dans ce cas, toutes les machines sont surdimensionnées : le bi-Yorkfield affichant une cadence de traitement de 26 315 images/sec et le "petit" Penryn U9300 une cadence de 2 777 images/sec. L'ordre de performance est maintenant respecté : le U9300 est le plus efficace et le Cell se positionne devant les processeurs octo-coeurs.\\
