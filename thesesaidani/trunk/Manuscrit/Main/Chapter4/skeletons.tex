@@ -8,7 +8,7 @@ Dans un environnement de programmation declarative, comme dans les langages fonc
 \section{Modèle de programmation}
 \begin{figure}[!htb]
 	\centering
-  \includegraphics[width= 0.8\columnwidth]{Chapter2/figures/skeleton_example}
+  \includegraphics[width= 0.8\columnwidth]{Chapter4/figures/skeleton_example}
 	\caption{Exemple de graphe de processus communicants avec hiérarchisation}
 	\label{skelexple}
 \end{figure}
@@ -17,27 +17,27 @@ Dans le modèle de programmation parallèle par squelettes algorithmiques, une app
 \item Le système d'équilibrage de charge \textbf{(A)} qui utilise $k$ processeurs qui traite les données fournies par le processus \emph{Distrib}, ces dernières étant regroupées par le processus \emph{Collect}. Il faudra noter que le flux alimente le processeurs de manière dynamique dès qu'il trouve un processus libre.
 \item Le mécanisme de contrôle \textbf{(A)} qui permet de séquencer les traitement dans l'ordre donnée par le graphe. Ce mécanisme assure que les données, une fois traitées (fonction $F_{i}$) par le processeur $P_{i}$, sont transmises au processus $P_{i+1}$. On pourra noter que le schéma d'exécution dans ce cas là est du type \emph{pipeline}.
 \end{itemize}
-Le modèle de programmation parallèle par squelettes algorithmiques repose sur l'extraction de tels schémas récurrents. Un squelette est ainsi défini comme étant un schéma générique paramétré par une liste de fonctions qu'il est possible d'instancier et de composer. Fonctionnellement, les squelettes algorithmiques sont des \textbf{fonctions d'ordre supérieur}, c'est à dire des fonctions prenant une ou plusieurs fonctions comme arguments et retournant une fonction comme résultat. La programmation par squelettes devient permet au programmeur d'utiliser un modèle haut-niveau pour décrire son application, sans se soucier de certains détails complexes comme l'ordonnancement ou le placement. Il peut alors définir une application parallèle comme suit:
+Le modèle de programmation parallèle par squelettes algorithmiques repose sur l'extraction de tels schémas récurrents. Un squelette est ainsi défini comme étant un schéma générique paramétré par une liste de fonctions qu'il est possible d'instancier et de composer. Fonctionnellement, les squelettes algorithmiques sont des \textbf{fonctions d'ordre supérieur}, c'est à dire des fonctions prenant une ou plusieurs fonctions comme arguments et retournant une fonction comme résultat. La programmation par squelettes permet au programmeur d'utiliser un modèle haut-niveau pour décrire son application, sans se soucier de certains détails complexes comme l'ordonnancement ou le placement. Il peut alors définir une application parallèle comme suit:
 \begin{itemize}
 \item Instancier des squelettes en spécifiant les fonctions qui les définissent.
 \item Exprimer la composition des ces squelettes.
 \end{itemize}
-L’expression de la compositions peut se faire en encodant cette dernière sous la forme d’un \textbf{arbre}(\ref{fig_tree}) dont les noeuds représentent les squelettes utilisés et les feuilles, les fonctions séquentielles passées en paramètres à ces squelettes.
+L'expression de la compositions peut se faire en encodant cette dernière sous la forme d'un \textbf{arbre}(Fig. \ref{fig_tree}) dont les noeuds représentent les squelettes utilisés et les feuilles, les fonctions séquentielles passées en paramètres à ces squelettes.
 \begin{figure}[!htb]
 	\centering
-  \includegraphics[width= 0.7\columnwidth]{Chapter2/figures/fig_tree}
+  \includegraphics[width= 0.7\columnwidth]{Chapter4/figures/fig_tree}
 	\caption{Arbre représentant le squelette en Figure \ref{skelexple}}
 	\label{fig_tree}
 \end{figure}
-Dans la figure \ref{fig_tree}, le squelette \textbf{Pipeline} décrit le schéma générique correspondant à la section \textbf{B} du graphe de processus communiquant initial. Le squelette \textbf{Farm} représente quant à lui la partie \textbf{A} de ce même schéma. Les fonctions $F_{i}$ apparaissent aux feuilles de l'arbre, c'est à dire en argument des squelettes. On note aussi que les fonctions \textbf{Distrib} et Collect n'apparaissent plus explicitement, car elles font partie intégrante du squelette \textbf{Farm}. Cette représentation met en avant un des aspects les plus importants de l'approche
-à base de squelettes algorithmiques : à partir d'un nombre restreint de squelettes (classiquement moins d'une dizaine), il est possible de définir des applications complexes. Ceci suppose toutefois que l'on ait formalisé le type d'application que l'on va chercher à paralléliser, de définir précisément le jeu de squelettes que l'on désire mettre à disposition du développeur et de spécifier leurs sémantiques fonctionnelles et opérationnelles. Il existe plusieurs classifications des squelettes. Toutefois, on peut les répartir en trois groupes : les squelettes dédiés au parallélisme de contrôle, les squelettes dédiés au parallélisme de données et les squelettes dédiés à la structuration séquentielle de l’application.
+Dans la figure \ref{fig_tree}, le squelette \textbf{Pipeline} décrit le schéma générique correspondant à la section \textbf{B} du graphe de processus communiquant initial. Le squelette \textbf{Farm} représente quant à lui la partie \textbf{A} de ce même schéma. Les fonctions $F_{i}$ apparaissent aux feuilles de l'arbre, c'est à dire en argument des squelettes. On note aussi que les fonctions \textbf{Distrib} et \textbf{Collect} n'apparaissent plus explicitement, car elles font partie intégrante du squelette \textbf{Farm}. Cette représentation met en avant un des aspects les plus importants de l'approche
+à base de squelettes algorithmiques : à partir d'un nombre restreint de squelettes (classiquement moins d'une dizaine), il est possible de définir des applications complexes. Ceci suppose toutefois que l'on ait formalisé le type d'application que l'on va chercher à paralléliser, de définir précisément le jeu de squelettes que l'on désire mettre à disposition du développeur et de spécifier leurs sémantiques fonctionnelles et opérationnelles. Il existe plusieurs classifications des squelettes. Toutefois, on peut les répartir en trois groupes : les squelettes dédiés au parallélisme de contrôle, les squelettes dédiés au parallélisme de données et les squelettes dédiés à la structuration séquentielle de l'application.
 \subsection{Squelettes dédiés au parallélisme de contrôle}
 %pardo,pipe,seq et chain
 \subsubsection{Le squelette \emph{pipeline}}
-Ce squelette couvre les situations dans laquelle une liste de fonction qui doivent s'exécuter en série, est répartie sur un ensemble de processeurs différents. En régime permanent l'exécution de la fonction $F_{i}$ sur les données $D_{i+1}$ se fait alors en parallèle avec celle de la fonction $F_{i+1}$ sur les données $D_{i}$. La figure \ref{skell-pipe} illustre ce fonctionnement en régime permanent.
+Ce squelette couvre les situations dans lesquelles une liste de fonctions qui doivent s'exécuter en série, sont réparties sur un ensemble de processeurs différents. En régime permanent l'exécution de la fonction $F_{i}$ sur les données $D_{i+1}$ se fait alors en parallèle avec celle de la fonction $F_{i+1}$ sur les données $D_{i}$. La figure \ref{skell-pipe} illustre ce fonctionnement en régime permanent.
 \begin{figure}[!htb]
 	\centering
-  \includegraphics[width= \columnwidth]{Chapter2/figures/skell-pipe}
+  \includegraphics[width= \columnwidth]{Chapter4/figures/skell-pipe}
 	\caption{Exemple de squelette du type \textbf{Pipeline}}
 	\label{skell-pipe}
 \end{figure}
@@ -45,7 +45,7 @@ Le parallélisme résulte du fait que l'évaluation des différents fonctions du \te
 \subsubsection{Le squelette \emph{pardo}}
 \begin{figure}[!htb]
 	\centering
-  \includegraphics[width= 0.2\columnwidth]{Chapter2/figures/skell-pardo}
+  \includegraphics[width= 0.2\columnwidth]{Chapter4/figures/skell-pardo}
 	\caption{Exemple de squelette du type \textbf{Pardo}}
 	\label{skell-pardo}
 \end{figure}
@@ -73,7 +73,7 @@ escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
 caption = Exemple d'un appel à un kernel PPE dans \texttt{SKELL\_BE},
 label = skellbe01
 }
-\lstinputlisting{Chapter2/Code/ppekernel.c}
+\lstinputlisting{Chapter4/Code/ppekernel.c}
 %===================================================================================
 Un \emph{kernel} est défini par la macro \texttt{SKELL\_KERNEL} comme un prototype de fonction dans lequel les arguments passés par référence sont considérés comme des sorties du \emph{kernel}, alors que les arguments passées par valeur ou par référence contante sont les entrées su \emph{kernel}. La ligne 9 du listing \ref{skellbe01} montre un exemple d'appel de \emph{kernel} au \emph{\emph{runtime}}, l'initialisation du processeur Cell qui est effectuée par un appel à \texttt{skell:environment} démarre un groupe de \emph{\emph{threads}} SPE et les mets en attente d'un appel à un \emph{kernel} ce qui réduit le surcoût de création de \emph{\emph{threads}} à chaque fois. La terminaison des \emph{\emph{threads}} est effectuée de la même manière à la fin de la portée de la fonction \emph{main}.\\
 \indent Du point de vue des SPEs, chacun d'eux est un neoud de \emph{cluster} qui supporte la communication point-à-point. Les applications sont conçus à base d'une  composition de squelettes instanciées avec des fonctions définies par l'utilisateur qui considèrent la mémoire centrale comme un mémoire distante à partir de laquelle peuvent être lues ou écrite de manière asynchrone au travers des commandes DMA de la librairie standard ou à des fonctions fournies par \texttt{SKELl\_BE} \ref{skellbe02}.
@@ -96,7 +96,7 @@ escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
 caption = Exemple de définition d'un kernel SPE dans \texttt{SKELL\_BE},
 label = skellbe02
 }
-\lstinputlisting{Chapter2/Code/spekernel.c}
+\lstinputlisting{Chapter4/Code/spekernel.c}
 %======================Conclusion Générale ==================================
 Ce dernier code source illustre plusieurs aspects :
 \begin{itemize}
@@ -184,7 +184,7 @@ escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
 caption = L'opérateur \texttt{pipe},
 label = pipecode
 }
-\lstinputlisting{Chapter2/Code/pipecode.c}
+\lstinputlisting{Chapter4/Code/pipecode.c}
 Le type \emph{template} est désormais utilisable avec nos méta-fonctions. Celles-ci se chargent de la génération de structures représentants un réseau de \emph{process}. La fonction \texttt{run} appelle une méta-function qui parse le \emph{template} AST et génère l'instatiation du type \texttt{process\_network} adéquat. La règle de sémantique appropriée est appliquée sur chaque squelette rencontré dans l'AST en utilisant la spécialisation partielle des \emph{templates} comme mécanisme de \emph{pattern matching}. Une fois défini, ce réseau est transformé en code en itérant sur ses noeuds et en générant une séquence de fragments de codes SPMD dans lesquelles la liste d'instructions du \emph{process} est exécutée. Ceci est réalisé en construisant un tuple d'objets fonction qui contient le code d'opérations de base qui sont instantiées une fois par SPE. Par exemple, considérons l'expression squelette suivante qui construit un \emph{pipeline} simple à trois étages :
 \begin{center}
 \texttt{run( seq(A) | seq(B) | seq(C) );}
@@ -208,7 +208,7 @@ escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
 caption = La structure d'un squelette connue à la compilation,
 label = skellast
 }
-\lstinputlisting{Chapter2/Code/skellast.c}
+\lstinputlisting{Chapter4/Code/skellast.c}
 La structure de cet objet temporaire est désormais claire. Les appels successifs à l'opérateur \emph{pipeline} sont clairement visibles et les objets fonctions terminaux apparaissent explicitement. Pour des raisons de performance, on utilise le fait que l'adresse d'une fonction est une constante valide connue à la compilation que l'on peut stocker directement comme paramètre \emph{template}. Le type est ainsi converti en une représentation sous forme de réseau de \emph{process}. Le résultat est le type suivant:
 %===============================ListingASTSKELL =======================================
 \lstset{ %
@@ -228,7 +228,7 @@ escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
 caption =Représentation sous forme de réseau \emph{process},
 label = processnetwork
 }
-\lstinputlisting{Chapter2/Code/processnetwork.c}
+\lstinputlisting{Chapter4/Code/processnetwork.c}
 Le type \emph{template} \texttt{network} contient toutes les informations qui décrivent le réseau de \emph{process} série communicants construit à partir des squelettes, notamment : le PID du premier noeud du réseau, e PID du dernier noeud du réseau et une liste de \emph{process}. Dans le même esprit, la structure \emph{template} \texttt{process} contient des informations dont son propre PID et un descripteur de code. Ce descripteur contient les PID des \emph{process} prédécesseur et successeur et ainsi qu'une liste de macro-instructions qui sont construites à partir de la sémantique du squelette.\\
 \indent La dernière étape est l'itération sur ces types et l'instantiation du code SPMD adéquat. Le listing \ref{finalcode} illustre le code final ainsi généré.
 %===============================Listing FinalCode =======================================
@@ -249,7 +249,7 @@ escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
 caption = Code source génére,
 label = finalcode
 }
-\lstinputlisting{Chapter2/Code/finalcode.c}
+\lstinputlisting{Chapter4/Code/finalcode.c}
 
 La structure SPMD des instructions \texttt{if} chaînées montrent la nature itérative du générateur de code. Chacun des ces blocs effectue les même opérations. En premier lieu, les types de entrées/sorties sont récupérées de l'analyse du type de fonction. Ces types sont ensuite instanciés sous forme d'un tuple. Le code du du \emph{process} est ensuite exécuté dans une boucle qui se met dans une boucle en attente d'un signal de terminaison. Dans cette boucle, chacune des macro-instructions qui apparaissent dans la description du type  réseau de \emph{process} génère un appel concret à soit un transfert DMA ou à un proxy d'appels de fonctions qui extraie les données d'un tuple, alimente une fonction définie par l'utilisateur et retourne un tuple de résultats. Une grande partie de ce processus est facilité par les librairies Boost telles que Proto qui gère la génération des règles de sémantique méta-programmées et Fusion qui gère la transition entre les comportement à la compilation et au \emph{\emph{runtime}} \cite{falcouboost}.\\
 \indent Le processus de génération permet de mieux comprendre pourquoi \texttt{SKELL\_BE} est plus performant que d'autre solution à base de C++. Dans le code généré, toutes les fonctions et le code dépendant des squelettes sont résolues statiquement. Tous les types de données sont concrets et tous les appels de fonctions sont directs. Il n'y a pas donc pas de polymorphisme au \emph{\emph{runtime}} et le compilateur est capable d'\emph{inliner}  plus de code et d'effectuer plus d'optimisation.
@@ -288,7 +288,7 @@ escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
 caption = Code source génére,
 label = transstruct
 }
-\lstinputlisting{Chapter2/Code/transstruct.c}
+\lstinputlisting{Chapter4/Code/transstruct.c}
 
 La fonction suivante est ensuite générée pour la remplire : 
 %===============================Listing transfill =======================================
@@ -309,7 +309,7 @@ escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
 caption = Code source génére,
 label = transfill
 }
-\lstinputlisting{Chapter2/Code/transfill.c}
+\lstinputlisting{Chapter4/Code/transfill.c}
 
 Du côté du SPE, les objets \texttt{argN} fournissent un opérateur de cast \emph{template} implicite qui récupère les valeurs du $N^{ième}$ élément du tuple au travers d'une commande DMA, ainsi qu'un opérateur d'affectation qui transfert une valeur à la données correspondante dans l'espace d'adressage du PPE. La déduction automatique des arguments \emph{template} permet une syntaxe à la fois compacte et intuitive de telle sorte à ce que le compilateur puisse appeler la bonne primitive de transfert DMA en se basant sur l'index des arguments et le type de la valeur.
 
@@ -406,7 +406,7 @@ escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
 caption = Les \emph{kernels SPE des implémentations de l'opérateur de Harris},
 label = harrisskell
 }
-\lstinputlisting{Chapter2/Code/harrisskell.c}
+\lstinputlisting{Chapter4/Code/harrisskell.c}
 
 On compare les différentes versions en terme de nombre de cycles par pixel avec des implémentations manuelles de l'algorithme sur des images $512 \times 512$ (Tableau \ref{tabharrisskell}). L'\emph{overhead} est également de 5\% ce qui valide notre approche car le compromis \emph{overhead} rapidité de mise en oeuvre est très bon. 
 \begin{table}[htb]
