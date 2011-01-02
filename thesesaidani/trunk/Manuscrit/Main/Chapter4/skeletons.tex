@@ -5,7 +5,7 @@ La programmation parallèle structurée qu'on appelle programmation par squelettes
 La composition des squelettes peut se faire d'une manière non-hiérarchique en mettant en séquence les différents blocs en en utilisant des variables temporaires pour sauvegarder les résultats intermédiaires, ou alors de manière hiérarchique en imbriquant les fonctions squelette et ce en construisant une fonction composée dans laquelle le code de plusieurs squelettes est passé en paramètre d'un autre squelette. Ceci présente une manière élégante d'exprimer le parallélisme multi-niveau.\\
 Dans un environnement de programmation declarative, comme dans les langages fonctionnels ou alors dans la programmation par squelettes, la composition hiérarchique procure au générateur de code plus de liberté de choix pour les transformations automatiques et l'utilisation efficace des ressources, comme par exemple le nombre de processeurs utilisé en parallèle dans un niveau particulier de la hiérarchie. les squelettes ne pouvant pas être imbriqués  sont généralement implémentées avec juste une librairie générique alors que les squelettes imbriqués requièrent un pré-traitement qui déroule la hiérarchie du squelette en utilisant par exemple les templates C++ ou les macros de preprocesseur en C.
 %pardo,pipe,seq et chain
-\section{Modèle de programmation}
+\section{Programmation parallèle par squelettes algorithmiques}
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= 0.8\columnwidth]{Chapter4/figures/skeleton_example}
@@ -29,30 +29,61 @@ L'expression de la compositions peut se faire en encodant cette dernière sous la
 	\caption{Arbre représentant le squelette en Figure \ref{skelexple}}
 	\label{fig_tree}
 \end{figure}
-Dans la figure \ref{fig_tree}, le squelette \textbf{Pipeline} décrit le schéma générique correspondant à la section \textbf{B} du graphe de processus communiquant initial. Le squelette \textbf{Farm} représente quant à lui la partie \textbf{A} de ce même schéma. Les fonctions $F_{i}$ apparaissent aux feuilles de l'arbre, c'est à dire en argument des squelettes. On note aussi que les fonctions \textbf{Distrib} et \textbf{Collect} n'apparaissent plus explicitement, car elles font partie intégrante du squelette \textbf{Farm}. Cette représentation met en avant un des aspects les plus importants de l'approche
-à base de squelettes algorithmiques : à partir d'un nombre restreint de squelettes (classiquement moins d'une dizaine), il est possible de définir des applications complexes. Ceci suppose toutefois que l'on ait formalisé le type d'application que l'on va chercher à paralléliser, de définir précisément le jeu de squelettes que l'on désire mettre à disposition du développeur et de spécifier leurs sémantiques fonctionnelles et opérationnelles. Il existe plusieurs classifications des squelettes. Toutefois, on peut les répartir en trois groupes : les squelettes dédiés au parallélisme de contrôle, les squelettes dédiés au parallélisme de données et les squelettes dédiés à la structuration séquentielle de l'application.
-\subsection{Squelettes dédiés au parallélisme de contrôle}
-%pardo,pipe,seq et chain
-\subsubsection{Le squelette \emph{pipeline}}
-Ce squelette couvre les situations dans lesquelles une liste de fonctions qui doivent s'exécuter en série, sont réparties sur un ensemble de processeurs différents. En régime permanent l'exécution de la fonction $F_{i}$ sur les données $D_{i+1}$ se fait alors en parallèle avec celle de la fonction $F_{i+1}$ sur les données $D_{i}$. La figure \ref{skell-pipe} illustre ce fonctionnement en régime permanent.
+Dans la figure \ref{fig_tree}, le squelette \textbf{Pipeline} décrit le schéma générique correspondant à la section \textbf{B} du graphe de processus communiquant initial. Le squelette \textbf{Farm} représente quant à lui la partie \textbf{A} de ce même schéma. Les fonctions $F_{i}$ apparaissent aux feuilles de l'arbre, c'est à dire en argument des squelettes. On note aussi que les fonctions \textbf{Distrib} et \textbf{Collect} n'apparaissent plus explicitement, car elles font partie intégrante du squelette \textbf{Farm}. Cette représentation met en avant un des aspects les plus importants de l'approche à base de squelettes algorithmiques : à partir d'un nombre restreint de squelettes (classiquement moins d'une dizaine), il est possible de définir des applications complexes. Ceci suppose toutefois que l'on ait formalisé le type d'application que l'on va chercher à paralléliser, de définir précisément le jeu de squelettes que l'on désire mettre à disposition du développeur et de spécifier leurs sémantiques fonctionnelles et opérationnelles. Il existe plusieurs classifications des squelettes. Toutefois, on peut les répartir en trois groupes : les squelettes dédiés au parallélisme de contrôle, les squelettes dédiés au parallélisme de données et les squelettes dédiés à la structuration séquentielle de l'application.
+
+\section{Squelettes supportés sur le Cell}
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= \columnwidth]{Chapter4/figures/skell-pipe}
 	\caption{Exemple de squelette du type \textbf{Pipeline}}
 	\label{skell-pipe}
 \end{figure}
-Le parallélisme résulte du fait que l'évaluation des différents fonctions du \textbf{Pipeline} sur des éléments différents du flux ($D_{0}$, $D_{1}$ par exemple sur la figure \ref{skell-pipe}) se fait de manière indépendante. Deux grandeurs caractérisent alors le \textbf{Pipeline} : (1)la latence qui est la durée de traitement d'un élément de flux par tous les étages du pipeline, (2) le débit, qui mesure le nombre de résultats fournis par unités de temps et qui est déterminé par l'étage le plus lent du \textbf{Pipeline}.
-\subsubsection{Le squelette \emph{pardo}}
+
+Plusieurs squelettes algorithmiques ont été proposés dans la littérature \cite{skeletons_cole}. Ils couvrent les deux principales formes de parallélisme : données et tâches. Il n'existe pas de liste standard de squelettes mais on note qu'il existe un sous-ensemble récurrent : 
+\begin{itemize}
+\item Le squelette \textbf{SEQ} qui permet d'encapsuler des fonctions définies par l'utilisateur afin de les utiliser comme paramètres de squelettes.
+\item Le squelette \textbf{PIPELINE} qui est équivalent à la composition parallèle de fonctions (Fig. \ref{skell-pipe})
+\item Le squelette \textbf{MAP} permet de modéliser le parallélisme de données régulier dans lequel les données sont partitionnées et envoyées au unités de traitement esclaves. Une fois ces partitions de données traitées elles sont collectées au sein de la même tâche qui les a envoyées.
+\item Le squelette \textbf{FARM} permer de modéliser le parallélisme de données irrégulier et asynchrone basé sur une stratégie d'équilibrage de charge arbitraire.
+\end{itemize}
+
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= 0.2\columnwidth]{Chapter4/figures/skell-pardo}
 	\caption{Exemple de squelette du type \textbf{Pardo}}
 	\label{skell-pardo}
 \end{figure}
-Le squelette \textbf{Pardo} permet de placer de manière \emph{ad hoc} $N$  fonctions sur $N$ processeurs (Fig. \ref{skell-pardo}). Le schéma de communication est alors implicite. Ce type de squelette est fait pour faciliter la mise en oeuvre d'applications qui ne correspondent pas à un squelette bien défini. Le squelette \textbf{Pardo} est notamment utilisé pour rassembler plusieurs fonctions indépendantes opérant sur un flux de données. Le temps d'exécution d'un tel schéma est alors celui de la fonction qui prend le plus de temps à s'exécuter. 
-\section{Squelettes dédiés à la structuration de l'application}
-\subsection{Le squelette \emph{sequence}}
-\subsection{Le squelette \emph{select}}
+
+Les spécificités de l'architecture du Cell induit des choix au niveau de la conception logicielle de l'application parallèle décrits dans \cite{medea07}. Parmi ces schémas de parallélisation on trouve la possibilité de chainer des noyaux de calcul au sein d'un même SPE et de répliquer une séquence de noyaux sur des groupes distincts de SPEs. Ces deux derniers schémas permettent de réaliser les meilleurs performances sur le Cell. Ainsi, nous avons défini un ensemble de squelettes supportés par le Cell : 
+\begin{itemize}
+\item Les squelettes \textbf{SEQ} et \textbf{PIPELINE} définis ci-dessus.
+\item Le squelette \textbf{CHAIN} qui modélise l'appel séquentiel de deux fonctions de traitement au sein du même SPE. 
+\item Le squelette \textbf{PARDO} (Fig. \ref{skell-pardo}) modélise des tâches s'exécutant de manière concurrente sur les SPEs.
+\end{itemize}
+Ce sous-ensemble est assez riche pour supporter plusieurs schémas de parallélisation sans induire des schémas de communication et de synchronisation complexes. 
+
+%\subsection{Squelettes dédiés au parallélisme de contrôle}
+%%pardo,pipe,seq et chain
+%\subsubsection{Le squelette \emph{pipeline}}
+%Ce squelette couvre les situations dans lesquelles une liste de fonctions qui doivent s'exécuter en série, sont réparties sur un ensemble de processeurs différents. En régime permanent l'exécution de la fonction $F_{i}$ sur les données $D_{i+1}$ se fait alors en parallèle avec celle de la fonction $F_{i+1}$ sur les données $D_{i}$. La figure \ref{skell-pipe} illustre ce fonctionnement en régime permanent.
+%\begin{figure}[!htb]
+%	\centering
+%  \includegraphics[width= \columnwidth]{Chapter4/figures/skell-pipe}
+%	\caption{Exemple de squelette du type \textbf{Pipeline}}
+%	\label{skell-pipe}
+%\end{figure}
+%Le parallélisme résulte du fait que l'évaluation des différents fonctions du \textbf{Pipeline} sur des éléments différents du flux ($D_{0}$, $D_{1}$ par exemple sur la figure \ref{skell-pipe}) se fait de manière indépendante. Deux grandeurs caractérisent alors le \textbf{Pipeline} : (1)la latence qui est la durée de traitement d'un élément de flux par tous les étages du pipeline, (2) le débit, qui mesure le nombre de résultats fournis par unités de temps et qui est déterminé par l'étage le plus lent du \textbf{Pipeline}.
+%\subsubsection{Le squelette \emph{pardo}}
+%\begin{figure}[!htb]
+%	\centering
+%  \includegraphics[width= 0.2\columnwidth]{Chapter4/figures/skell-pardo}
+%	\caption{Exemple de squelette du type \textbf{Pardo}}
+%	\label{skell-pardo}
+%\end{figure}
+%Le squelette \textbf{Pardo} permet de placer de manière \emph{ad hoc} $N$  fonctions sur $N$ processeurs (Fig. \ref{skell-pardo}). Le schéma de communication est alors implicite. Ce type de squelette est fait pour faciliter la mise en oeuvre d'applications qui ne correspondent pas à un squelette bien défini. Le squelette \textbf{Pardo} est notamment utilisé pour rassembler plusieurs fonctions indépendantes opérant sur un flux de données. Le temps d'exécution d'un tel schéma est alors celui de la fonction qui prend le plus de temps à s'exécuter. 
+%\section{Squelettes dédiés à la structuration de l'application}
+%\subsection{Le squelette \emph{sequence}}
+%\subsection{Le squelette \emph{select}}
 \section{Modèle de programmation \texttt{SKELL\_BE}}
 Dans le modèle de programmation \texttt{SKELL\_BE} \cite{skellbepact}, \cite{sympa08}, le processeur Cell est considéré comme une machine asymétrique. Le modèle inclue deux codes source, un pour le PPE et un autre pour le SPE. Du point de vue du PPE une application peut appeler un \emph{kernel} de calcul qui est compilé et exécuté sur le SPE comme dans une application de \emph{stream processing} (\ref{skellbe01}.
 %===============================Listing PPEKERNEL =======================================
@@ -443,4 +474,5 @@ De manière générale, le code SKELL BE tiens largement dans les 256 KB du \emph{l
 \subsection{Impact sur le temps de compilation}
 L'autre problème s'agissant de la méta-programmation est le temps de compilation. En effet, le temps de compilation d'un programme SKELL BE peut être décomposé en deux étapes principales : une première étape durant 1.5 s qui englobe les directives du preprocesseur qui gère les fonction définies par l'utilisateur; une deuxième étape proportionnelle au nombre de types de squelettes utilisés. Dans le pire des cas, qui est celui du squelette Half-Pipe la compilation prend 10s. 
 \section{Conclusion}
-SKELL BE est une solution à base de langage spécifique au domaine enfouis dans C++. Il est basé sur les squelettes algorithmiques ,un modèle de programmation parallèle très flexible. Il est très adapté au processeur Cell car le placement du graphe d'application y est primordial pour la performance. Les résultats qui précèdent tendent à prouver que l'on obtient de bonne performance tant au niveau temporel brut qu'au niveau de la /\emph{scalability}. Les mesures sur les benchmarks simples ont prouvé que l'\emph{overhead} induit est négligeable comparativement à un code écrit à la main. Le déploiement de l'agorithme de Harris sur le Cell à l'aide de SKELL BE et selon plusieurs schémas de parallélisation,  permettent d'apprécier la flexibilité et l'expressivité fournies par l'outil. Les performances obtenus sur l'algorithme prouvent l'efficacité de l'outil.
+SKELL BE est une solution à base de langage spécifique au domaine enfouis dans C++. Cet outil est basé sur les squelettes algorithmiques, un modèle de programmation parallèle très flexible. Il est très adapté au processeur Cell car le placement du graphe d'application y est primordial pour la performance. Les résultats qui précèdent tendent à prouver que l'on obtient de bonnes performances tant au niveau temporel brut qu'au niveau du passage à l'échelle. Les mesures sur les benchmarks simples ont prouvé que le surcout induit est négligeable comparativement à un code écrit à la main. Le déploiement de l'algorithme de Harris sur le Cell à l'aide de SKELL BE selon plusieurs schémas de parallélisation,  permettent d'apprécier la flexibilité et l'expressivité fournies par l'outil. Les performances obtenues sur l'algorithme prouvent l'efficacité de SKELL BE sur une application de moyenne complexité.\\
+Dans les chapitre précédents nous avons étudié le processeur Cell et ses contraintes de programmation. Nous avons également étudié le portage d'une application typique du traitement d'images sur cette architecture massivement parallèle. La question qui reste en suspens est alors celle des architectures parallèle concurrentes. A savoir, la détermination d'un couple outil/architecture qui soit le plus adapté à notre domaine d'application. 
