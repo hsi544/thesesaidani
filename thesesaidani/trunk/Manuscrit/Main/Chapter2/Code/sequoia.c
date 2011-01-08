@@ -1,5 +1,3 @@
-
-
 void task matmul :: inner (in float A[M][P],
                            in float B[P][N],
                            inout float C[M][N]) 
