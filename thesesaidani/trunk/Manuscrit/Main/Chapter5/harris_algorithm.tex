@@ -496,7 +496,7 @@ Dans ce qui précède nous avons pu constater que le placement optimal d'un graphe
 \subsection{Influence de la taille de la tuile}
 \begin{figure}[htb]
 	\centering
-  \includegraphics[width= \columnwidth]{Chapter5/figures/SizeTile}
+  \includegraphics[width= 0.8\columnwidth]{Chapter5/figures/SizeTile}
 	\caption{Influence de la taille de la tuile sur la performance pour la version chainage entier et fusion d'opérateur par paires 1 SPE (Fig. \ref{harris-hchainfpipe})}
 	\label{tilesize}
 \end{figure}
@@ -525,7 +525,7 @@ Comme il est démontré dans \cite{cell_bw02} et \cite{cellnoc} la taille du bloc 
 \label{tabspuperf}
 \end{table}
 
-La comparaison de la performance globale des différents schémas d'implémentation ne suffit pas à prouver que l'optimisation de l'utilisation de la mémoire sont les facteurs principaux de l'amélioration de la performance. Dans le but de donner une analyse plus précise et donc plus complète, nous avons effectué des mesures au niveau du SPE ou nous avons estimé le gain apporté par la composition des fonctions et les transferts DMA inter-SPE. Le tableau \ref{tabspuperf} donne en nombre de cycles \emph{SPU} les versions ou les opérateurs ne sont pas composés deux à deux et celle ou ils le sont. Comme on peut le constater, cette optimisation permet d'avoir une accélération pouvant atteindre $\times 7.2$. Cette techniques, permet une utilisation maximale des registres au détriment de la mémoire et par conséquent elle est limitée par la taille du banc de registres du processeur (128 registres pour le SPU. D'autre part l'optimisation de la localité des données en chainant les opérateurs d'un même SPE est certe bénéfique, mais elle est limitée par le niveau de hiérarchie mémoire juste au dessus des registres qui est le \emph{local store}, limité lui à 256 KB.
+La comparaison de la performance globale des différents schémas d'implémentation ne suffit pas à prouver que l'optimisation de l'utilisation de la mémoire sont les facteurs principaux de l'amélioration de la performance. Dans le but de donner une analyse plus précise et donc plus complète, nous avons effectué des mesures au niveau du SPE ou nous avons estimé le gain apporté par la composition des fonctions et les transferts DMA inter-SPE. Le tableau \ref{tabspuperf} donne en nombre de cycles \emph{SPU} les versions ou les opérateurs ne sont pas composés deux à deux et celle ou ils le sont. Comme on peut le constater, cette optimisation permet d'avoir une accélération pouvant atteindre $7.2$. Cette techniques, permet une utilisation maximale des registres au détriment de la mémoire et par conséquent elle est limitée par la taille du banc de registres du processeur (128 registres pour le SPU. D'autre part l'optimisation de la localité des données en chainant les opérateurs d'un même SPE est certe bénéfique, mais elle est limitée par le niveau de hiérarchie mémoire juste au dessus des registres qui est le \emph{local store}, limité lui à 256 KB.
 \subsection{Mesure des métriques de passage à l'échelle}
 
 \begin{figure}[htb]
