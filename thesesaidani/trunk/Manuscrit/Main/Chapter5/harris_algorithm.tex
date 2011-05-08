@@ -330,12 +330,12 @@ D'après les observations ci-dessus, la composition de fonction peut être un bon 
 \label{sectioncompo}
 
 \subsection{Optimisation des transferts mémoire}
-\begin{figure}[!htb]
-	\centering
-  \includegraphics[width= \columnwidth]{Chapter5/figures/cellnoc}
-  \caption{Réseau d'interconnexion du Cell d'après \cite{cellnoc}}
-  \label{fignoc}
-\end{figure}
+%\begin{figure}[!htb]
+%	\centering
+ % \includegraphics[width= \columnwidth]{Chapter5/figures/cellnoc}
+  %\caption{Réseau d'interconnexion du Cell d'après \cite{cellnoc}}
+  %\label{fignoc}
+%\end{figure}
 Dans cette partie, nous abordons des techniques d'optimisations qui sont relatives au transferts de données présents dans l'application. On entend par transfert de donnée, toute communication qui met en jeu deux mémoires physiques sur Cell. Cela comporte les transferts DMA entre la mémoire principale et les mémoires locales des SPEs ainsi que les communications mettant en jeu deux mémoires privées de SPEs. Plusieurs aspects sont mis en avant. D'une part, les caractéristiques internes de l'architecture du réseaux de communications \cite{cellnoc} (\emph{Network On Chip (NoC)}) du Cell et d'autres part la nature des transferts de données imposées par l'algorithme et la partition des données à plusieurs niveaux de la hiérarchie mémoire.
 \subsubsection{Optimisation de la bande-passante du \emph{NoC}}
 Dans le modèle de programmation utilisé qui est basé sur le \emph{SDK} du Cell et les librairies \emph{libspe}, les données présentes en mémoire centrale sont transférées aux mémoires locales des SPEs avant d'être traitées. Ces transferts se font d'une manière explicite dans le logiciel par des appels à des fonctions de l'API de gestion du \emph{MFC} et ils sont gérées par le \emph{NoC} au travers de contrôleurs mémoire et de l'arbitre de bus. L'architecture du bus et la topologie du réseau impose quelques contraintes qui jouent un rôle primordial dans la minimisation des latences des communications point à point.
