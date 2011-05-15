@@ -1,14 +1,18 @@
-Le chapitre précédent a permis de présenter l'architecture particulière du Cell ainsi que l'environnement de développement de base pour cette architecture. Nous avons mis en avant la complexité de l'architecture accentuée notamment par son hétérogénéité et les espaces d'adresses distincts entre PPE et SPEs. De plus, nous avons présenté l'outil de programmation de base proposé qui est assez difficile à prendre en main par les développeurs et nécessite des connaissances poussées de l'architecture. Au vu des contraintes citées auparavant, l'implémentation d'une application de traitement d'images sur le processeur Cell devient une tâche complexe. La réalisation de performances proches des chiffres théoriques donnés par le constructeur est encore moins évidente.\\
-Ce chapitre aborde dans le détail, la démarche de parallélisation d'un exemple de code de traitement d'images sur le processeur Cell. Tout au long de cette étude, plusieurs aspects de l'optimisation sont traités. D'une part les optimisations spécifiques au traitement d'images et d'autre part ceux spécifiques au processeur Cell et ses différents niveaux de parallélisme.\\
-L'algorithme considéré est celui de la détection de points d'intérêts de Harris. Le choix de cet algorithme s'est fait selon plusieurs critères qui sont les suivants:  
+Le chapitre précédent a permis de présenter l'architecture particulière du Cell ainsi que l'environnement de développement de base pour cette architecture. Nous avons mis en avant la complexité de l'architecture accentuée notamment par son hétérogénéité et les espaces d'adresses distincts entre PPE et SPEs. De plus, nous avons présenté l'outil de programmation de base proposé qui est assez difficile à prendre en main par les développeurs et nécessite des connaissances poussées de l'architecture. Au vu des difficultés citées auparavant, l'implémentation d'une application de traitement d'images sur le processeur Cell devient une tâche complexe. L'obtention de performances proches des chiffres théoriques donnés par le constructeur est encore moins évidente.\\
+Ce chapitre aborde dans le détail, la démarche de parallélisation manuelle d'un exemple de code de traitement d'images sur le processeur Cell. Tout au long de cette étude, plusieurs aspects de l'optimisation sont traités. D'une part les optimisations spécifiques au traitement d'images et d'autre part ceux spécifiques au processeur Cell et ses différents niveaux de parallélisme.\\
+L'algorithme considéré est celui de la détection de points d'intérêts selon l'algorithme de Harris. Le choix de cet algorithme s'est fait selon plusieurs critères qui sont les suivants:  
 \begin{itemize}
-\item c'est un algorithme de traitement d'images bas niveaux qu'on retrouve dans plusieurs applications plus complexes, comme la reconstructions 3D et le suivi d'objets;
+\item c'est un algorithme de traitement d'images bas niveau qu'on retrouve dans plusieurs applications plus complexes, comme la reconstruction 3D et le suivi d'objets;
 \item il est composé de blocs de traitement de base qui sont représentatifs des algorithmes bas niveau comme les opérateurs de convolution et les opérateurs point à point;
-\item c'est un algorithme qui ne peux pas s'exécuter en temps réel sans optimisations spécifiques.
+%\item c'est un algorithme qui ne peux pas s'exécuter en temps réel sans optimisations spécifiques.
+\item c'est un algorithme dont la complexité arithmétique et le rapport calcul/transfert, justifient le portage sur des architectures massivement parallèles
+\item le respect d'un débit de traitement de 25  fps (\emph{frame per second})ne peut pas être obtenu par une implémentation triviale sur une architecture mono-coeur.
+.%qui ne peux pas s'exécuter en temps réel sans optimisations spécifiques.
+
 \end{itemize}
 \'Etant donné les caractéristiques de l'architecture du Cell ainsi que celles de l'algorithme, le but est de trouver la meilleure implémentation permettant d'exploiter au mieux les dispositifs haute performance de l'architecture. Le processeur Cell est un vrai concentré de dispositifs accélérateurs parmi lesquels les unités SPE purement SIMD, les contrôleurs DMA permettant un parallélisme entre transferts mémoire et tâches de calculs ainsi que la présence de plusieurs coeurs physiques qui permettent de répartir la charge de calcul de plusieurs manières possible, soit sous forme de parallélisme de donnée uniquement, ou alors de parallélisme de tâches ou un mélange des deux.
 \section{Algorithme de Harris}
-La détection de point d'intérêts de \emph{Harris} et \emph{Stephen} \cite{harris_corner} est utilisée dans les systèmes de vision par ordinateur pour l'extraction de connaissance comme la détection de mouvement, la mise en correspondance d'images, le suivi d'objets, la reconstruction 3D et la reconnaissance d'objets. Cet algorithme fut proposé pour palier aux manques de l'algorithme de \emph{Moravec} \cite{moravec} qui était sensible au bruit et pas sensible à la rotation. Un coin peut être défini comme étant l'intersection de deux contours lorsque un point d'intérêt peut être défini comme un point ayant une position bien déterminée et qui peut être détecté de manière robuste. Ainsi, le point d'intérêt peut être un coin mais aussi un point isolé d'intensité maximale ou minimale localement, une terminaison de ligne ou encore un point de courbe où la courbure est localement maximale.\\
+La détection de points d'intérêt de \emph{Harris} et \emph{Stephen} \cite{harris_corner} est utilisée dans les systèmes de vision par ordinateur pour l'extraction de connaissance comme la détection de mouvement, la mise en correspondance d'images, le suivi d'objets, la reconstruction 3D et la stabilisation d'images. Cet algorithme fut proposé pour palier les manques de l'algorithme de \emph{Moravec} \cite{moravec} qui était sensible au bruit et pas sensible à la rotation. Un coin peut être défini comme étant l'intersection de deux contours alors qu'un point d'intérêt peut être défini comme un point ayant une position bien déterminée et qui peut être détecté de manière robuste. Ainsi, le point d'intérêt peut être un coin mais aussi un point isolé d'intensité maximale ou minimale localement, une terminaison de ligne ou encore un point de courbe où la courbure est localement maximale.\\
 Les résultats ci-dessous sont présentés dans les publications suivantes : 
 \begin{itemize}
 \item \bibentry{medea07}
@@ -16,21 +20,40 @@ Les résultats ci-dessous sont présentés dans les publications suivantes :
 \item \bibentry{hipeac_2008}
 \end{itemize}
 \subsection{Description de l'algorithme}
-Si l'on considère des zones de l'image de dimensions $u \times v$ (dans notre cas $3 \times 3$ dans une images 2-dimensions en niveaux de gris $I$  qui est décalée de $(x, y)$, l'opérateur de Harris est basé sur l'estimation de l'auto-corrélation locale $S$ dont l'équation est la suivante:
+Si l'on considère des zones de l'image de dimensions $u \times v$ (dans notre cas $3 \times 3$) dans une images 2-dimensions en niveaux de gris $I$, l'opérateur de Harris est basé sur l'estimation de l'auto-corrélation locale $S$ dont l'équation est la suivante:
 \begin{equation}
 \label{eq_00}
-S(x,y) =\sum\limits_{u}\sum\limits_{v} w(u,v)\left( I(u,v) - I(u-x,v-y) \right)^{2}
+S(x,y) =\sum\limits_{u}\sum\limits_{v} w(u,v)\left( I(u+x,v+y) - I(u,v) \right)^{2}
 \end{equation}
-Par l'approximation de $S$ avec une série de Taylor du second ordre la matrice de Harris $M$ est donnée par :
+
+Où $w(u,v)$ est un noyau de lissage Gaussien\\
+$I(u+x, v+y)$ peu être approché par un développement de Taylor. Supposons $I_{x}$ et $I_{y}$, les dérivées partielles de $I$, telles que
+
 \begin{equation}
-\label{eq_01}
+\label{eq_010}
+I(u+x, v+y)=I(u, v)+I_{x}(u, v)x+I_{y}(u, v)y \nonumber
+\end{equation}
+Ce qui donne l'approximation :
+\begin{equation}
+\label{eq_011}
+S(x,y) =\sum\limits_{u}\sum\limits_{v} w(u,v)\left( I_{x}(u, v)x+I_{y}(u, v)y \right)^{2} \nonumber
+\end{equation}
+Cette expression correspond à l'expression matricielles suivante : 
+\begin{equation}
+\label{eq_012}
+S(x,y) = \begin{pmatrix}x & y\end{pmatrix}M\begin{pmatrix}x\\y\end{pmatrix}\nonumber
+\end{equation}
+%Par l'approximation de $S$ avec une série de Taylor du second ordre
+La matrice de Harris $M$ est donnée par :
+\begin{equation}
+\label{eq_02}
 M=\sum\limits_{u}\sum\limits_{v}w(u,v)\begin{bmatrix}I_{x}^{2}& I_{x}I_{y}\\I_{x}I_{y}&I_{y}^{2}\end{bmatrix}
 \end{equation}
 Un point d'intérêt est caractérisé par une large variation de $S$ dans toutes les directions du vecteur $(x,y)$. En analysant les valeurs propres de $M$, cette caractérisation peut être exprimée de la manière suivante. Soit $\lambda_{1}$, $\lambda_{2}$ les valeurs propres de $M$:
 \begin{enumerate}
 	\item Si $\lambda_{1}$ $\approx 0$ et $\lambda_{2}$ $\approx 0$ alors il n'y a pas de point d'intérêt au pixel $(x,y)$.
-	\item Si $\lambda_{1}$ $\approx 0$ and $\lambda_{2}$ a une grande valeur positive alors un contour est retrouvé.
-	\item Si $\lambda_{1}$ and $\lambda_{2}$ sont deux grandes valeurs positives distinctes alors un coin est détecté.
+	\item Si $\lambda_{1}$ $\approx 0$ et $\lambda_{2} >> \lambda_{1}$, ou $\lambda_{2}$ $\approx 0$ et $\lambda_{1} >> \lambda_{2}$, alors alors un contour est retrouvé.
+	\item Si $\lambda_{1}$ and $\lambda_{2}$ sont deux positives distinctes très grandes par rapport à 0 alors un coin est détecté.
 \end{enumerate}
 \emph{Harris} et \emph{Stephen} ont constaté que le calcul des valeurs propres était couteux car il requiert le calcul d'une racine carrée, et ont proposé à la place l'algorithme suivant : 
 
@@ -41,7 +64,7 @@ Un point d'intérêt est caractérisé par une large variation de $S$ dans toutes le
 M=\begin{bmatrix} S_{xx} & S_{xy} \\ S_{xy} & S_{yy} \end{bmatrix}; \mbox{où:} S_{xx}=\left(\frac{\partial I}{\partial x}\right)^{2}\otimes w, S_{yy}=\left(\frac{\partial I}{\partial y}\right)^{2}\otimes w, S_{xy} = \left(\frac{\partial I}{\partial x}\frac{\partial I}{\partial y}\right)\otimes w
 \end{equation}
 
-Où	$\otimes$ est l'opérateur de convolution $w$ un noyau Gaussien.\\
+Où	$\otimes$ est l'opérateur de convolution\\ %$w$ un noyau Gaussien.\\
 \item Construire la carte des coins en calculant la mesure de la fonction de réponse des coins $C(x, y)$ pour chaque pixel $(x, y)$:\\
 \begin{equation}
 \label{eq_04}
@@ -56,7 +79,7 @@ et $k$ une constante empirique.\\
 Une illustration d'une détection de points d'intérêt sur une image 512$\times$512 en niveaux de gris est donnée en figure \ref{fig_house}. Afin d'obtenir ce résultat, deux étapes supplémentaires sont nécessaires qui permettent d'extraire une information visuelle à partir de la matrice $C(x,y)$\footnote{Ces étapes ont pour but de visualiser le résultat et ne sont donc pas incluses dans le diagramme en blocs de l'algorithme}. Ces étapes sont les suivantes :
 \begin{enumerate}
 \item Seuillage de la carte d'intérêt en mettant toutes les valeurs de $C(x,y)$ inférieures à un seuil donné à zéro.
-\item Extraction des maxima locaux en gardant les points qui sont plus grand que tous leurs voisins dans un voisinage 3$\times$3.
+\item Extraction des maxima locaux en gardant les points qui sont plus grands que tous leurs voisins dans un voisinage 3$\times$3.
 \end{enumerate}
 \begin{figure}[!htb]
 	\centering
@@ -74,7 +97,12 @@ Une illustration d'une détection de points d'intérêt sur une image 512$\times$51
 	\caption{Implémentation de l'algorithme de Harris sous forme de graphe flot de données}
 	\label{fig_HarrisAlgorithm}
 \end{figure}
-Les images en niveaux de gris sont typiquement des données stockées dans des entiers 8-bit non signés et la sortie de l'algorithme de Harris est dans ce cas là un entier 32 bit signé. Toutefois, pour des raisons de limitation du jeux d'instruction du SPU, et afin de garantir une comparaison directe avec les extension Altivec et SSE nous avons choisi le format flottant simple précision pour l'entrée et la sortie de l'algorithme. Dans notre implémentation nous avons divisé l'algorithme en 4 noyaux de traitement : un opérateur de \emph{Sobel} qui représente la dérivée dans les directions horizontale et verticale, un opérateur de multiplication, un noyau de lisage de \emph{Gauss} ($w$ dans l'équation \ref{eq_03}),  suivi d'un opérateur de calcul de réponse des coins. Nous avons fixé la constante $k$ à zéro (typiquement elle est fixée à 0.04) car ceci n'avait pas d'influence sur le résultat qualitatif et simplifie grandement l'équation \ref{eq_04}. On obtient ainsi le graphe flot de données donné dans la figure \ref{fig_HarrisAlgorithm} qui est représentatif d'un algorithme de traitement d'images bas-niveau car il englobe des noyaux de convolution et des opérateurs point à point. Les noyaux de convolution de Sobel ($GradX$ et $GradY$)et le noyau de $Gauss$ sont définis comme suit: 
+Les images en niveaux de gris sont typiquement des données stockées dans des entiers 8-bit non signés et la sortie de l'algorithme de Harris est dans ce cas là un entier 32 bit afin de satisfaire la dynamique des valeurs calculées qui font l'objet d'opérations de multiplication et d'additions tout au long de l'algorithme. Toutefois, pour des raisons de limitation du jeux d'instruction du SPU, et afin de garantir une comparaison directe avec les extension Altivec et SSE nous avons choisi le format flottant simple précision pour l'entrée et la sortie de l'algorithme. Dans notre implémentation nous avons divisé l'algorithme en 4 noyaux de traitement : un opérateur de \emph{Sobel} qui calcule la dérivée dans les directions horizontale et verticale, un opérateur de multiplication, un noyau de lissage de \emph{Gauss} ($w$ dans l'équation \ref{eq_03}),  suivi d'un opérateur de calcul de réponse des coins. Nous avons fixé la constante $k$ à zéro ($k=0$) (typiquement elle est fixée à 0.04) car ceci n'avait pas d'influence sur le résultat qualitatif et simplifie grandement l'équation \ref{eq_04} et donne l'équation :
+\begin{equation}
+C(x,y) = S_{xx}.S_{yy}-S_{xy}^{2} \nonumber
+\end{equation}
+
+On obtient ainsi le graphe flot de données donné dans la figure \ref{fig_HarrisAlgorithm} qui est représentatif d'un algorithme de traitement d'images bas-niveau car il englobe des noyaux de convolution et des opérateurs point à point. Les noyaux de convolution de Sobel ($GradX$ et $GradY$)et le noyau de $Gauss$ sont définis comme suit: 
 
 \begin{equation}
 Grad_{X} = \begin{bmatrix}-1 & 0 & 1 \\ -2 & 0 & 2 \\ -1 & 0 & 1 \end{bmatrix} \nonumber
@@ -90,7 +118,7 @@ Grad_{Y} = \begin{bmatrix}-1 & -2 & -1 \\ 0 & 0 & 0 \\ 1 & 2 & 1 \end{bmatrix} \
 
 \'Etant donné qu'ils consomment plus d'entrées qu'ils ne produisent de sorties, les noyaux de convolution sont le goulot d'étranglement de l'algorithme car ils augmentent considérablement le trafic mémoire. Au vu de la nature des calculs effectués dans les différents noyaux, et qui sont très simples généralement (une suite de multiplications/accumulation) on peut considérer que les instructions mémoire sont prépondérantes dans l'application et que de ce fait, on peut qualifier l'algorithme de problème limité par la mémoire (\emph{memory-bounded problem}). C'est pour cela que les efforts d'optimisation sur l'algorithme de Harris sont faites par l'optimisation des accès à différents niveaux de la hiérarchie mémoire du processeur Cell. 
 \section{Exploitation du parallélisme et optimisations multi-niveau}
-Les techniques d'optimisation démontrées ici sont multiples et variées. Certaines sont de nature algorithmique et relèvent plutôt du domaine du traitement du signal et des images. D'autres techniques génériques relèvent plutôt du domaine de l'optimisation logicielle on les retrouve parfois dans certains compilateurs optimisants. Les techniques précédentes sont générales et peuvent être appliqués à la majorité des processeurs généralistes car elle ne tiennent pas compte des aspects spécifiques d'une architecture donnée. Par contre, des optimisations de plus haut niveau et qui sont spécifiques à l'architecture particulière du Cell ont aussi été employées. Celles-ci ne sont généralement pas reproductibles sur d'autres architectures parallèles car elles relèvent plus d'une adéquation entre l'algorithme et l'architecture qui contient certains dispositifs qui n'existent que sur le Cell et des fois elles résultent de contraintes de programmation spécifiques au Cell comme la taille limitée des mémoires locale des SPEs et par conséquent la gestion logicielle de l'utilisation de la mémoire.
+Les techniques d'optimisation démontrées ici sont multiples et variées. Certaines sont de nature algorithmique et relèvent plutôt du domaine du traitement du signal et des images. D'autres techniques génériques relèvent plutôt du domaine de l'optimisation logicielle on les retrouve parfois dans certains compilateurs optimisants. Les techniques précédentes sont générales et peuvent être appliqués à la majorité des processeurs généralistes car elle ne tiennent pas compte des aspects spécifiques d'une architecture donnée. Par contre, des optimisations spécifiques à l'architecture particulière du Cell ont aussi été employées. Celles-ci ne sont généralement pas reproductibles sur d'autres architectures parallèles car elles relèvent plus d'une adéquation entre l'algorithme et l'architecture qui contient certains dispositifs qui n'existent que sur le Cell et qui parfois résultent de contraintes de programmation spécifiques au Cell comme la taille limitée des mémoires locale des SPEs et par conséquent la gestion logicielle de l'utilisation de la mémoire.
 \subsection{Techniques spécifiques au traitement d'images}
 Ces optimisations relèvent plutôt du domaine du traitement du signal et des images. Elles peuvent donc être appliquées à plusieurs algorithmes et sur n'importe quelle architecture. Celles que nous avons utilisé concernent les noyaux de convolution et sont : la séparabilité, le chevauchement (\emph{overlapping}) et la factorisation des calculs.
 \subsubsection{Séparabilité des noyaux}
@@ -100,7 +128,7 @@ Ces optimisations relèvent plutôt du domaine du traitement du signal et des imag
 	\caption{Exemples de convolution par un filtre Gaussien $3\times3$ : (a) version avec noyaux 2D et (b) version avec deux noyaux 1D, résultant de la séparation du noyau 2D.}
 	\label{fig_convosep}
 \end{figure}
-Cette optimisation consiste à exploiter le fait que les noyaux de convolution 2D de \emph{Sobel} \emph{Gauss} soient séparables en deux filtres de convolution 1D (Fig. \ref{fig_convosep}). Ainsi, la matrice des coefficients peut être exprimée comme un produit de deux vecteur comme l'illustre les équations ci-dessous :
+Cette optimisation consiste à exploiter le fait que les noyaux de convolution 2D de \emph{Sobel} et de \emph{Gauss} sont séparables en deux filtres de convolution 1D (Fig. \ref{fig_convosep}). Ainsi, la matrice des coefficients peut être exprimée comme un produit de deux vecteur comme l'illustre les équations ci-dessous :
 \begin{equation}
 Grad_{X} =  \frac{1}{  8} \begin{bmatrix} -1 &  0 &   1  \\ -2 & 0 & 2 \\ -1 & 0 & 1 \end{bmatrix} =    \frac{1}{8} \begin{bmatrix} -1 \\ 0 \\ 1 \end{bmatrix} \times  \begin{bmatrix} 1 & 2 & 1 \end{bmatrix}\nonumber
 \end{equation}
@@ -110,7 +138,7 @@ Grad_{Y} =  \frac{1}{  8} \begin{bmatrix} -1 & -2 & -1   \\  0 & 0 & 0 \\  1 & 2
 \begin{equation}
 Gauss      =  \frac{1}{16} \begin{bmatrix}  1 &  2 &   1  \\  2 & 4 & 2 \\  1 & 2 & 1 \end{bmatrix} = \frac{1}{16}\begin{bmatrix}1 \\ 2 \\ 1 \end{bmatrix} \times \begin{bmatrix}1  & 2 & 1 \end{bmatrix}\nonumber
 \end{equation}
-Lorsque l'on sépare les noyaux de convolution, le calcul se fait en deux passes : une pour chaque vecteur. Grâce à la séparabilité des noyaux on arrive à réduire le nombre d'instructions mémoire ainsi que la complexité arithmétique. La comparaison est illustrée dans les tableaux \ref{tab_sepa_arith} et \ref{tab_sepa_mem}.
+Lorsque l'on sépare les noyaux de convolution, le calcul se fait en deux passes : une pour chaque vecteur. Grâce à la séparabilité des noyaux on arrive à réduire le nombre d'accès mémoire ainsi que la complexité arithmétique. La comparaison est illustrée dans les tableaux \ref{tab_sepa_arith} et \ref{tab_sepa_mem}.
 \begin{table}
 \centering
 \begin{tabular}{|c|c|c||c|c|c|c|}
@@ -142,17 +170,17 @@ Lorsque l'on sépare les noyaux de convolution, le calcul se fait en deux passes 
 \hline
 \multicolumn{3}{|c||}{\emph{Sans séparation du noyau}} & \multicolumn{3}{|c|}{\emph{Avec séparation du noyau}} & \emph{Gain \%}\\
 \hline
-\textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}& \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}  & \multirow{2}{*}{\textbf{0}}\\
+\textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}& \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}  & \multirow{2}{*}{\textbf{14}}\\
 \cline{1-6}
- 6  & 1 & 7  & 1  & 5 & 2  & \\
+ 6  & 1 & 7  & 1  & 5 & 6  & \\
 \hline
 \multicolumn{7}{c}{\textbf{Complexité mémoire filtre de \emph{Gauss}}}\\
 \hline
 \multicolumn{3}{|c||}{\emph{Sans séparation du noyau}} & \multicolumn{3}{|c|}{\emph{Avec séparation du noyau}}  & \emph{Gain \%} \\
 \hline
-\textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}& \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total} &   \multirow{2}{*}{\textbf{25}} \\
+\textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}& \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total} &   \multirow{2}{*}{\textbf{30}} \\
 \cline{1-6}
- 9  & 1 & 10  & 6  & 1 & 8  &  \\
+ 9  & 1 & 10  & 6  & 1 & 7  &  \\
 \hline
 \end{tabular}
 \caption{Réduction du nombre d'accès mémoire par décomposition des noyaux}
@@ -248,10 +276,10 @@ Les tableau \ref{tab_sepaover_arith} et \ref{tab_sepaover_mem} donnent la différ
 \label{fig_compo}
 \end{figure}
 
-Cette technique d'optimisation s'avère très efficace surtout dans les codes ou les instructions mémoire sont prépondérantes. En effet, le fait de composer deux fonctions de calcul pour en faire une seule qui effectue les deux calculs réduit considérablement le nombre d'accès mémoire puisque les opérations de sauvegarde et de chargement intermédiaires entre les deux fonctions initiales sont supprimées, les accès se font alors au niveau des registres. De plus, le cout de l'appel de fonction (taille de la pile et branchement) est également réduit, car le résultat de la composition de fonctions est une seule fonction. Dans les cas les plus simples, la mise en oeuvre de cette technique n'est pas difficile. Toutefois, lorsqu'il s'agit d'opérateurs de convolution comme dans notre cas, des nouvelles contraintes apparaissent afin de garantir la validité du résultat du calcul. Ainsi, des règles de composition s'imposent en fonction de l'ordre dans lequel s'enchainent les fonctions. Ces règles sont illustrées sur la figure \ref{fig_compo}. On peut alors constater qu'il existe plusieurs règles de composition des fonctions selon d'une part, la nature des opérateurs mis en jeu et, d'autre part, l'ordre dans lequel ils s'enchainent. En terme d'apport de performances de cette technique de nous observons deux aspects distincts:
+Cette technique d'optimisation s'avère très efficace surtout dans les codes où les instructions mémoire sont prépondérantes. En effet, le fait de composer deux fonctions de calcul pour en faire une seule qui effectue les deux calculs réduit considérablement le nombre d'accès mémoire puisque les opérations de sauvegarde et de chargement intermédiaires entre les deux fonctions initiales sont supprimées, les accès se font alors au niveau des registres. De plus, le cout de l'appel de fonction (sauvegarde dans la pile et branchement) est également réduit, car le résultat de la composition de fonctions est une seule fonction. Dans les cas les plus simples, la mise en oeuvre de cette technique n'est pas difficile. Toutefois, lorsqu'il s'agit d'opérateurs de convolution comme dans notre cas, des nouvelles contraintes apparaissent afin de garantir la validité du résultat du calcul. Ainsi, des règles de composition s'imposent en fonction de l'ordre dans lequel s'enchainent les fonctions. Ces règles sont illustrées sur la figure \ref{fig_compo}. On peut alors constater qu'il existe plusieurs règles de composition des fonctions selon d'une part, la nature des opérateurs mis en jeu et, d'autre part, l'ordre dans lequel ils s'enchainent. En terme d'apport de performances de cette technique de nous observons deux aspects distincts:
 \begin{itemize}
 \item \textbf{Nombre d'accès mémoire} : on observe en effet que ceux ci sont systématiquement réduits, car les opérations de \texttt{LOAD/STORE} intermédiaires sont supprimés, sauf dans le cas de la composition de deux noyaux de convolution (cas \textbf{(d)} sur la figure \ref{fig_compo})ou la présence de bords supplémentaires augmente considérablement le nombre des accès mémoire.
-\item \textbf{Nombre d'opérations arithmétique} : Celle-ci ne change pas dans le meilleurs des cas notamment lorsque les opérateurs composées sont point à point ou alors lorsque l'opérateur de convolution est placé devant un opérateur point à point (cas \textbf{(b)} sur la figure \ref{fig_compo}). Toutefois, si la convolution est placée à la suite d'un quelconque traitement, elle impose que l'opérateur qui la précède soit effectué sur tous les pixels de voisinage, ce qui augmente considérablement la complexité arithmétique, en particulier lorsque l'opérateur qui précède est une convolution (cas \textbf{(d)} sur la figure \ref{fig_compo}).
+\item \textbf{Nombre d'opérations arithmétique} : Celui-ci ne change pas dans le meilleurs des cas notamment lorsque les opérateurs composées sont point à point ou alors lorsque l'opérateur de convolution est placé devant un opérateur point à point (cas \textbf{(b)} sur la figure \ref{fig_compo}). Toutefois, si la convolution est placée à la suite d'un quelconque traitement, elle impose que l'opérateur qui la précède soit effectué sur tous les pixels de voisinage, ce qui augmente considérablement la complexité arithmétique, en particulier lorsque l'opérateur qui précède est une convolution (cas \textbf{(d)} sur la figure \ref{fig_compo}).
 \end{itemize}
 D'après les observations ci-dessus, la composition de fonction peut être un bon choix pour l'optimisation d'une chaîne de traitement telle que l'algorithme de détection de point d'intérêts de Harris. Toutefois, toutes les combinaisons n'apportent pas forcément une amélioration des performances. Elles peuvent même dans certains cas les dégrader. Le tableau \ref{tab_memall} résume les complexité mémoire et arithmétiques des différents cas de composition sur la figure \ref{fig_compo} en incluant également les optimisations décrites auparavant.
 \begin{table}
@@ -329,7 +357,7 @@ D'après les observations ci-dessus, la composition de fonction peut être un bon 
 
 \label{sectioncompo}
 
-\subsection{Optimisation des transferts mémoire}
+\subsection{Techniques spécifiques à l'architecture du processeur Cell}
 %\begin{figure}[!htb]
 %	\centering
  % \includegraphics[width= \columnwidth]{Chapter5/figures/cellnoc}
