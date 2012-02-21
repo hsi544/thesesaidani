@@ -11,11 +11,8 @@
   pages = {483--485},
   address = {New York, NY, USA},
   publisher = {ACM},
-  acmid = {1465560},
-  doi = {http://doi.acm.org/10.1145/1465482.1465560},
   location = {Atlantic City, New Jersey},
-  numpages = {3},
-  url = {http://doi.acm.org/10.1145/1465482.1465560}
+  numpages = {3}
 }
 
 @CONFERENCE{bsc_grid,
@@ -35,13 +32,40 @@
   location = {Las Palmas de Gran Canaria, Spain}
 }
 
-@CONFERENCE{cellss_sc06,
-  author = {Pieter Bellens and Josep M. Perez and Rosa M. Badia and Jesus Labarta},
-  title = {{C}ell{S}s: a {P}rogramming {M}odel for the {C}ell {BE} {A}rchitecture},
-  booktitle = {{P}roceedings of the 2006 {ACM/IEEE} {C}onference on {S}upercomputing},
+@INPROCEEDINGS{cellss_sc06,
+  author = {Bellens, Pieter and Perez, Josep M. and Badia, Rosa M. and Labarta,
+	Jesus},
+  title = {CellSs: a programming model for the cell BE architecture},
+  booktitle = {Proceedings of the 2006 ACM/IEEE conference on Supercomputing},
   year = {2006},
-  owner = {Tarik},
-  timestamp = {2009.04.23}
+  series = {SC '06},
+  address = {New York, NY, USA},
+  publisher = {ACM},
+  acmid = {1188546},
+  articleno = {86},
+  doi = {http://doi.acm.org/10.1145/1188455.1188546},
+  isbn = {0-7695-2700-0},
+  location = {Tampa, Florida},
+  url = {http://doi.acm.org/10.1145/1188455.1188546}
+}
+
+@ARTICLE{hmpp_2009,
+  author = {Bodin, Francois and Bihan, Stephane},
+  title = {Heterogeneous multicore parallel programming for graphics processing
+	units},
+  journal = {Scientific Programming},
+  year = {2009},
+  volume = {17},
+  pages = {325--336},
+  month = {December},
+  acmid = {1662632},
+  address = {Amsterdam, The Netherlands, The Netherlands},
+  issn = {1058-9244},
+  issue = {4},
+  keywords = {GPUs, Heterogeneous programming, compiler, runtime},
+  numpages = {12},
+  publisher = {IOS Press},
+  url = {http://dl.acm.org/citation.cfm?id=1662626.1662632}
 }
 
 @BOOK{skeletons_cole,
@@ -70,7 +94,35 @@
 	{M}emory {B}andwidth {A}pplications},
   booktitle = {in {P}roceedings of the {IEEE} International Symposium on Performance
 	Analysis of Systems \& Software},
-  year = {2007}
+  year = {2007},
+  pages = {210--219},
+  month = {April},
+  publisher = {IEEE},
+  abstract = {The cell broadband engine (CBE) is designed to be a general purpose
+	platform exposing an enormous arithmetic performance due to its eight
+	SIMD-only synergistic processor elements (SPEs), capable of achieving
+	134.4 GFLOPS (16.8 GFLOPS * 8) at 2.1 GHz, and a 64-bit power processor
+	element (PPE). Each SPE has a 256Kb non-coherent local memory, and
+	communicates to other SPEs and main memory through its DMA controller.
+	CBE main memory is connected to all the CBE processor elements (PPE
+	and SPEs) through the element interconnect bus (EIB), which has a
+	134.4 GB/s bandwidth performance peak at half the processor speed.
+	Therefore, CBE platform is suitable to be used by applications using
+	MPI and streaming programming models with a potential high performance
+	peak. In this paper we focus on the communication part of those applications,
+	and measure the actual memory bandwidth that each of the CBE processor
+	components can sustain. We have measured the sustained bandwidth
+	between PPE and memory, SPE and memory, two individual SPEs to determine
+	if this bandwidth depends on their physical location, pairs of SPEs
+	to achieve maximum bandwidth in nearly-ideal conditions, and in a
+	cycle of SPEs representing a streaming kind of computation. Our results
+	on a real machine show that following some strict programming rules,
+	individual SPE to SPE communication almost achieves the peak bandwidth
+	when using the DMA controllers to transfer memory chunks of at least
+	1024 Bytes. In addition, SPE to memory bandwidth should be considered
+	in streaming programming. For instance, implementing two data streams
+	using 4 SPEs each can be more efficient than having a single data
+	stream using the 8 SPEs}
 }
 
 @INPROCEEDINGS{skell_02,
@@ -82,6 +134,32 @@
   publisher = {Springer-Verlag}
 }
 
+@ARTICLE{altivec_2000,
+  author = {Diefendorff, Keith and Dubey, Pradeep K. and Hochsprung, Ron and
+	Scales, Hunter},
+  title = {AltiVec Extension to PowerPC Accelerates Media Processing},
+  journal = {IEEE Micro},
+  year = {2000},
+  volume = {20},
+  pages = {85--95},
+  month = {March},
+  acmid = {624350},
+  address = {Los Alamitos, CA, USA},
+  doi = {10.1109/40.848475},
+  issue = {2},
+  numpages = {11},
+  publisher = {IEEE Computer Society Press}
+}
+
+@INPROCEEDINGS{hmpp_2007,
+  author = {Dolbeau, Romain},
+  title = {HMPP : A Hybrid Multi-core Parallel},
+  booktitle = {First Workshop on General Purpose Processing on Graphics Processing
+	Units},
+  year = {2007},
+  pages = {1--5}
+}
+
 @CONFERENCE{falcouboost,
   author = {Joel Falcou},
   title = {{High Level Parallel Programming EDSL - A BOOST Libraries Use Case}},
@@ -89,9 +167,7 @@
   year = {2009},
   address = {Aspen, CO},
   month = {May},
-  organization = {BOOSTPRO Consulting},
-  owner = {joel},
-  timestamp = {2009.06.08}
+  organization = {BOOSTPRO Consulting}
 }
 
 @PHDTHESIS{these_falcou,
@@ -101,32 +177,19 @@
   year = {2006}
 }
 
-@OTHER{eve_2005,
-  author = {J. Falcou and J. S\'erot},
-  journal = {Scalable Computing: Practice and Experience},
-  number = {4},
-  pages = {31-42},
-  title = {{EVE} : an object-oriented {SIMD} library},
-  volume = {6},
-  year = {2005}
-}
-
 @OTHER{quaff_2006,
   acmid = {1228535},
   address = {Amsterdam, The Netherlands, The Netherlands},
   author = {Falcou, J. and S\'{e}rot, J. and Chateau, T. and Laprest\'{e}, J.
 	T.},
   doi = {10.1016/j.parco.2006.06.001},
-  issn = {0167-8191},
   issue = {7},
   journal = {Parallel Comput.},
-  keywords = {C++, MPI, computer vision, parallel skeletons, template meta-programmingÒ},
   month = {September},
   numpages = {12},
   pages = {604--615},
   publisher = {Elsevier Science Publishers B. V.},
   title = {{QUAFF}: efficient {C}++ design for parallel skeletons},
-  url = {http://portal.acm.org/citation.cfm?id=1228523.1228535},
   volume = {32},
   year = {2006}
 }
@@ -137,8 +200,7 @@
 	Parallel Programming Library},
   booktitle = {PARCO},
   year = {2007},
-  pages = {243-252},
-  bibsource = {DBLP, http://dblp.uni-trier.de}
+  pages = {243-252}
 }
 
 @CONFERENCE{sequoia_sc06,
@@ -162,8 +224,7 @@
   number = {9},
   month = {September},
   annote = {incomplete},
-  publisher = {IEEE Computer Society Press},
-  referencedby = {cite{1975:ncse:scott}}
+  publisher = {IEEE Computer Society Press}
 }
 
 @TECHREPORT{mpistand,
@@ -172,8 +233,7 @@
   institution = {Message Passing Interface Forum},
   year = {1994},
   address = {Knoxville, TN, USA},
-  publisher = {University of Tennessee},
-  source = {http://www.ncstrl.org:8900/ncstrl/servlet/search?formname=detail\&id=oai%3Ancstrlh%3Autk_cs%3Ancstrl.utk_cs%2F%2FUT-CS-94-230}
+  publisher = {University of Tennessee}
 }
 
 @CONFERENCE{harris_corner,
@@ -181,8 +241,7 @@
   title = {A Combined Corner and Edge Detector},
   booktitle = {Proceedings of the 4th ALVEY Vision Conference},
   year = {1988},
-  owner = {saidani},
-  timestamp = {2009.05.31}
+  pages = {147--151}
 }
 
 @MANUAL{cell_handbook,
@@ -190,18 +249,14 @@
   author = {IBM},
   organization = {IBM},
   edition = {version 1.0},
-  year = {2006},
-  owner = {Tarik},
-  timestamp = {2009.06.15}
+  year = {2006}
 }
 
 @TECHREPORT{pthreads_std,
   author = {IEEE},
   title = {{I}{E}{E}{E} {S}tandard . 1003.1c-1995 thread extensions},
   institution = {IEEE},
-  year = {1995},
-  owner = {saidani},
-  timestamp = {2009.05.02}
+  year = {1995}
 }
 
 @CONFERENCE{sympa08,
@@ -224,11 +279,9 @@
   month = {July},
   acmid = {1148891},
   address = {Riverton, NJ, USA},
-  issn = {0018-8646},
   issue = {4/5},
   numpages = {16},
-  publisher = {IBM Corp.},
-  url = {http://portal.acm.org/citation.cfm?id=1148882.1148891}
+  publisher = {IBM Corp.}
 }
 
 @ARTICLE{karp_flatt,
@@ -241,29 +294,16 @@
   month = {May},
   acmid = {78614},
   address = {New York, NY, USA},
-  doi = {http://doi.acm.org/10.1145/78607.78614},
-  issn = {0001-0782},
   issue = {5},
-  keywords = {parallel performance},
   numpages = {5},
-  publisher = {ACM},
-  url = {http://doi.acm.org/10.1145/78607.78614}
+  publisher = {ACM}
 }
 
 @STANDARD{opencl,
   title = {The OpenCL Specification, version 1.0.29},
   author = {{Khronos OpenCL Working Group}},
   month = {8 December},
-  year = {2008},
-  url = {http://khronos.org/registry/cl/specs/opencl-1.0.29.pdf},
-  added-at = {2009-09-10T14:36:22.000+0200},
-  bibsonomyusername = {gregoryy},
-  biburl = {http://www.bibsonomy.org/bibtex/2f27b3794b8bb531800e71e0c1bad328f/gregoryy},
-  interhash = {523238fb8572f0681867457896fdda6b},
-  intrahash = {f27b3794b8bb531800e71e0c1bad328f},
-  keywords = {imported},
-  owner = {Tarik Saidani},
-  timestamp = {2010.12.21}
+  year = {2008}
 }
 
 @ARTICLE{cellnoc,
@@ -275,8 +315,6 @@
   pages = {10-23},
   number = {3},
   address = {Los Alamitos, CA, USA},
-  doi = {http://doi.ieeecomputersociety.org/10.1109/MM.2006.49},
-  issn = {0272-1732},
   publisher = {IEEE Computer Society}
 }
 
@@ -285,9 +323,7 @@
   title = {A Skeleton Library},
   booktitle = {Euro-Par},
   year = {2002},
-  pages = {620-629},
-  bibsource = {DBLP, http://dblp.uni-trier.de},
-  ee = {http://dx.doi.org/10.1007/3-540-45706-2_86}
+  pages = {620-629}
 }
 
 @PROCEEDINGS{openmp_gpu,
@@ -297,17 +333,12 @@
   series = {PPoPP '09},
   address = {New York, NY, USA},
   publisher = {ACM},
-  acmid = {1504194},
   author = {Lee, Seyong and Min, Seung-Jai and Eigenmann, Rudolf},
   booktitle = {Proceedings of the 14th ACM SIGPLAN symposium on Principles and practice
 	of parallel programming},
-  doi = {http://doi.acm.org/10.1145/1504176.1504194},
-  isbn = {978-1-60558-397-6},
-  keywords = {automatic translation, compiler optimization, cuda, gpu, openmp},
   location = {Raleigh, NC, USA},
   numpages = {10},
-  pages = {101--110},
-  url = {http://doi.acm.org/10.1145/1504176.1504194}
+  pages = {101--110}
 }
 
 @CONFERENCE{rapidmind,
@@ -315,9 +346,7 @@
   title = {{D}ata-{P}arallel {P}rogramming on the {C}ell {BE} and the {GPU}
 	using the {R}apid{M}ind {D}evelopment {P}latform},
   booktitle = {Proceeding of GSPx Multicore Applications Conference},
-  year = {2006},
-  owner = {Tarik},
-  timestamp = {2009.04.23}
+  year = {2006}
 }
 
 @INPROCEEDINGS{cuda_fd,
@@ -329,8 +358,6 @@
   pages = {79--84},
   address = {New York, NY, USA},
   publisher = {ACM},
-  doi = {http://doi.acm.org/10.1145/1513895.1513905},
-  isbn = {978-1-60558-517-8},
   location = {Washington, D.C.}
 }
 
@@ -339,9 +366,7 @@
   title = {Obstacle Avoidance and Navigation in the Real World by a Seeing Robot
 	Rover},
   booktitle = {Robotics Institute, Carnegie Mellon University \& doctoral dissertation},
-  year = {1980},
-  owner = {saidani},
-  timestamp = {2009.05.31}
+  year = {1980}
 }
 
 @ARTICLE{vonneumann,
@@ -353,8 +378,6 @@
   pages = {27--75},
   number = {4},
   address = {Piscataway, NJ, USA},
-  doi = {http://dx.doi.org/10.1109/85.238389},
-  issn = {1058-6180},
   publisher = {IEEE Educational Activities Department}
 }
 
@@ -368,23 +391,25 @@
   month = {March},
   acmid = {1365500},
   address = {New York, NY, USA},
-  doi = {http://doi.acm.org/10.1145/1365490.1365500},
-  issn = {1542-7730},
   issue = {2},
   issue_date = {March/April 2008},
   numpages = {14},
-  publisher = {ACM},
-  url = {http://doi.acm.org/10.1145/1365490.1365500}
+  publisher = {ACM}
 }
 
-@CONFERENCE{cell_omp,
-  author = {Kevin O'Brien and Kathryn O'Brien and Zehra Sura and Tong Chen and
-	Tao Zhang},
-  title = {{S}upporting {O}pen{MP} on {C}ell},
-  booktitle = {Proceedinf of International Workshop on OpenMP 2007},
-  year = {2007},
-  owner = {Tarik},
-  timestamp = {2009.04.23}
+@ARTICLE{cell_omp,
+  author = {OBrien, Kevin and OBrien, Kathryn and Sura, Zehra and Chen, Tong
+	and Zhang, Tao},
+  title = {Supporting OpenMP on Cell},
+  journal = {International Journal of Parallel Programming},
+  year = {2008},
+  volume = {36},
+  pages = {289-311},
+  note = {10.1007/s10766-008-0072-7},
+  affiliation = {IBM T. J. Watson Research Yorktown Heights New York USA},
+  issue = {3},
+  keyword = {Computer Science},
+  publisher = {Springer Netherlands}
 }
 
 @ARTICLE{Owens:2007:ASO,
@@ -416,16 +441,27 @@
 }
 
 @ARTICLE{tsi_2010,
-  author = {Antoine Pédron and Florence Laguzet and Tarik Saidani and Pierre
-	Courbin and Lionel Lacassagne and Michèle Gouiffès},
-  title = {Parallélisation d'opérateurs de {TI} : multi-coeurs, {C}ell ou {GPU}
-	?},
-  journal = {{T}raitement du {S}ignal},
+  author = {Antoine PEDRON and Florence LAGUZET and Tarik SAIDANI and Pierre
+	COURBIN and Lionel LACASSAGNE and Michele GOUIFFES},
+  title = {Parallelisation d'opérateurs de TI: multi-coeurs, Cell ou GPU ?},
+  journal = {TS. Traitement du signal},
   year = {2010},
   volume = {27},
-  pages = {163-184},
-  owner = {saidani},
-  timestamp = {2010.10.02}
+  pages = {161--187},
+  number = {2},
+  note = {Anglais},
+  abstract = {Cet article presente une evaluation des performances de 14 architectures
+	actuelles: 8 processeurs generalistes, 5 GPU ainsi que le processeur
+	Cell. L'algorithme retenu est l'operateur de detection de points
+	d'interet de Harris car representatif des algorithmes de traitement
+	d'images regulier bas niveau a travers differentes transformations
+	algorithmiques et optimisations logicielles adaptees a chaque architecture,
+	cet article guide l'utilisateur dans le choix d'une architecture
+	parallele et evalue l'impact des optimisations afin d'avoir une implantation
+	en adequation avec l'architecture selon deux criteres: le temps de
+	calcul et la consommation energetique.},
+  address = {Cachan, FRANCE},
+  publisher = {Lavoisier}
 }
 
 @ARTICLE{skell_03,
@@ -440,12 +476,9 @@
   acmid = {772854},
   address = {Amsterdam, The Netherlands, The Netherlands},
   doi = {10.1016/S0167-8191(02)00189-8},
-  issn = {0167-8191},
   issue = {12},
-  keywords = {Skeleton, computer vision, data-flow, fast prototyping, parallelism},
   numpages = {24},
-  publisher = {Elsevier Science Publishers B. V.},
-  url = {http://dl.acm.org/citation.cfm?id=772850.772854}
+  publisher = {Elsevier Science Publishers B. V.}
 }
 
 @CONFERENCE{skellbepact,
@@ -473,16 +506,20 @@
   location = {Niagara Falls, Canada}
 }
 
-@ARTICLE{hipeac_2008,
-  author = {Tarik Saidani and Lionel Lacassagne and Joel Falcou and Claude Tadonki
-	and Samir Bouaziz},
-  title = {Parallelization Schemes for Memory Optimization on the Cell Processor
-	: A Case Study on the Harris Corner Detector [Link]},
-  journal = {Transactions on High-Performance Embedded Architectures and Compilers
-	III : Issue 3},
-  year = {2008},
-  owner = {saidani},
-  timestamp = {2010.09.28}
+@INCOLLECTION{hipeac_2008,
+  author = {Saidani, Tarik and Lacassagne, Lionel and Falcou, Joel and Tadonki,
+	Claude and Bouaziz, Samir},
+  title = {Transactions on high-performance embedded architectures and compilers
+	III},
+  publisher = {Springer-Verlag},
+  year = {2011},
+  editor = {Stenstr\"{o}m, Per},
+  chapter = {Parallelization schemes for memory optimization on the cell processor:
+	a case study on the Harris corner detector},
+  pages = {177--200},
+  address = {Berlin, Heidelberg},
+  acmid = {1980789},
+  numpages = {24}
 }
 
 @CONFERENCE{medea07,
@@ -521,14 +558,8 @@
 	benchmark results, one compiler evaluates vector expressions at 95-99.5\%
 	efficiency of hand- coded C using this technique (for long vectors).
 	The speed is 2-15 times that of a conventional C++ vector class.},
-  citeulike-article-id = {3941099},
-  citeulike-linkout-0 = {http://ubiety.uwaterloo.ca/~tveldhui/papers/Expression-Templates/exprtmpl.html},
   journal = {C++ Report},
-  keywords = {c},
   pages = {26--31},
-  posted-at = {2009-01-25 23:00:00},
-  priority = {2},
-  url = {http://ubiety.uwaterloo.ca/~tveldhui/papers/Expression-Templates/exprtmpl.html},
   volume = {7}
 }
 
@@ -541,14 +572,6 @@
   bibsource = {DBLP, http://dblp.uni-trier.de}
 }
 
-@OTHER{hmpp,
-  author = {Wikipédia},
-  note = {[En ligne; Page disponible le 9-janvier-2011]},
-  title = {{HMPP} {O}pen {S}tandard --- Wikipédia{,} l'encyclopédie libre},
-  url = {http://encyclo.voila.fr/w/index.php?title=HMPP_Open_Standard&oldid=59604341},
-  year = {2010}
-}
-
 @CONFERENCE{wolfetiling,
   author = {Wolfe, M.},
   title = {More iteration space tiling},
@@ -558,16 +581,6 @@
   pages = {655--664},
   address = {New York, NY, USA},
   publisher = {ACM},
-  doi = {http://doi.acm.org/10.1145/76263.76337},
-  isbn = {0-89791-341-8},
   location = {Reno, Nevada, United States}
 }
-
-@comment{jabref-meta: selector_publisher:}
-
-@comment{jabref-meta: selector_author:}
-
-@comment{jabref-meta: selector_journal:}
-
-@comment{jabref-meta: selector_keywords:}
 
