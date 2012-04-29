@@ -98,12 +98,12 @@ Une illustration d'une détection de points d'intérêt sur une image 512$\times$51
 	\caption{Implémentation de l'algorithme de Harris sous forme de graphe flot de données}
 	\label{fig_HarrisAlgorithm}
 \end{figure}
-Les images en niveaux de gris sont typiquement des données stockées dans des entiers 8-bit non signés et la sortie de l'algorithme de Harris est dans ce cas là un entier 32 bit afin de satisfaire la dynamique des valeurs calculées qui font l'objet d'opérations de multiplication et d'addition tout au long de l'algorithme. Toutefois, pour des raisons de limitation du jeu d'instruction du SPU, et afin de garantir une comparaison directe avec les extension Altivec et SSE nous avons choisi le format flottant simple précision pour l'entrée et la sortie de l'algorithme. Dans notre implémentation nous avons divisé l'algorithme en 4 noyaux de traitement : un opérateur de \emph{Sobel} qui calcule la dérivée dans les directions horizontale et verticale, un opérateur de multiplication, un noyau de lissage de \emph{Gauss} ($w$ dans l'équation \ref{eq_03}),  suivi d'un opérateur de calcul de réponse des coins. Nous avons fixé la constante $k$ à zéro ($k=0$) (typiquement elle est fixée à 0.04) car ceci n'avait pas d'influence sur le résultat qualitatif et simplifie grandement l'équation \ref{eq_04} et donne l'équation :
+Les images en niveaux de gris sont typiquement des données stockées dans des entiers 8-bit non signés et la sortie de l'algorithme de Harris est dans ce cas là un entier 32 bit afin de satisfaire la dynamique des valeurs calculées qui font l'objet d'opérations de multiplication et d'addition tout au long de l'algorithme. Toutefois, pour des raisons de limitation du jeu d'instructions du SPU, et afin de garantir une comparaison directe avec les extension Altivec et SSE nous avons choisi le format flottant simple précision pour les données d'entrée et de sortie de l'algorithme. Dans notre implémentation nous avons divisé l'algorithme en 4 noyaux de traitement : un opérateur de \emph{Sobel} qui calcule la dérivée dans les directions horizontale et verticale, un opérateur de multiplication, un noyau de lissage de \emph{Gauss} ($w$ dans l'équation \ref{eq_03}),  suivi d'un opérateur de calcul de réponse des coins. Nous avons fixé la constante $k$ à zéro ($k=0$) (typiquement elle est fixée à 0.04) car ceci n'avait pas d'influence sur le résultat qualitatif et simplifie grandement l'équation \ref{eq_04} qui devient :
 \begin{equation}
 C(x,y) = S_{xx}.S_{yy}-S_{xy}^{2} \nonumber
 \end{equation}
 
-On obtient ainsi le graphe flot de données donné dans la figure \ref{fig_HarrisAlgorithm} qui est représentatif d'un algorithme de traitement d'images bas-niveau car il englobe des noyaux de convolution et des opérateurs point à point. Les noyaux de convolution de Sobel ($GradX$ et $GradY$)et le noyau de $Gauss$ sont définis comme suit: 
+On obtient ainsi le graphe flot de données illustré par la figure \ref{fig_HarrisAlgorithm} qui est représentatif d'un algorithme de traitement d'images bas-niveau car il englobe des noyaux de convolution et des opérateurs point à point. Les noyaux de convolution de Sobel ($GradX$ et $GradY$)et le noyau de $Gauss$ sont définis comme suit: 
 
 \begin{equation}
 Grad_{X} = \frac{1}{16}\begin{bmatrix}-1 & \;\;\;0 & \;\;\;1 \\ -2 & \;\;\;0 & 2 \\ -1 & \;\;\;0 & \;\;\;1 \end{bmatrix} \nonumber
@@ -117,12 +117,13 @@ Grad_{Y} = \frac{1}{16}\begin{bmatrix}-1 & -2 & -1 \\ \;\;\;0 & \;\;\;0 & \;\;\;
  Gauss = \frac{1}{16}\begin{bmatrix}\;\;\;1 & \;\;\;2 & \;\;\;1 \\ \;\;\;2 & \;\;\;4 & \;\;\;2 \\ \;\;\;1 & \;\;\;2 & \;\;\;1 \end{bmatrix} \nonumber
  \end{equation}
 
-\'Etant donné qu'ils consomment plus d'entrées qu'ils ne produisent de sorties, les noyaux de convolution sont le goulot d'étranglement de l'algorithme car ils augmentent considérablement le trafic mémoire. Au vu de la nature des calculs effectués dans les différents noyaux, et qui sont très simples généralement (une suite de multiplications/accumulation) on peut considérer que les instructions mémoire sont prépondérantes dans l'application et que de ce fait, on peut qualifier l'algorithme de problème limité par la mémoire (\emph{memory-bounded problem}). C'est pour cela que les efforts d'optimisation sur l'algorithme de Harris sont faites par l'optimisation des accès à différents niveaux de la hiérarchie mémoire du processeur Cell. 
+\'Etant donné qu'ils consomment plus d'entrées qu'ils ne produisent de sorties, les noyaux de convolution sont le goulot d'étranglement de l'algorithme car ils augmentent considérablement le trafic mémoire. Au vu de la nature des calculs effectués dans les différents noyaux, et qui sont très simples généralement (une suite de multiplications/accumulation) on peut considérer que les instructions mémoire sont prépondérantes dans l'application et que de ce fait, on peut qualifier l'algorithme de problème limité par la mémoire (\emph{memory-bounded problem}). C'est pour cette raison que les efforts d'optimisation sur l'algorithme de Harris sont faites par l'optimisation des accès à différents niveaux de la hiérarchie mémoire du processeur Cell. 
 \section{Exploitation du parallélisme et optimisations multi-niveau}
-Les techniques d'optimisation démontrées ici sont multiples et variées. Certaines sont de nature algorithmique et relèvent plutôt du domaine du traitement du signal et des images. D'autres techniques génériques relèvent plutôt du domaine de l'optimisation logicielle, on les retrouve parfois dans certains compilateurs optimisants. Les techniques précédentes sont générales et peuvent être appliqués à la majorité des processeurs généralistes car elle ne tiennent pas compte des aspects spécifiques d'une architecture donnée. Par contre, des optimisations spécifiques à l'architecture particulière du Cell ont aussi été employées. Celles-ci ne sont généralement pas reproductibles sur d'autres architectures parallèles car elles relèvent plus d'une adéquation entre l'algorithme et l'architecture qui contient certains dispositifs qui n'existent que sur le Cell et qui parfois résultent de contraintes de programmation spécifiques au Cell comme la taille limitée des mémoires locale des SPEs qui nécessitent une gestion logicielle explicite.
-\subsection{Techniques spécifiques au traitement d'images}
+Les techniques d'optimisation démontrées ici sont multiples et variées. Certaines sont de nature algorithmique et relèvent plutôt du domaine du traitement du signal et des images. D'autres techniques génériques relèvent plutôt du domaine de l'optimisation logicielle, on les retrouve parfois dans certains compilateurs optimisants. Les techniques précédentes sont générales et peuvent être appliquées à la majorité des processeurs généralistes car elle ne tiennent pas compte des aspects spécifiques d'une architecture donnée. Par contre, des optimisations spécifiques à l'architecture particulière du Cell ont été employées également. Celles-ci ne sont généralement pas reproductibles sur d'autres architectures parallèles car elles relèvent plus d'une adéquation entre l'algorithme et l'architecture qui contient certains dispositifs qui n'existent que sur le Cell et qui parfois résultent de contraintes de programmation spécifiques au Cell comme la taille limitée des mémoires locales des SPEs qui nécessitent une gestion logicielle explicite.
 
+\subsection{Techniques spécifiques au traitement d'images}
 Ces optimisations sont spécifiques au domaine du traitement du signal et des images. Elles peuvent donc être appliquées à plusieurs algorithmes et sur n'importe quelle architecture. Celles que nous avons utilisé concernent les noyaux de convolution et sont : la séparabilité, le chevauchement (\emph{overlapping}) et la factorisation des calculs.
+
 \subsubsection{Séparabilité des noyaux}
 \begin{figure}[!htb]
 	\centering
@@ -146,7 +147,7 @@ Lorsque l'on sépare les noyaux de convolution, le calcul se fait en deux passes 
 \begin{tabular}{|c|c|c||c|c|c|c|}
 \multicolumn{7}{c}{\textbf{Complexité arithmétique filtre de \emph{Sobel}}}\\
 \hline
-\multicolumn{3}{|c||}{\emph{Sans séparation du noyau}} & \multicolumn{3}{|c|}{\emph{Avec séparation du noyau}} & \emph{Gain}\\
+\multicolumn{3}{|c||}{\cellcolor{medium-gray} \emph{Sans séparation du noyau}} & \multicolumn{3}{|c|}{\cellcolor{medium-gray}\emph{Avec séparation du noyau}} & \cellcolor{medium-gray}\emph{Gain}\\
 \hline
 \textbf{\texttt{MUL}} & \textbf{\texttt{ADD}} & \textbf{Total}& \textbf{\texttt{MUL}} & \textbf{\texttt{ADD}} & \textbf{Total}  & \multirow{2}{*}{\textbf{x1,75}}\\
 \cline{1-6}
@@ -154,7 +155,7 @@ Lorsque l'on sépare les noyaux de convolution, le calcul se fait en deux passes 
 \hline
 \multicolumn{7}{c}{\textbf{Complexité arithmétique filtre de \emph{Gauss}}}\\
 \hline
-\multicolumn{3}{|c||}{\emph{Sans séparation du noyau}} & \multicolumn{3}{|c|}{\emph{Avec séparation du noyau}}  & \emph{Gain } \\
+\multicolumn{3}{|c||}{\cellcolor{medium-gray}\emph{Sans séparation du noyau}} & \multicolumn{3}{|c|}{\cellcolor{medium-gray}\emph{Avec séparation du noyau}}  & \cellcolor{medium-gray}\emph{Gain } \\
 \hline
 \textbf{\texttt{MUL}} & \textbf{\texttt{ADD}} & \textbf{Total}& \textbf{\texttt{MUL}} & \textbf{\texttt{ADD}} & \textbf{Total} &   \multirow{2}{*}{\textbf{x2,16}} \\
 \cline{1-6}
@@ -170,7 +171,7 @@ Lorsque l'on sépare les noyaux de convolution, le calcul se fait en deux passes 
 \begin{tabular}{|c|c|c||c|c|c|c|}
 \multicolumn{7}{c}{\textbf{Complexité mémoire filtre de \emph{Sobel}}}\\
 \hline
-\multicolumn{3}{|c||}{\emph{Sans séparation du noyau}} & \multicolumn{3}{|c|}{\emph{Avec séparation du noyau}} & \emph{Gain}\\
+\multicolumn{3}{|c||}{\cellcolor{medium-gray}\emph{Sans séparation du noyau}} & \multicolumn{3}{|c|}{\cellcolor{medium-gray}\emph{Avec séparation du noyau}} & \cellcolor{medium-gray}\emph{Gain}\\
 \hline
 \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}& \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}  & \multirow{2}{*}{\textbf{x1,16}}\\
 \cline{1-6}
@@ -178,7 +179,7 @@ Lorsque l'on sépare les noyaux de convolution, le calcul se fait en deux passes 
 \hline
 \multicolumn{7}{c}{\textbf{Complexité mémoire filtre de \emph{Gauss}}}\\
 \hline
-\multicolumn{3}{|c||}{\emph{Sans séparation du noyau}} & \multicolumn{3}{|c|}{\emph{Avec séparation du noyau}}  & \emph{Gain} \\
+\multicolumn{3}{|c||}{\emph{\cellcolor{medium-gray}Sans séparation du noyau}} & \multicolumn{3}{|c|}{\cellcolor{medium-gray}\emph{Avec séparation du noyau}}  & \cellcolor{medium-gray}\emph{Gain} \\
 \hline
 \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}& \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total} &   \multirow{2}{*}{\textbf{x1,42}} \\
 \cline{1-6}
@@ -196,13 +197,13 @@ Lorsque l'on sépare les noyaux de convolution, le calcul se fait en deux passes 
 	\caption{Recouvrement de la fenêtre du filtre gaussien $3\times3$, certaines données sont conservées en décalant le masque de convolution.}
 	\label{fig_convoover}
 \end{figure}
-La deuxième particularité des noyaux de convolution est une notion de chevauchement qui permet d'avoir une redondance d'une partie des données (Fig. \ref{fig_convoover}). En effet, à chaque itération du calcul de la convolution il n'y a qu'une seule nouvelle colonne chargée. Les colonnes redondantes sont copiées dans les registres en les décalant d'un pas à droite par rapport à leur position précédente (\emph{rotation de registres}). On notera que le même type d'optimisation peut se faire grâce à un \emph{déroulage de boucle}.
+La deuxième particularité des noyaux de l'opérateur de convolution est une notion de chevauchement qui permet d'avoir une redondance d'une partie des données (Fig. \ref{fig_convoover}). En effet, à chaque itération du calcul de la convolution il n'y a qu'une seule nouvelle colonne chargée. Les colonnes redondantes sont copiées dans les registres en les décalant d'un pas à droite par rapport à leur position précédente (\emph{rotation de registres}). On notera que le même type d'optimisation peut se faire grâce à un \emph{déroulage de boucle}.
 \begin{table}
 \centering
 \begin{tabular}{|c|c|c||c|c|c|c|}
 \multicolumn{7}{c}{\textbf{Complexité mémoire filtre de \emph{Sobel}}}\\
 \hline
-\multicolumn{3}{|c||}{\emph{Sans chevauchement du noyau}} & \multicolumn{3}{|c|}{\emph{Avec chevauchement du noyau}} & \emph{Gain}\\
+\multicolumn{3}{|c||}{\cellcolor{medium-gray}\emph{Sans chevauchement du noyau}} & \multicolumn{3}{|c|}{\cellcolor{medium-gray}\emph{Avec chevauchement du noyau}} & \cellcolor{medium-gray}\emph{Gain}\\
 \hline
 \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}& \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}  & \multirow{2}{*}{\textbf{x2,33}}\\
 \cline{1-6}
@@ -210,7 +211,7 @@ La deuxième particularité des noyaux de convolution est une notion de chevauchem
 \hline
 \multicolumn{7}{c}{\textbf{Complexité mémoire filtre de \emph{Gauss}}}\\
 \hline
-\multicolumn{3}{|c||}{\emph{Sans chevauchement du noyau}} & \multicolumn{3}{|c|}{\emph{Avec chevauchement du noyau}}  & \emph{Gain} \\
+\multicolumn{3}{|c||}{\cellcolor{medium-gray}\emph{Sans chevauchement du noyau}} & \multicolumn{3}{|c|}{\cellcolor{medium-gray}\emph{Avec chevauchement du noyau}}  & \cellcolor{medium-gray}\emph{Gain} \\
 \hline
 \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}& \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total} &   \multirow{2}{*}{\textbf{x2,5}} \\
 \cline{1-6}
@@ -228,7 +229,7 @@ Les tableau \ref{tab_sepaover_arith} et \ref{tab_sepaover_mem} donnent la différ
 \begin{tabular}{|c|c|c||c|c|c|c|}
 \multicolumn{7}{c}{\textbf{Complexité arithmétique filtre de \emph{Sobel}}}\\
 \hline
-\multicolumn{3}{|c||}{\emph{Sans séparation du noyau + chevauchement}} & \multicolumn{3}{|c|}{\emph{Avec séparation du noyau + chevauchement}} & \emph{Gain}\\
+\multicolumn{3}{|c||}{\cellcolor{medium-gray}\emph{Sans séparation du noyau + chevauchement}} & \multicolumn{3}{|c|}{\cellcolor{medium-gray}\emph{Avec séparation du noyau + chevauchement}} & \cellcolor{medium-gray}\emph{Gain}\\
 \hline
 \textbf{\texttt{MUL}} & \textbf{\texttt{ADD}} & \textbf{Total}& \textbf{\texttt{MUL}} & \textbf{\texttt{ADD}} & \textbf{Total}  & \multirow{2}{*}{\textbf{x1,75}}\\
 \cline{1-6}
@@ -236,7 +237,7 @@ Les tableau \ref{tab_sepaover_arith} et \ref{tab_sepaover_mem} donnent la différ
 \hline
 \multicolumn{7}{c}{\textbf{Complexité arithmétique filtre de \emph{Gauss}}}\\
 \hline
-\multicolumn{3}{|c||}{\emph{Sans séparation du noyau + chevauchement}} & \multicolumn{3}{|c|}{\emph{Avec séparation du noyau + chevauchement}}  & \emph{Gain} \\
+\multicolumn{3}{|c||}{\cellcolor{medium-gray}\emph{Sans séparation du noyau + chevauchement}} & \multicolumn{3}{|c|}{\cellcolor{medium-gray}\emph{Avec séparation du noyau + chevauchement}}  & \cellcolor{medium-gray}\emph{Gain} \\
 \hline
 \textbf{\texttt{MUL}} & \textbf{\texttt{ADD}} & \textbf{Total}& \textbf{\texttt{MUL}} & \textbf{\texttt{ADD}} & \textbf{Total} &   \multirow{2}{*}{\textbf{x2,16}} \\
 \cline{1-6}
@@ -252,7 +253,7 @@ Les tableau \ref{tab_sepaover_arith} et \ref{tab_sepaover_mem} donnent la différ
 \begin{tabular}{|c|c|c||c|c|c|c|}
 \multicolumn{7}{c}{\textbf{Complexité mémoire filtre de \emph{Sobel}}}\\
 \hline
-\multicolumn{3}{|c||}{\emph{Sans séparation du noyau + chevauchement}} & \multicolumn{3}{|c|}{\emph{Avec séparation du noyau + chevauchement }} & \emph{Gain}\\
+\multicolumn{3}{|c||}{\cellcolor{medium-gray}\emph{Sans séparation du noyau + chevauchement}} & \multicolumn{3}{|c|}{\cellcolor{medium-gray}\emph{Avec séparation du noyau + chevauchement }} & \cellcolor{medium-gray}\emph{Gain}\\
 \hline
 \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}& \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}  & \multirow{2}{*}{\textbf{x3,5}}\\
 \cline{1-6}
@@ -260,7 +261,7 @@ Les tableau \ref{tab_sepaover_arith} et \ref{tab_sepaover_mem} donnent la différ
 \hline
 \multicolumn{7}{c}{\textbf{Complexité mémoire filtre de \emph{Gauss}}}\\
 \hline
-\multicolumn{3}{|c||}{\emph{Sans séparation du noyau + chevauchement}} & \multicolumn{3}{|c|}{\emph{Avec séparation du noyau + chevauchement }}  & \emph{Gain} \\
+\multicolumn{3}{|c||}{\cellcolor{medium-gray}\emph{Sans séparation du noyau + chevauchement}} & \multicolumn{3}{|c|}{\cellcolor{medium-gray}\emph{Avec séparation du noyau + chevauchement }}  & \cellcolor{medium-gray}\emph{Gain} \\
 \hline
 \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}& \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total} &   \multirow{2}{*}{\textbf{x5}} \\
 \cline{1-6}
@@ -278,7 +279,7 @@ Les tableau \ref{tab_sepaover_arith} et \ref{tab_sepaover_mem} donnent la différ
 \label{fig_compo}
 \end{figure}
 
-Cette technique d'optimisation s'avère très efficace surtout dans les codes où les instructions mémoire sont prépondérantes. En effet, le fait de composer deux fonctions de calcul pour en faire une seule qui effectue les deux calculs réduit considérablement le nombre d'accès mémoire puisque les opérations de sauvegarde et de chargement intermédiaires entre les deux fonctions initiales sont supprimées, les accès se font alors au niveau des registres. De plus, le cout de l'appel de fonction (sauvegarde dans la pile et branchement) est également réduit, car le résultat de la composition de fonctions est une seule fonction. Dans les cas les plus simples, la mise en oeuvre de cette technique n'est pas difficile. Toutefois, lorsqu'il s'agit d'opérateurs de convolution comme dans notre cas, des nouvelles contraintes apparaissent afin de garantir la validité du résultat du calcul. Ainsi, des règles de composition s'imposent en fonction de l'ordre dans lequel s'enchainent les fonctions. Ces règles sont illustrées sur la figure \ref{fig_compo}. On peut alors constater qu'il existe plusieurs règles de composition des fonctions selon d'une part, la nature des opérateurs mis en jeu et, d'autre part, l'ordre dans lequel ils s'enchainent. En terme d'apport de performances de cette technique de nous observons deux aspects distincts:
+Cette technique d'optimisation s'avère très efficace surtout dans les codes où les instructions mémoire sont prépondérantes. En effet, le fait de composer deux fonctions de calcul pour en faire une seule qui effectue les deux calculs, réduit considérablement le nombre d'accès mémoire puisque les opérations de sauvegarde et de chargement intermédiaires entre les deux fonctions initiales sont supprimées, les accès se font alors au niveau des registres. De plus, le coût de l'appel de fonction (sauvegarde dans la pile et branchement) est également réduit, car le résultat de la composition de fonctions est une seule fonction. Dans les cas les plus simples, la mise en oeuvre de cette technique n'est pas difficile. Toutefois, lorsqu'il s'agit d'opérateurs de convolution comme dans notre cas, des nouvelles contraintes apparaissent afin de garantir la validité du résultat du calcul. Ainsi, des règles de composition s'imposent en fonction de l'ordre dans lequel s'enchainent les fonctions. Ces règles sont illustrées sur la figure \ref{fig_compo}. On peut alors constater qu'il existe plusieurs règles de composition des fonctions selon d'une part, la nature des opérateurs mis en jeu et, d'autre part, l'ordre dans lequel ils s'enchainent. En terme d'apport de performances de cette technique, nous observons deux aspects distincts:
 \begin{itemize}
 \item \textbf{Nombre d'accès mémoire} : on observe en effet que ceux ci sont systématiquement réduits, car les opérations de \texttt{LOAD/STORE} intermédiaires sont supprimés, sauf dans le cas de la composition de deux noyaux de convolution (cas \textbf{(d)} sur la figure \ref{fig_compo})ou la présence de bords supplémentaires augmente considérablement le nombre des accès mémoire.
 \item \textbf{Nombre d'opérations arithmétique} : Celui-ci ne change pas dans le meilleurs des cas notamment lorsque les opérateurs composées sont point à point ou alors lorsque l'opérateur de convolution est placé devant un opérateur point à point (cas \textbf{(b)} sur la figure \ref{fig_compo}). Toutefois, si la convolution est placée à la suite d'un quelconque traitement, elle impose que l'opérateur qui la précède soit effectué sur tous les pixels de voisinage, ce qui augmente considérablement la complexité arithmétique, en particulier lorsque l'opérateur qui précède est une convolution (cas \textbf{(d)} sur la figure \ref{fig_compo}).
@@ -288,46 +289,46 @@ D'après les observations ci-dessus, la composition de fonction peut être un bon 
 \centering
 \begin{tabular}{|c||c|c|c|c|}
 \hline
-\multicolumn{5}{|c|}{\textbf{Version de base sans composition}}\\
+\multicolumn{5}{|c|}{\cellcolor{medium-gray}\textbf{Version de base sans composition}}\\
 \hline
 \textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
 \hline
 \hline
-\emph{Sobel} & 2 & 6 & 1 & 14\\
+\rowcolor{light-gray} \emph{Sobel} & 2 & 6 & 1 & 14\\
 \hline
 \emph{Mul} & 3 & 2 & 1 & 9\\
 \hline
-\emph{Gauss} & 3 & 9 & 1 & 30\\
+\rowcolor{light-gray} \emph{Gauss} & 3 & 9 & 1 & 30\\
 \hline
 \emph{Coarsity} & 1 & 3 & 1 & 4\\
 \hline
-\emph{Harris} & 1 & 48 & 9 & 57\\
+\rowcolor{light-gray} \emph{Harris} & 1 & 48 & 9 & 57\\
 \hline
-\multicolumn{5}{|c|}{\textbf{Version avec chevauchement et séparation des noyaux sans composition}}\\
+\multicolumn{5}{|c|}{\cellcolor{medium-gray}\textbf{Version avec chevauchement et séparation des noyaux sans composition}}\\
 \hline
 \textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
 \hline
 \hline
-\emph{Sobel} & 1 & 3 & 2 & 5\\
+\rowcolor{light-gray}\emph{Sobel} & 1 & 3 & 2 & 5\\
 \hline
 \emph{Mul} & 3 & 2 & 1 & 6\\
 \hline
-\emph{Gauss} & 3 & 3 & 1 & 12\\
+\rowcolor{light-gray} \emph{Gauss} & 3 & 3 & 1 & 12\\
 \hline
 \emph{Coarsity} & 1 & 3 & 1 & 4\\
 \hline
-\emph{Harris} & 1 & 21 & 9 & 30\\
+\rowcolor{light-gray} \emph{Harris} & 1 & 21 & 9 & 30\\
 \hline
-\multicolumn{5}{|c|}{\textbf{Version avec composition de Sobel$\circ$Mul et Gauss$\circ$Coarsity}}\\
+\multicolumn{5}{|c|}{\cellcolor{medium-gray}\textbf{Version avec composition de Sobel$\circ$Mul et Gauss$\circ$Coarsity}}\\
 \hline
 \textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
 \hline
 \hline
-\emph{Sobel$\circ$Mul} & 1 & 9 & 3 & 12\\
+\rowcolor{light-gray} \emph{Sobel$\circ$Mul} & 1 & 9 & 3 & 12\\
 \hline
 \emph{Gauss$\circ$Coarsity} & 3 & 9 & 1 & 28\\
 \hline
-\emph{Harris} & 1 & 36 & 4 & 40\\
+\rowcolor{light-gray} \emph{Harris} & 1 & 36 & 4 & 40\\
 \hline
 \end{tabular}
 \caption{Tableau récapitulatif de l'optimisation des accès mémoire}
@@ -336,32 +337,32 @@ D'après les observations ci-dessus, la composition de fonction peut être un bon 
 \begin{table}
 \begin{tabular}{|c||c|c|c|c|}
 \hline
-\multicolumn{5}{|c|}{\textbf{Version avec chevauchement et séparation + composition de Sobel$\circ$Mul et Gauss$\circ$Coarsity}}\\
+\multicolumn{5}{|c|}{\cellcolor{medium-gray}\textbf{Version avec chevauchement et séparation + composition de Sobel$\circ$Mul et Gauss$\circ$Coarsity}}\\
 \hline
 \textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
 \hline
 \hline
-\emph{Sobel$\circ$Mul} & 1 & 3 & 3 & 6\\
+\rowcolor{light-gray}\emph{Sobel$\circ$Mul} & 1 & 3 & 3 & 6\\
 \hline
 \emph{Gauss$\circ$Coarsity} & 3 & 3 & 1 & 10\\
 \hline
-\emph{Harris} & 1 & 12 & 4 & 16\\
+\rowcolor{light-gray}\emph{Harris} & 1 & 12 & 4 & 16\\
 \hline
-\multicolumn{5}{|c|}{\textbf{Version avec composition de Sobel$\circ$Mul$\circ$Gauss$\circ$Coarsity}}\\
+\multicolumn{5}{|c|}{\cellcolor{medium-gray}\textbf{Version avec composition de Sobel$\circ$Mul$\circ$Gauss$\circ$Coarsity}}\\
 \hline
 \textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
 \hline
 \hline
-\emph{Sobel$\circ$Mul$\circ$Gauss$\circ$Coarsity} & 1 & 25 & 1 & 26\\
+\rowcolor{light-gray}\emph{Sobel$\circ$Mul$\circ$Gauss$\circ$Coarsity} & 1 & 25 & 1 & 26\\
 \hline
 \emph{Harris} & - & - & - & 26\\
 \hline
-\multicolumn{5}{|c|}{\textbf{Version avec chevauchement et séparation + composition de Sobel$\circ$Mul$\circ$Gauss$\circ$Coarsity}}\\
+\multicolumn{5}{|c|}{\cellcolor{medium-gray}\textbf{Version avec chevauchement et séparation + composition de Sobel$\circ$Mul$\circ$Gauss$\circ$Coarsity}}\\
 \hline
 \textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
 \hline
 \hline
-\emph{Sobel$\circ$Mul$\circ$Gauss$\circ$Coarsity} & 1 & 5 & 1 & 6\\
+\rowcolor{light-gray}\emph{Sobel$\circ$Mul$\circ$Gauss$\circ$Coarsity} & 1 & 5 & 1 & 6\\
 \hline
 \emph{Harris} & - & - & - & 6\\
 \hline
