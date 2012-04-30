@@ -281,17 +281,17 @@ Les tableau \ref{tab_sepaover_arith} et \ref{tab_sepaover_mem} donnent la différ
 
 Cette technique d'optimisation s'avère très efficace surtout dans les codes où les instructions mémoire sont prépondérantes. En effet, le fait de composer deux fonctions de calcul pour en faire une seule qui effectue les deux calculs, réduit considérablement le nombre d'accès mémoire puisque les opérations de sauvegarde et de chargement intermédiaires entre les deux fonctions initiales sont supprimées, les accès se font alors au niveau des registres. De plus, le coût de l'appel de fonction (sauvegarde dans la pile et branchement) est également réduit, car le résultat de la composition de fonctions est une seule fonction. Dans les cas les plus simples, la mise en oeuvre de cette technique n'est pas difficile. Toutefois, lorsqu'il s'agit d'opérateurs de convolution comme dans notre cas, des nouvelles contraintes apparaissent afin de garantir la validité du résultat du calcul. Ainsi, des règles de composition s'imposent en fonction de l'ordre dans lequel s'enchainent les fonctions. Ces règles sont illustrées sur la figure \ref{fig_compo}. On peut alors constater qu'il existe plusieurs règles de composition des fonctions selon d'une part, la nature des opérateurs mis en jeu et, d'autre part, l'ordre dans lequel ils s'enchainent. En terme d'apport de performances de cette technique, nous observons deux aspects distincts:
 \begin{itemize}
-\item \textbf{Nombre d'accès mémoire} : on observe en effet que ceux ci sont systématiquement réduits, car les opérations de \texttt{LOAD/STORE} intermédiaires sont supprimés, sauf dans le cas de la composition de deux noyaux de convolution (cas \textbf{(d)} sur la figure \ref{fig_compo})ou la présence de bords supplémentaires augmente considérablement le nombre des accès mémoire.
-\item \textbf{Nombre d'opérations arithmétique} : Celui-ci ne change pas dans le meilleurs des cas notamment lorsque les opérateurs composées sont point à point ou alors lorsque l'opérateur de convolution est placé devant un opérateur point à point (cas \textbf{(b)} sur la figure \ref{fig_compo}). Toutefois, si la convolution est placée à la suite d'un quelconque traitement, elle impose que l'opérateur qui la précède soit effectué sur tous les pixels de voisinage, ce qui augmente considérablement la complexité arithmétique, en particulier lorsque l'opérateur qui précède est une convolution (cas \textbf{(d)} sur la figure \ref{fig_compo}).
+\item \textbf{Nombre d'accès mémoire} : on observe en effet que ceux-ci sont systématiquement réduits, car les opérations de \texttt{\textbf{load/store}} intermédiaires sont supprimées, sauf dans le cas de la composition de deux noyaux de convolution (cas \textbf{(d)} sur la figure \ref{fig_compo})où la présence de bords supplémentaires augmente considérablement le nombre des accès mémoire.
+\item \textbf{Nombre d'opérations arithmétiques} : Celui-ci ne change pas dans le meilleur des cas notamment lorsque les opérateurs composés sont point à point ou alors lorsque l'opérateur de convolution est placé devant un opérateur point à point (cas \textbf{(b)} sur la figure \ref{fig_compo}). Toutefois, si la convolution est placée à la suite d'un quelconque traitement, elle impose que l'opérateur qui la précède soit effectué sur tous les pixels de voisinage, ce qui augmente considérablement la complexité arithmétique, en particulier lorsque l'opérateur qui précède est une convolution (cas \textbf{(d)} sur la figure \ref{fig_compo}).
 \end{itemize}
-D'après les observations ci-dessus, la composition de fonction peut être un bon choix pour l'optimisation d'une chaîne de traitement telle que l'algorithme de détection de point d'intérêts de Harris. Toutefois, toutes les combinaisons n'apportent pas forcément une amélioration des performances. Elles peuvent même dans certains cas les dégrader. Le tableau \ref{tab_memall} résume les complexité mémoire et arithmétiques des différents cas de composition sur la figure \ref{fig_compo} en incluant également les optimisations décrites auparavant.
+D'après les observations ci-dessus, la composition de fonction peut être un bon choix pour l'optimisation d'une chaîne de traitement telle que l'algorithme de détection de point d'intérêts de Harris. Toutefois, toutes les combinaisons n'apportent pas forcément une amélioration des performances. Elles peuvent même dans certains cas les dégrader. Le tableau \ref{tab_memall} résume les complexité mémoire et arithmétique des différents cas de composition sur la figure \ref{fig_compo} en incluant également les optimisations décrites auparavant.
 \begin{table}
 \centering
 \begin{tabular}{|c||c|c|c|c|}
 \hline
 \multicolumn{5}{|c|}{\cellcolor{medium-gray}\textbf{Version de base sans composition}}\\
 \hline
-\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
+\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
 \hline
 \hline
 \rowcolor{light-gray} \emph{Sobel} & 2 & 6 & 1 & 14\\
@@ -306,7 +306,7 @@ D'après les observations ci-dessus, la composition de fonction peut être un bon 
 \hline
 \multicolumn{5}{|c|}{\cellcolor{medium-gray}\textbf{Version avec chevauchement et séparation des noyaux sans composition}}\\
 \hline
-\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
+\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
 \hline
 \hline
 \rowcolor{light-gray}\emph{Sobel} & 1 & 3 & 2 & 5\\
@@ -319,9 +319,9 @@ D'après les observations ci-dessus, la composition de fonction peut être un bon 
 \hline
 \rowcolor{light-gray} \emph{Harris} & 1 & 21 & 9 & 30\\
 \hline
-\multicolumn{5}{|c|}{\cellcolor{medium-gray}\textbf{Version avec composition de Sobel$\circ$Mul et Gauss$\circ$Coarsity}}\\
+\multicolumn{5}{|c|}{\cellcolor{medium-gray}\textbf{Version avec composition de Mul$\circ$Sobel et Coarsity$\circ$Gauss}}\\
 \hline
-\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
+\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
 \hline
 \hline
 \rowcolor{light-gray} \emph{Sobel$\circ$Mul} & 1 & 9 & 3 & 12\\
@@ -337,9 +337,9 @@ D'après les observations ci-dessus, la composition de fonction peut être un bon 
 \begin{table}
 \begin{tabular}{|c||c|c|c|c|}
 \hline
-\multicolumn{5}{|c|}{\cellcolor{medium-gray}\textbf{Version avec chevauchement et séparation + composition de Sobel$\circ$Mul et Gauss$\circ$Coarsity}}\\
+\multicolumn{5}{|c|}{\cellcolor{medium-gray}\textbf{Version avec chevauchement et séparation + composition de Mul$\circ$Sobel et Coarsity$\circ$Gauss}}\\
 \hline
-\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
+\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
 \hline
 \hline
 \rowcolor{light-gray}\emph{Sobel$\circ$Mul} & 1 & 3 & 3 & 6\\
@@ -348,18 +348,18 @@ D'après les observations ci-dessus, la composition de fonction peut être un bon 
 \hline
 \rowcolor{light-gray}\emph{Harris} & 1 & 12 & 4 & 16\\
 \hline
-\multicolumn{5}{|c|}{\cellcolor{medium-gray}\textbf{Version avec composition de Sobel$\circ$Mul$\circ$Gauss$\circ$Coarsity}}\\
+\multicolumn{5}{|c|}{\cellcolor{medium-gray}\textbf{Version avec composition de Coarsity$\circ$Gauss$\circ$Mul$\circ$Sobel}}\\
 \hline
-\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
+\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
 \hline
 \hline
 \rowcolor{light-gray}\emph{Sobel$\circ$Mul$\circ$Gauss$\circ$Coarsity} & 1 & 25 & 1 & 26\\
 \hline
 \emph{Harris} & - & - & - & 26\\
 \hline
-\multicolumn{5}{|c|}{\cellcolor{medium-gray}\textbf{Version avec chevauchement et séparation + composition de Sobel$\circ$Mul$\circ$Gauss$\circ$Coarsity}}\\
+\multicolumn{5}{|c|}{\cellcolor{medium-gray}\textbf{Version avec chevauchement et séparation + composition de Coarsity$\circ$Gauss$\circ$Mul$\circ$Sobel}}\\
 \hline
-\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOADS}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
+\textbf{Opérateur} & \textbf{Occurrences} & \textbf{\texttt{LOAD}} & \textbf{\texttt{STORE}} & \textbf{Total}\\
 \hline
 \hline
 \rowcolor{light-gray}\emph{Sobel$\circ$Mul$\circ$Gauss$\circ$Coarsity} & 1 & 5 & 1 & 6\\
@@ -380,9 +380,9 @@ D'après les observations ci-dessus, la composition de fonction peut être un bon 
   %\caption{Réseau d'interconnexion du Cell d'après \cite{cellnoc}}
   %\label{fignoc}
 %\end{figure}
-Dans cette partie, nous abordons des techniques d'optimisations qui sont spécifiques à notre architecture cible. On se limite dans l'étude aux seuls transferts de données présents dans l'application. Cette limitation s'explique par le fait que les applications que nous étudiants sont souvent dominés par les transferts de données et ou le ratio transfert/calcul est grand. Les transferts constituent donc me principal goulot d'étranglement dans nos algorithmes. On entend par transfert de donnée, toute communication qui met en jeu deux mémoires physiques sur Cell. Cela comporte les transferts DMA entre la mémoire principale et les mémoires locales des SPEs ainsi que les communications mettant en jeu deux mémoires privées de SPEs. Plusieurs aspects sont mis en avant. D'une part, les caractéristiques internes de l'architecture du réseau de communications \cite{cellnoc} (\emph{Network On Chip (NoC)}) du Cell et d'autres part la nature des transferts de données imposées par l'algorithme et la partition des données à plusieurs niveaux de la hiérarchie mémoire.
+Dans cette partie, nous abordons des techniques d'optimisation qui sont spécifiques à notre architecture cible. On se limite dans l'étude aux seuls transferts de données présents dans l'application. Cette limitation s'explique par le fait que les applications que nous étudions sont souvent dominées par les transferts de données et où le ratio transfert/calcul est grand. Les transferts constituent donc le principal goulot d'étranglement dans nos algorithmes. On entend par transfert de données, toute communication qui met en jeu deux mémoires physiques sur le Cell. Cela comporte les transferts DMA entre la mémoire principale et les mémoires locales des SPEs ainsi que les communications mettant en jeu deux mémoires privées de SPEs. Plusieurs aspects sont mis en avant. D'une part, les caractéristiques internes de l'architecture du réseau de communications \cite{cellnoc} (\emph{Network On Chip (NoC)}) du Cell et d'autres part la nature des transferts de données imposées par l'algorithme et la partition des données à plusieurs niveaux de la hiérarchie mémoire.
 \subsubsection{Optimisation de la bande-passante du \emph{NoC}}
-Dans le modèle de programmation utilisé qui est basé sur le \emph{SDK} du Cell et les librairies \emph{libspe}, les données présentes en mémoire centrale sont transférées aux mémoires locales des SPEs avant d'être traitées. Ces transferts se font d'une manière explicite dans le logiciel par des appels à des fonctions de l'API de gestion du \emph{MFC} et ils sont gérées par le \emph{NoC} au travers de contrôleurs mémoire et de l'arbitre de bus. L'architecture du bus et la topologie du réseau impose quelques contraintes qui jouent un rôle primordial dans la minimisation des latences des communications point à point.
+Dans le modèle de programmation utilisé qui est basé sur le \emph{SDK} du Cell et les librairies \emph{libspe}, les données présentes en mémoire centrale sont transférées aux mémoires locales des SPEs avant d'être traitées. Ces transferts se font d'une manière explicite dans le logiciel par des appels à des fonctions de l'API de gestion du \emph{MFC} et ils sont gérés par le \emph{NoC} au travers de contrôleurs mémoire et de l'arbitre de bus. L'architecture du bus et la topologie du réseau imposent quelques contraintes qui jouent un rôle primordial dans la minimisation des latences des communications point à point.
 \paragraph{Taille du transfert}
 \begin{figure}[htb]
   \centering
@@ -397,7 +397,7 @@ Dans le modèle de programmation utilisé qui est basé sur le \emph{SDK} du Cell e
 %	\caption{Bande-passante cumulée }
 %\end{figure}
 
-Le premier paramètre influant sur le débit est la taille du bloc de données transféré. D'une part, il y a des contraintes imposées par l'API de transfert qui limite les tailles d'un bloc transféré par une commande DMA à 1, 2, 4, 8 octets ou tout multiple de 16 octets et la taille de données maximale transférée en une seule commande est de 16 Ko. Des plus les adresses doivent obligatoirement être alignées sur 16 octets et un alignement sur 128 \emph{bytes} est préférable à cause de la taille de la ligne de cache sur la mémoire locale du SPE qui est de 128 octets. D'autre part l'espace mémoire disponible sur les SPEs pour stocker données et instructions est limité à 256 Ko. Toutes ces contraintes, imposent d'accorder beaucoup d'attention à la taille de bloc transféré et à l'alignement des données qui ne sont pas du ressort du développeur dans les architectures à mémoire partagée. Plusieurs \emph{benchmarks} ont été effectués dans \cite{cellnoc} et \cite{cell_bw02} et qui démontrent la relation entre d'une part la taille et d'autre part le débit et la latence des transferts sur le Cell. Le graphe \ref{fiGowsize} donne les résultats sur un benchmark de bande-passante que nous avons effectué sur une BladeCenter QS20 et démontrent que celle-ci est d'autant plus grande que la taille des données transférées est importante. Ceci s'explique par le fait que la \emph{latence} du transfert qui représente le temps d'initialisation d'un transfert, cette durée étant constante quelque soit la taille du paquet jusqu'à 16 Ko.
+Le premier paramètre influant sur le débit de transfert est la taille du bloc de données transféré. D'une part, il y a des contraintes imposées par l'API de transfert qui limite les tailles d'un bloc transféré par une commande DMA à 1, 2, 4, 8 octets ou tout multiple de 16 octets et la taille de données maximale transférée en une seule commande est de 16 Ko. Des plus les adresses doivent obligatoirement être alignées sur 16 octets et un alignement sur 128 \emph{bytes} est préférable à cause de la taille de la ligne de cache sur la mémoire locale du SPE qui est de 128 octets. D'autre part l'espace mémoire disponible sur les SPEs pour stocker données et instructions est limité à 256 Ko. Toutes ces contraintes, imposent d'accorder beaucoup d'attention à la taille de bloc transféré et à l'alignement des données qui ne sont pas du ressort du développeur dans les architectures à mémoire partagée. Plusieurs \emph{benchmarks} ont été effectués dans \cite{cellnoc} et \cite{cell_bw02} et qui démontrent la relation entre d'une part la taille et d'autre part le débit et la latence des transferts sur le Cell. Le graphe \ref{fiGowsize} donne les résultats sur un benchmark de bande-passante que nous avons effectué sur une BladeCenter QS20 et démontrent que celle-ci est d'autant plus grande que la taille des données transférées est importante. Ceci s'explique par le fait que la \emph{latence} du transfert qui représente le temps d'initialisation d'un transfert, cette durée étant constante quelque soit la taille du paquet jusqu'à 16 Ko.
 \paragraph{Nombre de transferts concurrents}
 \begin{figure}[htb]
   \centering
