@@ -421,9 +421,9 @@ Le but visé par cette technique est de rapprocher le plus possible les données d
 
 \subsubsection{Optimisation du tuilage des données}
 Le \emph{loop tiling} \cite{wolfetiling} ou \emph{loop blocking} est une technique d'optimisation très utilisée que cela soit par les programmeurs ou par les compilateurs optimisants\cite{Kennedy_2001}. Cette technique consiste en un découpage des données à différents niveaux de la hiérarchie mémoire, de telle sorte que la latence d'accès soit la plus petite possible. Dans une architecture à mémoire partagée contenant des caches, ceci revient à un découpage qui garantit que les données utilisées par un traitement donné tiennent toujours dans le cache. Ainsi, le temps d'accès aux données est de l'ordre du cycle et les défauts de cache (\emph{cache misses}) sont quasi inexistants quelque soit la taille des données.\\
-\indent Au vu de la nature de la hiérarchie mémoire du processeur Cell, le \emph{tiling} est une obligation. D'une part, il n'existe pas de mémoire cache pour gérer les mémoires privée des SPEs. D'autre part l'espace de stockage est limité dans les mémoires locales des SPEs à 256 Ko. Ceci rend le découpage des données en tuiles pouvant tenir dans le cache obligatoire. L'unité de données atomique devient alors la tuile qui représente le morceau de donné le plus petit qui va être traité par le code du SPE.
+\indent Au vu de la nature de la hiérarchie mémoire du processeur Cell, le \emph{tiling} est une obligation. D'une part, il n'existe pas de mémoire cache pour gérer les mémoires privées des SPEs. D'autre part l'espace de stockage est limité dans les mémoires locales des SPEs à 256 Ko. Ceci rend le découpage des données en tuiles pouvant tenir dans le cache obligatoire. L'unité de données atomique devient alors la tuile qui, représente le morceau de données le plus petit traité par le code du SPE.
 \paragraph{Taille de la tuile}
-La taille de la tuile est un paramètre primordial lorsqu'il s'agit de découper les données de manière optimale. Dans le cas du processeur Cell, les contraintes imposées par l'architecture font que le choix de la taille optimale est restreint. En effet, la taille limitée de la mémoire locale pour le code source et les données, impose que la taille de la tuile ne dépasse pas la capacité de stockage qui est de 256 Ko. L'autre paramètre dont on doit tenir compte est le nombre d'entrées et de sorties des fonctions de traitement car celui-ci donne le nombre de tuiles. On peut en déduire globalement, que la taille de la tuile est égale à la capacité de stockage restante pour les données, divisée par le nombre de tuiles en entrée et en sortie de la chaine de traitement mise en jeu. D'autre part, selon ce qui a été vu précedemment, la taille de transfert qui garantit une bande-passante maximale sur le bus est de 16 Ko ou un multiple de cette taille.
+La taille de la tuile est un paramètre primordial lorsqu'il s'agit de découper les données de manière optimale. Dans le cas du processeur Cell, les contraintes imposées par l'architecture font que le choix de la taille optimale est restreint. En effet, la taille limitée de la mémoire locale pour le code source et les données, impose que la taille de la tuile ne dépasse pas la capacité de stockage qui est de 256 Ko. L'autre paramètre dont on doit tenir compte, est le nombre d'entrées et de sorties des fonctions de traitement car celui-ci donne le nombre de tuiles. On peut en déduire globalement, que la taille de la tuile est égale à la capacité de stockage restante pour les données, divisée par le nombre de tuiles en entrée et en sortie de la chaine de traitement mise en jeu. D'autre part, selon ce qui a été vu précedemment, la taille de transfert qui garantit une bande-passante maximale sur le bus est de 16 Ko ou un multiple de cette taille.
 \paragraph{Forme de la tuile}
 \begin{figure}[htb]
   \centering
@@ -431,8 +431,8 @@ La taille de la tuile est un paramètre primordial lorsqu'il s'agit de découper l
   \caption{Redondances de données pour un opérateur de convolution $3 \times 3$}
     \label{qreloads}
 \end{figure}
-Les tuiles que l'on traite dans notre cas sont en général d'une forme rectangulaire. Toutefois, à cause de la présence d'opérateurs de convolution, les dimensions hauteur et largeur de la tuile ($h$ et $w$) doivent également être considérées. En effet, dans le cas d'opérateurs de convolution les bords qui représentent les voisinages des pixels traités augmentent la quantité de données transférées de la mémoire. Cette quantité peut être réduite avec un choix judicieux des dimensions de la tuile. Comme le montre la figure \ref{qreloads} certains des pixels sont rechargés. Nous étudions dans la suite l'influence des dimensions de la tuile sur ce nombre de pixels redondants.\\
-\indent Si l'on considère une image de hauteur $H$ et de largeur de $W$, une tuile de dimensions $h$ et $w$ et un opérateur de convolution nécessitant un voisinage $3 \times 3$ pour chaque pixel. On suppose pour simplifier le calcul, que la matrice de convolution est carrée, ce qui fait que les bords des deux côtés sont égaux. La quantité totale de pixels transférés pour le traitement est alors :
+Les tuiles que l'on traite dans notre cas sont en général d'une forme rectangulaire. Toutefois, à cause de la présence d'opérateurs de convolution, les dimensions hauteur et largeur de la tuile ($h$ et $w$) doivent également être considérées. En effet, dans le cas d'opérateurs de convolution, les bords qui représentent les voisinages des pixels traités augmentent la quantité de données transférées de la mémoire. Cette quantité peut être réduite avec un choix judicieux des dimensions de la tuile. Comme le montre la figure \ref{qreloads} certains des pixels sont rechargés. Nous étudions dans la suite l'influence des dimensions de la tuile sur ce nombre de pixels redondants.\\
+\indent On considère une image de hauteur $H$ et de largeur $W$, une tuile de dimensions $h$ et $w$ et un opérateur de convolution nécessitant un voisinage $3 \times 3$ pour chaque pixel. Afin de simplifier le calcul, on suppose que la matrice de convolution est carrée, ce qui fait que les bords des deux côtés sont égaux. La quantité totale de pixels transférés pour le traitement est alors :
 \begin{equation}
 Q = (h+2b)\times(w+2b)\times nb_{tiles}\nonumber
 \end{equation}
@@ -449,9 +449,13 @@ Posons alors $\lambda = h \times w = C^{te}$, la fonction à minimiser devient al
 \begin{equation}
 Q = (h+2b)\times(w+2b)\times\frac{H \times W}{\lambda} \nonumber
 \end{equation}
-Calculons alors les dérivées  : \begin{equation}\frac{\partial Q}{\partial h} \mbox{ et } \frac{\partial Q}{\partial w} \nonumber\end{equation}
 
-\begin{equation} Q = \frac{H \times W}{\lambda} (h+2b) \times (\frac{\lambda}{h}+2b) \mbox{  et symétriquement  } Q = \frac{H \times W}{\lambda} (w+2b) \times (\frac{\lambda}{w}+2b) \nonumber\end{equation}
+\begin{equation} \mbox{Calculons alors les dérivées : } \frac{\partial Q}{\partial h} \mbox{ et } \frac{\partial Q}{\partial w} \nonumber\end{equation}
+
+
+%\begin{equation} Q = \frac{H \times W}{\lambda} (h+2b) \times (\frac{\lambda}{h}+2b) \mbox{  et symétriquement  } Q = \frac{H \times W}{\lambda} (w+2b) \times (\frac{\lambda}{w}+2b) \nonumber\end{equation}
+\begin{equation} Q = \frac{H \times W}{\lambda} (h+2b) \times (\frac{\lambda}{h}+2b) \quad \quad Q = \frac{H \times W}{\lambda} (w+2b) \times (\frac{\lambda}{w}+2b) \nonumber\end{equation}
+
 
 \begin{equation}
 %$\frac{\partial Q}{\partial h} = \frac{H \times W \times 2b}{\lambda \times h^{2}}(h^{2}-\lambda)$
@@ -460,38 +464,38 @@ Calculons alors les dérivées  : \begin{equation}\frac{\partial Q}{\partial h} \m
 \begin{equation}
 \frac{\partial Q}{\partial w} = \frac{H \times W \times 2b}{\lambda \times w^{2}}(w^{2}-\lambda) \nonumber
 \end{equation}
-Le minimum de la fonction $Q$ est atteint lorsque : \begin{equation}\frac{\partial Q}{\partial h} = 0 \mbox{ et } \frac{\partial Q}{\partial w}  = 0\nonumber\end{equation}
+\begin{equation}\mbox{Le minimum de la fonction $Q$ est atteint lorsque : }\frac{\partial Q}{\partial h} = 0 \mbox{ et } \frac{\partial Q}{\partial w}  = 0 \nonumber\end{equation}
 
-ce qui donne \begin{equation}h = w = \sqrt{\lambda} \nonumber \end{equation}
+\begin{equation} \mbox{ce qui donne : } h = w = \sqrt{\lambda} \nonumber \end{equation}
 \begin{figure}[htb]
   \centering
   \includegraphics[width=\columnwidth]{Chapter5/figures/meshtile}
   \caption{Tracé de la fonction $Q(h,w)$ dans l'espace}
   \label{meshtile}\end{figure}
-Ce qui permet de déduire que la forme de la tuile qui minimise la quantité de données transférée est une forme carrée. D'autre par lorsque l'on observe le tracé de la fonction $Q$ sur la figure \ref{meshtile} on peut constater que cette fonction décroit quand $h$ et $w$ augmentent et que la valeur de $Q$ est minimale pour une surface de tuile donnée ($h \times w = C^{te}$) lorsque $h = w$ ce qui correspond à la première bissectrice du plan $(hw)$. Ceci permet d'affirmer d'une part que la tuile carrée est optimale pour une surface donnée et que la valeur de $Q$ diminue d'autant plus lorsque $h$ et $w$ augmentent. Les valeurs de $h$ et $w$ sont alors limitées par l'espace mémoire disponible pour une tuile dans la mémoire locale des SPEs.\\
-\indent Ce résultat nous a permis de démontrer que la forme de la tuile avait une influence sur la quantité de données transférées et par conséquent sur la performance globale de l'application. Cependant, ce découpage n'est pas forcément optimal lorsqu'on passe à l'implémentation. En effet, des tuiles de formes carrées signifient des accès à des zones non-contigues de la mémoire. Ce type d'accès est en général couteux car il provoque des sauts dans la mémoire. De plus, sur le processeur Cell, ceci se traduit en commandes DMA sur des zones non-contigues de la mémoire ce qui nécessitent des commandes du type \emph{DMA list}. Ces dernières requièrent la création d'une liste qui contient chaque DMA élémentaire et qui est d'autant plus grande que le nombre de transferts est important. Cette liste doit également être mise à jour lors de chaque nouveau transfert. Toutes ces contraintes nous ont poussé dans un premier temps à adopter un découpage en bandes qui consiste à ce que les tuiles aient une largeur égale à celle de l'image. Ceci permet que les accès se fassent uniquement sur des zones contigues de la mémoire et que les transferts puissent se faire avec une seule commande DMA. De plus, lorsqu'une tuile ne contient pas de bords latéraux comme dans notre cas, le problème d'alignement des transferts est également contourné. Par contre, ce choix induit des limitations en terme de taille d'image pouvant être traitée. En effet, sachant que la taille de la tuile est limitée et que sa largeur est égale celle de l'image, la hauteur de la tuile elle, diminue au fur et à mesure que la largeur de l'image augmente. De ce fait, les accès non-contigus sont nécessaires pour des taille d'images très grandes.
+Ce qui permet de déduire que la forme de la tuile qui minimise la quantité de données transférée est une forme carrée. D'autre part, lorsque l'on observe le tracé de la fonction $Q$ sur la figure \ref{meshtile} on peut constater que cette fonction décroit quand $h$ et $w$ augmentent et que la valeur de $Q$ est minimale pour une surface de tuile donnée ($ h \times w = constante $) lorsque $h = w$ ce qui correspond à la première bissectrice du plan $(hw)$. Ceci permet d'affirmer que la tuile carrée est optimale pour une surface donnée et que la valeur de $Q$ diminue d'autant plus lorsque $h$ et $w$ augmentent. Les valeurs de $h$ et $w$ sont alors limitées par l'espace mémoire disponible pour une tuile dans la mémoire locale des SPEs.\\
+\indent Ce résultat nous a permis de démontrer que la forme de la tuile avait une influence sur la quantité de données transférées et par conséquent sur la performance globale de l'application. Cependant, ce découpage n'est pas forcément optimal lorsqu'on passe à l'implémentation. En effet, des tuiles de forme carrée signifient des accès à des zones non-contigues de la mémoire. Ce type d'accès est en général coûteux car il provoque des sauts dans la mémoire. De plus, sur le processeur Cell, ceci se traduit en commandes DMA sur des zones non-contigues de la mémoire ce qui nécessite des commandes du type \emph{DMA list}. Ces dernières requièrent la création d'une liste qui contient chaque DMA élémentaire et qui est d'autant plus grande que le nombre de transferts est important. Cette liste doit également être mise à jour lors de chaque nouveau transfert. Toutes ces contraintes nous ont poussé dans un premier temps à adopter un découpage en bandes qui consiste en l'utilisation de tuiles ayant une largeur égale à celle de l'image. Ceci permet des accès sur des zones contigues de la mémoire et des transferts pouvant se faire en une seule commande DMA. De plus, lorsqu'une tuile ne contient pas de bords latéraux comme dans notre cas, le problème d'alignement des transferts est également contourné. Par contre, ce choix induit des limitations en terme de taille d'image pouvant être traitée. En effet, sachant que la taille de la tuile est limitée et que sa largeur est égale à celle de l'image, la hauteur de la tuile elle, diminue au fur et à mesure que la largeur de l'image augmente. De ce fait, les accès non-contigus sont nécessaires pour des taille d'images très grandes.
 \paragraph{Résultats expérimentaux}
-Nous avons procédé à quelques expérimentations sur l'influence de la forme de la tuile. Cette étude à fait l'objet d'une publication dans \cite{heart2010}.Le but étant de valider notre implémentation en considérant plusieurs formes de tuiles, et en vérifiant la conformité des résultats obtenus avec l'étude théorique. Le programme s'exécute à partir du PPE qui utilise un seul SPE pour le calcul. Pour chaque image nous avons choisi une taille de tuile fixe i.e : un volume de donnée transféré constant et avons fait varier la forme de la tuile.
-Nous observons d'après les tableaux Tab. \ref{tile_perf_01}, \ref{tile_perf_02}, \ref{tile_perf_03} et \ref{tile_perf_04}  que la tuile qui se rapproche le plus de la forme carrée possède les meilleures performances globales. La différence de performances entre deux tuiles de tailles proches est marginale mais dans un cas réaliste où le flux d'images est continu, cette différence est plus importante. Pour les tailles d'images très grandes (Tab. \ref{tile_perf_03} et \ref{tile_perf_04}) on constate que l'amélioration est de l'ordre de 50\% en comparaison avec des tuiles qui ont la largeur de l'image. Il faut noter qu'il existe un surcoût à l'utilisation de tuiles carrées. En effet, une telle forme nécessite l'utilisation des DMA listes. Le compromis se situe dans ce cas entre la redondance de données et des accès mémoire irréguliers. Les résultats expérimentaux montrent que les tuiles carrées donnent de meilleurs performances malgré ce compromis. 
+Nous avons procédé à quelques expérimentations sur l'influence de la forme de la tuile. Cette étude à fait l'objet d'une publication dans \cite{heart2010}. Le but étant de valider notre implémentation en considérant plusieurs formes de tuiles, et en vérifiant la conformité des résultats obtenus avec l'étude théorique. Le programme s'exécute à partir du PPE qui utilise un seul SPE pour le calcul. Pour chaque image, nous avons choisi une taille de tuile fixe i.e : un volume de données transférées constant et avons fait varier la forme de la tuile.
+Nous observons d'après les tableaux \ref{tile_perf_01}, \ref{tile_perf_02}, \ref{tile_perf_03} et \ref{tile_perf_04}  que la tuile qui se rapproche le plus de la forme carrée possède les meilleures performances globales. La différence de performances entre deux tuiles de tailles proches est marginale mais dans un cas réaliste où le flux d'images est continu, cette différence est plus importante. Pour les tailles d'images très grandes (Tab. \ref{tile_perf_03} et \ref{tile_perf_04}) on constate que l'amélioration est de l'ordre de 50\% en comparaison avec des tuiles qui ont la largeur de l'image. Il faut noter qu'il existe un surcoût à l'utilisation de tuiles carrées. En effet, une telle forme nécessite l'utilisation des DMA listes. Le compromis se situe dans ce cas, entre la redondance de données et les accès mémoire irréguliers. Les résultats expérimentaux montrent que les tuiles carrées donnent de meilleurs performances malgré ce compromis. 
 
 \begin{table}
 \centering
 \begin{tabular}{|c||c|c|}
 \hline
-\textbf{$h_{tuile}$} & \textbf{$w_{tuile}$} & \textbf{temps total (sec)}  \\
+\rowcolor{medium-gray} \textbf{$h_{tuile}$} & \textbf{$w_{tuile}$} & \textbf{temps total (sec)}  \\
 \hline
 \hline
 8 & 512 & 0.0494\\
 \hline
-16 & 256 & 0.0598\\
+\rowcolor{light-gray} 16 & 256 & 0.0598\\
 \hline
 32 & 128 & 0.0485\\
 \hline
-64 & 64 & 0.0345\\
+\rowcolor{light-gray} 64 & 64 & 0.0345\\
 \hline
 128 & 32 & 0.0517\\
 \hline
-256 & 16 & 0.0699\\
+\rowcolor{light-gray} 256 & 16 & 0.0699\\
 \hline
 512 & 8 & 0.0734\\
 \hline
@@ -504,20 +508,20 @@ Nous observons d'après les tableaux Tab. \ref{tile_perf_01}, \ref{tile_perf_02},
 \centering
 \begin{tabular}{|c||c|c|}
 \hline
-\textbf{$h_{tuile}$} & \textbf{$w_{tuile}$} & \textbf{temps total (sec)}  \\
+\rowcolor{medium-gray}\textbf{$h_{tuile}$} & \textbf{$w_{tuile}$} & \textbf{temps total (sec)}  \\
 \hline
 \hline
 8 & 512 & 0.198\\
 \hline
-16 & 256 & 0.238\\
+\rowcolor{light-gray}16 & 256 & 0.238\\
 \hline
 32 & 128 & 0.187\\
 \hline
-64 & 64 & 0.110\\
+\rowcolor{light-gray}64 & 64 & 0.110\\
 \hline
 128 & 32 & 0.180\\
 \hline
-256 & 16 & 0.218\\
+\rowcolor{light-gray}256 & 16 & 0.218\\
 \hline
 512 & 8 & 0.352\\
 \hline
@@ -530,20 +534,20 @@ Nous observons d'après les tableaux Tab. \ref{tile_perf_01}, \ref{tile_perf_02},
 \centering
 \begin{tabular}{|c||c|c|}
 \hline
-\textbf{$h_{tuile}$} & \textbf{$w_{tuile}$} & \textbf{temps total (sec)}  \\
+\rowcolor{medium-gray}\textbf{$h_{tuile}$} & \textbf{$w_{tuile}$} & \textbf{temps total (sec)}  \\
 \hline
 \hline
 5 & 1200 & 0.494\\
 \hline
-10 & 600 & 0.360\\
+\rowcolor{light-gray}10 & 600 & 0.360\\
 \hline
 20 & 300 & 0.264\\
 \hline
-40 & 150 & 0.235\\
+\rowcolor{light-gray}40 & 150 & 0.235\\
 \hline
 80 & 75 & 0.183\\
 \hline
-160 & 37 & 0.247\\
+\rowcolor{light-gray}160 & 37 & 0.247\\
 \hline
 320 & 18 & 0.275\\
 \hline
@@ -556,20 +560,20 @@ Nous observons d'après les tableaux Tab. \ref{tile_perf_01}, \ref{tile_perf_02},
 \centering
 \begin{tabular}{|c||c|c|}
 \hline
-\textbf{$h_{tuile}$} & \textbf{$w_{tuile}$} & \textbf{temps total (sec)}  \\
+\rowcolor{medium-gray}\textbf{$h_{tuile}$} & \textbf{$w_{tuile}$} & \textbf{temps total (sec)}  \\
 \hline
 \hline
 8 & 512 & 0.985\\
 \hline
-16 & 256 & 0.726\\
+\rowcolor{light-gray}16 & 256 & 0.726\\
 \hline
 32 & 128 & 0.643\\
 \hline
-64 & 64 & 0.438\\
+\rowcolor{light-gray}64 & 64 & 0.438\\
 \hline
 128 & 32 & 0.692\\
 \hline
-256 & 16 & 0.866\\
+\rowcolor{light-gray}256 & 16 & 0.866\\
 \hline
 512 & 8 & 1.422\\
 \hline
@@ -580,7 +584,7 @@ Nous observons d'après les tableaux Tab. \ref{tile_perf_01}, \ref{tile_perf_02},
 
 
 \subsection{Schémas de parallélisation}\label{parallel_schemes}
-Dans ce qui suit, nous abordons l'optimisation de notre algorithme à un niveau d'abstraction plus haut, celui des tâches. L'architecture du Cell permet plusieurs placements possibles du graphe d'opérateurs par la présence de 8 SPEs et la possibilité de mettre en place différents schémas de communication. Dans les figures qui suivent, les opérateurs sont représentés par des cercles, les processeurs par des rectangles à coins arrondis, les tuiles sont de forme rectangulaire et peuvent contenir des bords. Les flèches à trait fin représentent des instruction \texttt{LOAD/STORE} dans la mémoire privée du SPE alors que les flèches plus épaisses représentent des commandes DMA inter-SPE ou alors entre la mémoire centrale et la mémoire locale d'un SPE. La lettre $S$ représente le gradient de \emph{Sobel} en $x$ et $y$ combiné. La lettre $G$ représente le noyau de lissage de \emph{Gauss}. La lettre $M$ représente une multiplication point à point et la lettre $H$ le calcul de la coarsité. Si des chiffres précédent les lettres citées auparavant ils correspondent au nombre d'occurrences de l'opérateur par exemple $3M$ représente trois instances de l'opérateur de multiplication. Les différents placement se basent sur le graphe de référence de la figure \ref{fig_HarrisAlgorithm}.
+Dans ce qui suit, nous abordons l'optimisation de notre algorithme à un niveau d'abstraction plus haut, celui des tâches. L'architecture du Cell permet plusieurs placements possibles du graphe d'opérateurs par la présence de 8 SPEs et la possibilité de mettre en place différents schémas de communication. Dans les figures qui suivent, les opérateurs sont représentés par des cercles, les processeurs par des rectangles à coins arrondis, les tuiles sont de forme rectangulaire et peuvent contenir des bords. Les flèches à trait fin représentent des instruction \texttt{\textbf{load/store}} dans la mémoire privée du SPE alors que les flèches plus épaisses représentent des commandes DMA inter-SPE ou alors entre la mémoire centrale et la mémoire locale d'un SPE. La lettre $S$ représente le gradient de \emph{Sobel} en $x$ et $y$ combinés. La lettre $G$ représente le noyau de lissage de \emph{Gauss}. La lettre $M$ représente une multiplication point à point et la lettre $H$ le calcul de la coarsité. Si des chiffres précèdent les lettres citées auparavant, ils correspondent au nombre d'occurrences de l'opérateur. Par exemple, $3M$ représente trois instances de l'opérateur de multiplication. Les différents placements se basent sur le graphe de référence de la figure \ref{fig_HarrisAlgorithm}.
 \subsubsection{Data parallel :  Fig. \ref{harris-spmd}}
 \begin{figure}[!htb]
 	\centering
@@ -588,7 +592,7 @@ Dans ce qui suit, nous abordons l'optimisation de notre algorithme à un niveau d
 	\caption{Schéma de parallélisation SPMD conventionnel}
 	  \label{harris-spmd}
 \end{figure}
-Dans ce schéma de déploiement, l'image est divisée en 8 régions de même taille, afin que chacun des 8 SPEs ait une charge de calcul équivalente. Tous les SPEs exécutent le même code. Les opérateurs sont exécutés successivement sur l'image entière l'un après l'autre. A titre d'exemple l'opérateur de multiplication n'est exécuté que lorsque le calcul du filtre de \emph{Sobel} est achevé sur toute l'image. Ce modèle de calcul est dit \emph{data-parallel} car les données sont envoyées en parallèle sur les SPEs et traitées de manière complètement indépendantes les unes des autres. Toutefois, la bande passante sur le bus mémoire centrale vers \emph{locale store} est beaucoup sollicitée car les données sont systématiquement lues et écrites avant et après chaque opérateur.
+Dans ce schéma de déploiement, l'image est divisée en 8 régions de même taille, afin que chacun des 8 SPEs ait une charge de calcul équivalente. Tous les SPEs exécutent le même code. Les opérateurs sont exécutés successivement sur l'image entière l'un après l'autre. A titre d'exemple l'opérateur de multiplication n'est exécuté que lorsque le calcul du filtre de \emph{Sobel} est achevé sur toute l'image. Ce modèle de calcul est dit \emph{data-parallel} car les données sont envoyées en parallèle sur les SPEs et traitées de manière complètement indépendante les unes des autres. Toutefois, la bande passante sur le bus mémoire centrale vers le \emph{local store} est sollicitée de manière importante, car les données sont systématiquement lues et écrites avant et après chaque opérateur.
 \subsubsection{Pipeline : Fig. \ref{harris-pipeline}}
 \begin{figure}[!htb]
 	\centering
@@ -596,23 +600,23 @@ Dans ce schéma de déploiement, l'image est divisée en 8 régions de même taille, 
 	\caption{Schéma de parallélisation pipeline}
 	\label{harris-pipeline}
 \end{figure}
-Cette implémentation de l'algorithme consiste à déployer le graphe d'opérateur sous forme de pipeline. L'image n'est pas subdivisée en régions de traitement mais chaque tuile traitée traverse le pipeline avant qu'une nouvelle tuile ne puisse le faire. L'algorithme est par conséquent fortement sérialisé car la possibilité d'exécuter des \emph{threads} concurrents y est réduite à cause des dépendances de données introduites dans le graphe. Par contre la bande-passante inter-SPEs est bien exploitée car la majorité des transferts se font entre SPEs et par conséquent la pression exercée sur le bus précédemment est atténuée car elle est répartie sur l'ensemble de l'anneau.
-\subsubsection{Chainage d'opérateur par paires : Fig. \ref{harris-hchain}}
+Cette implémentation de l'algorithme consiste à déployer le graphe d'opérateurs sous forme de pipeline. L'image n'est pas subdivisée en régions de traitement mais chaque tuile traitée traverse le pipeline avant qu'une nouvelle tuile ne puisse le faire. L'algorithme est par conséquent fortement sérialisé car la possibilité d'exécuter des \emph{threads} concurrents y est réduite à cause des dépendances de données introduites dans le graphe. Par contre, la bande-passante inter-SPEs est bien exploitée car la majorité des transferts se font entre SPEs et par conséquent la pression exercée sur le bus précédemment est atténuée car elle est répartie sur l'ensemble de l'anneau.
+\subsubsection{Chainage d'opérateurs par paires : Fig. \ref{harris-hchain}}
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= \columnwidth]{Chapter5/figures/harris-hchain}
 	\caption{Schéma de Parallélisation Chainage d'opérateurs par paires}
 	\label{harris-hchain}
 \end{figure}
-Dans cette version deux opérateurs successifs sont placés sur le même SPE. Ainsi, les opérateur \emph{Sobel} et \emph{Mul} sont placés sur un même SPE et \emph{Gauss} et \emph{Coarsity} sont placés sur un autre SPE. Le nombre de SPEs dans un processeur Cell étant de 8, ce schéma permet d'avoir 4 régions de l'image traitées en parallèle. Si l'on compare cette version à la précédente, on notera que la pression sur le bus d'interconnexion est plus importante car les transferts concurrents sont plus nombreux et par conséquent le risque de contention du bus est plus probable.
-\subsubsection{Chainage et fusion d'opérateur par paires : Fig. \ref{harris-hchainhpipe}}
+Dans cette version deux opérateurs successifs sont placés sur le même SPE. Ainsi, les opérateurs \emph{Sobel} et \emph{Mul} sont placés sur un même SPE et \emph{Gauss} et \emph{Coarsity} sont placés sur un autre SPE. Le nombre de SPEs dans un processeur Cell étant de 8, ce schéma permet d'avoir 4 régions de l'image traitées en parallèle. Si l'on compare cette version à la précédente, on notera que la pression sur le bus d'interconnexion est plus importante car les transferts concurrents sont plus nombreux et par conséquent le risque de contention du bus est plus probable.
+\subsubsection{Chainage et fusion d'opérateurs par paires : Fig. \ref{harris-hchainhpipe}}
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= 0.6\columnwidth]{Chapter5/figures/harris-hchainhpipe}
 	\caption{Schéma de Parallélisation Chainage et fusion d'opérateurs par paires}
 	\label{harris-hchainhpipe}
 \end{figure}
-Cette version est une variante de celle qui la précède. L'idée étant de fusionner les opérateurs présents sur un même SPE, et ce afin d'éliminer les instructions de \texttt{LOAD} et \texttt{STORE} présent à la sortie de du premier et à l'entrée du second. De ce fait, le nombre de cycles peut être considérablement réduit, surtout lorsque l'on sait que la latence des instructions mémoire est de 6 cycles sur les SPE \cite{cell_handbook}.
+Cette version est une variante de celle qui la précède. L'idée étant de fusionner les opérateurs présents sur un même SPE, et ce afin d'éliminer les instructions de \texttt{\textbf{load}} et \texttt{\textbf{store}} présents à la sortie du premier et à l'entrée du second. De ce fait, le nombre de cycles peut être considérablement réduit, surtout lorsque l'on sait que la latence des instructions mémoire est de 6 cycles sur les SPE \cite{cell_handbook}.
 \subsubsection{Chaînage complet et fusion d'opérateur par paires : Fig. \ref{harris-hchainfpipe}}
 \begin{figure}[htb]
 	\centering
@@ -620,16 +624,16 @@ Cette version est une variante de celle qui la précède. L'idée étant de fusionne
 	\caption{Schéma de Parallélisation Chaînage et fusion d'opérateurs par paires}
 	\label{harris-hchainfpipe}
 \end{figure}
-Dans cette implémentation tous les opérateurs sont exécutés sur le même SPE. D'une part ceci permet d'éviter les transferts DMA entre SPE et minimise donc les transactions sur le bus d'interconnexion.
+Dans cette implémentation tous les opérateurs sont exécutés sur le même SPE. D'une part ceci permet d'éviter les transferts DMA entre SPEs et minimise donc les transactions sur le bus d'interconnexion.
 \section{\'Evaluation des performances}
-Après avoir exposé les différentes techniques d'optimisations nous procédons à la mesure de performance pour les différents modèles de déploiement qui ont été mis en oeuvre. Il s'agit ici de comparer les implémentations en terme de temps d'exécution sur le processeur Cell. Nous évaluons également l'influence des transferts sur la performance globale de chacun des modèles.
+Après avoir exposé les différentes techniques d'optimisation, nous procédons à la mesure des performances pour les différents modèles de déploiement qui ont été mis en oeuvre. Il s'agit ici de comparer les implémentations en terme de temps d'exécution sur le processeur Cell. Nous évaluons également l'influence des transferts sur la performance globale de chacun des modèles.
 \subsection{Métriques de mesure}
 La métrique que nous avons choisi d'utiliser pour la mesure de performance, est le nombre de cycles moyen par pixel ou $cpp$ :\\
 
 \begin{equation}cpp = \frac{nombre_{cyles \mbox{ } cpu}}{nombre_{pixels}} = \frac{nombre_{cyles \mbox{ } cpu}}{H \times W} \nonumber\end{equation}
-Les nombres de cycles cpu sont mesurées à l'aide de primitives spécifiques $PowerPC$ et qui permettent de lire des registres des compteurs cpu. Les bancs de tests ont été conçus de sorte à mesurer d'une part la performance brute ainsi que d'autres métriques spécifiques aux architectures parallèles qui sont des métriques de passage à l'échelle (\emph{scalability}) notamment l'accélération, \emph{speedup}, et l'efficacité, \emph{efficiency}. Ces deux quantités ont été mesurées en se basant sur la loi d'Amdahl \cite{amdahl}. Nous avons choisi ce modèle pour sa simplicité, d'autres modèles plus précis qui prennent en compte l'équilibrage de charge et le surcout existent tels que celui de Karp et Flatt \cite{karp_flatt}, mais nous ne les avons pas utilisés dans le cadre de cette étude. 
+Le nombre de cycles cpu est mesuré à l'aide de primitives spécifiques $PowerPC$ et qui permettent de lire des registres des compteurs CPU. Les bancs de tests ont été conçus de sorte à mesurer la performance brute ainsi que d'autres métriques spécifiques aux architectures parallèles qui sont des métriques de passage à l'échelle ( \emph{scalability} ) notamment l'accélération ( \emph{speedup} ), et l'efficacité ( \emph{efficiency} ). Ces deux quantités ont été mesurées en se basant sur la loi d'Amdahl \cite{amdahl}. Nous avons choisi ce modèle pour sa simplicité, d'autres modèles plus précis qui prennent en compte l'équilibrage de charge et le surcout existent tels que celui de Karp et Flatt \cite{karp_flatt}, mais nous ne les avons pas utilisés dans le cadre de cette étude. 
 \subsection{Méthode et plateforme de mesure}
-La plate-forme sur laquelle a été menée l'évaluation des performance est un Blade QS20 d'IBM cadencé à 3.2 GHz. Cette lame contient deux processeurs Cell, chacun relié à une mémoire de 512 MB, ce qui donne au total 1 Go de \emph{RAM} disponible. Dans notre expérimentation un seul processeur Cell est utilisé sur les deux. Le timer utilisé pour la mesure la performance est appelé \emph{timebase} et il est cadencé à 14.318 $Mhz$. L'OS installé est un Linux, distribution Fedora 7. Le développement à été réalisé sur le \emph{Cell SDK 3.0} et les compilateurs utilisés sont \emph{ppu-gcc} et {spu-gcc}, ce qui implique une compilation du type \emph{dual-source} un pour le SPE et un pour le PPE.\\
+La plate-forme sur laquelle a été menée l'évaluation des performance est un Blade Server QS20 d'IBM cadencé à 3.2 GHz. Cette lame contient deux processeurs Cell, chacun relié à une mémoire de 512 MB, ce qui donne au total 1 Go de \emph{RAM} disponible. Dans notre expérimentation, un processeur Cell sur deux est utilisé. Le compteur utilisé pour la mesure de la performance est appelé \emph{timebase} et il est cadencé à 14.318 MHz. L'OS installé est un Linux, distribution Fedora 7. Le développement à été réalisé sur le \emph{Cell SDK 3.0} et les compilateurs utilisés sont \emph{ppu-gcc} et {spu-gcc}, ce qui implique une compilation du type \emph{dual-source} un pour le SPE et un pour le PPE.\\
 \indent La méthodologie de mesure adoptée est en accord avec les systèmes de vision par ordinateur. Nous avons simulé le cas d'un flux d'images continu en ajoutant une boucle externe autour de l'implémentation sur une image et avons mesuré le nombre de cycles moyen pour une image. Ceci permet de négliger le surcoût induit par la création et la synchronisation des \emph{threads}. L'interface utilisateur permet de faire varier plusieurs paramètres, notamment la taille de l'image, la taille de la tuile et le nombre de SPEs.
 \subsection{Comparaison des schémas de parallélisation}
 \begin{figure}[htb]
@@ -638,10 +642,10 @@ La plate-forme sur laquelle a été menée l'évaluation des performance est un Blad
 	\caption{Comparaison des modèles en cycles par point : SPMD correspond à la version data parallel, PIPELINE au pipeline, HCHAIN+HPIPE au chainage d'opérateur par paire et HCHAIN+HPIPE au chaînage complet et fusion d'opérateur par paires }
 	\label{comparemodels}
 \end{figure}
-La figure \ref{comparemodels} donne une comparaison entre les différents modèle de déploiement de l'algorithme de Harris sur le processeur Cell décrits précédemment. Ce que l'on peut observer en premier lieu c'est que le schéma \emph{pipeline} donne les plus mauvaises performances ce qui était attendu : cette version n'exploite pas entièrement le parallélisme de données offert par l'architecture du Cell. Les autres résultats correspondent également à nos attentes : 
+La figure \ref{comparemodels} donne une comparaison entre les différents modèles de déploiement de l'algorithme de Harris sur le processeur Cell décrits précédemment. Ce que l'on peut observer en premier lieu c'est que le schéma \emph{pipeline} donne les plus mauvaises performances ce qui était attendu : cette version n'exploite pas entièrement le parallélisme de données offert par l'architecture du Cell. Les autres résultats correspondent également à nos attentes : 
 \begin{itemize}
-\item Nos techniques d'optimisation des accès mémoires améliorent sensiblement la performance globale car la version la plus rapide est celle ou les fonctions sont composées deux par deux  et ou tous les opérateurs sont exécutés sur le même SPE (remplacement des DMA par des \texttt{LOAD/STORE} ).
-\item Les versions ou les DMA inter-SPE sont utilisés possèdent de bonnes performance : à titre d'exemple la versions sans composition de fonction et en regroupant deux opérateurs par SPE est plus rapide que la versions data parallel.
+\item Nos techniques d'optimisation des accès mémoires améliorent sensiblement la performance globale car la version la plus rapide est celle où les fonctions sont composées deux par deux  et où tous les opérateurs sont exécutés sur le même SPE ( remplacement des DMA par des \texttt{\textbf{load/store}} ).
+\item Les versions dans lesquelles les DMA inter-SPE sont utilisés possèdent de bonnes performance : à titre d'exemple la versions sans composition de fonction et en regroupant deux opérateurs par SPE est plus rapide que la versions data parallel.
 \item De plus, la version avec composition de fonction ou les paires d'opérateurs sont sur deux SPEs différents est presque aussi rapide que la même versions ou tous les opérateurs sont placés sur le même SPE. Ceci prouve que la bande-passante inter-SPE est comparable à celle des instructions \texttt{LOAD/STORE} sur les mémoires locales.
 \end{itemize}
 Dans ce qui précède nous avons pu constater que le placement optimal d'un graphe de fonctions sur un processeur Cell n'était pas forcément évident lorsqu'il s'agit d'un algorithme de traitement d'image comme dans notre cas. D'une part, on a vu que le choix d'un schéma complètement \emph{data parallel} n'était pas forcément optimal, et qu'un schéma mixte avec une partie \emph{pipeline} imbriquée dans un schéma \emph{data parallel} donnait un résultat aussi bon qu'un schéma basé purement sur le parallélisme de données. Ceci est en grande partie possible, grâce à un niveau supplémentaire de parallélisme au niveau des transferts. En effet, en favorisant les communications inter-SPE on profite pleinement de la bande passante du bus interne (204.8 Go/s) qui peut gérer jusqu'à 12 transferts en parallèle alors que dans un schéma de transfert où plusieurs SPEs communiquent avec la mémoire centrale les commandes sont forcément sérialisées et dans ce cas là la bande passante est limitée à 25.6 Go/s. 
