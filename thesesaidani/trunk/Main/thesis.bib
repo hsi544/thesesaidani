@@ -176,12 +176,17 @@
 }
 
 @INPROCEEDINGS{skell_02,
-  author = {J. Darlington and A.J. Field and P.G. Harrison and P.H.J. Kelly and
-	D. W. N. Sharp and Q. Wu and R.L. While},
+  author = {Darlington, John and Field, A. J. and Harrison, Peter G. and Kelly,
+	Paul H. J. and Sharp, D. W. N. and Wu, Q.},
   title = {Parallel Programming Using Skeleton Functions},
+  booktitle = {Proceedings of the 5th International PARLE Conference on Parallel
+	Architectures and Languages Europe},
   year = {1993},
+  series = {PARLE '93},
   pages = {146--160},
-  publisher = {Springer-Verlag}
+  address = {London, UK, UK},
+  publisher = {Springer-Verlag},
+  numpages = {15}
 }
 
 @ARTICLE{altivec_2000,
@@ -208,6 +213,22 @@
 	Units},
   year = {2007},
   pages = {1--5}
+}
+
+@ARTICLE{Dongarra_1990_BLAS,
+  author = {Dongarra, J. J. and Du Croz, Jeremy and Hammarling, Sven and Duff,
+	I. S.},
+  title = {A set of level 3 basic linear algebra subprograms},
+  journal = {ACM Trans. Math. Softw.},
+  year = {1990},
+  volume = {16},
+  pages = {1--17},
+  number = {1},
+  month = mar,
+  address = {New York, NY, USA},
+  issue_date = {March 1990},
+  numpages = {17},
+  publisher = {ACM}
 }
 
 @ARTICLE{Cell_Eichenberger_2006,
@@ -263,23 +284,6 @@
   year = {2006}
 }
 
-@OTHER{quaff_2006,
-  acmid = {1228535},
-  address = {Amsterdam, The Netherlands, The Netherlands},
-  author = {Falcou, J. and S\'{e}rot, J. and Chateau, T. and Laprest\'{e}, J.
-	T.},
-  doi = {10.1016/j.parco.2006.06.001},
-  issue = {7},
-  journal = {Parallel Comput.},
-  month = {September},
-  numpages = {12},
-  pages = {604--615},
-  publisher = {Elsevier Science Publishers B. V.},
-  title = {{QUAFF}: efficient {C}++ design for parallel skeletons},
-  volume = {32},
-  year = {2006}
-}
-
 @INPROCEEDINGS{falcousem,
   author = {Joel Falcou and Jocelyn S{\'e}rot},
   title = {Formal Semantics Applied to the Implementation of a Skeleton-Based
@@ -287,6 +291,38 @@
   booktitle = {PARCO},
   year = {2007},
   pages = {243-252}
+}
+
+@ARTICLE{Falcou_2006_QUAFF,
+  author = {Falcou, J. and S{\'e}rot, J. and Chateau, T. and Laprest{\'e}, J.
+	T.},
+  title = {QUAFF: efficient C++ design for parallel skeletons},
+  journal = {Parallel Comput.},
+  year = {2006},
+  volume = {32},
+  pages = {604--615},
+  number = {7},
+  month = sep,
+  acmid = {1228535},
+  address = {Amsterdam, The Netherlands, The Netherlands},
+  doi = {10.1016/j.parco.2006.06.001},
+  issn = {0167-8191},
+  issue_date = {September 2006},
+  keywords = {C++, MPI, computer vision, parallel skeletons, template meta-programming},
+  numpages = {12},
+  publisher = {Elsevier Science Publishers B. V.},
+  url = {http://dx.doi.org/10.1016/j.parco.2006.06.001}
+}
+
+@INPROCEEDINGS{Falcou_2004_EVE,
+  author = {Falcou, Joel and Sérot, Jocelyn},
+  title = {EVE, an Object Oriented SIMD Library.},
+  booktitle = {International Conference on Computational Science},
+  year = {2004},
+  volume = {3038},
+  series = {Lecture Notes in Computer Science},
+  pages = {314-321},
+  publisher = {Springer}
 }
 
 @CONFERENCE{sequoia_sc06,
@@ -459,7 +495,7 @@
   isbn = {1-55860-286-0}
 }
 
-@STANDARD{opencl,
+@MANUAL{opencl,
   title = {The OpenCL Specification, version 1.0.29},
   author = {{Khronos OpenCL Working Group}},
   month = {8 December},
@@ -501,19 +537,19 @@
   pages = {603-610}
 }
 
-@PROCEEDINGS{openmp_gpu,
+@INPROCEEDINGS{openmp_gpu,
+  author = {Lee, Seyong and Min, Seung-Jai and Eigenmann, Rudolf},
   title = {OpenMP to GPGPU: a compiler framework for automatic translation and
 	optimization},
-  year = {2009},
-  series = {PPoPP '09},
-  address = {New York, NY, USA},
-  publisher = {ACM},
-  author = {Lee, Seyong and Min, Seung-Jai and Eigenmann, Rudolf},
   booktitle = {Proceedings of the 14th ACM SIGPLAN symposium on Principles and practice
 	of parallel programming},
+  year = {2009},
+  series = {PPoPP '09},
+  pages = {101--110},
+  address = {New York, NY, USA},
+  publisher = {ACM},
   location = {Raleigh, NC, USA},
-  numpages = {10},
-  pages = {101--110}
+  numpages = {10}
 }
 
 @CONFERENCE{rapidmind,
@@ -522,6 +558,21 @@
 	using the {R}apid{M}ind {D}evelopment {P}latform},
   booktitle = {Proceeding of GSPx Multicore Applications Conference},
   year = {2006}
+}
+
+@ARTICLE{Mernik_2005_DSL,
+  author = {Mernik, Marjan and Heering, Jan and Sloane, Anthony M.},
+  title = {When and how to develop domain-specific languages},
+  journal = {ACM Comput. Surv.},
+  year = {2005},
+  volume = {37},
+  pages = {316--344},
+  number = {4},
+  month = dec,
+  address = {New York, NY, USA},
+  issue_date = {December 2005},
+  numpages = {29},
+  publisher = {ACM}
 }
 
 @INPROCEEDINGS{cuda_fd,
@@ -753,6 +804,17 @@
   location = {Brasov, Romania}
 }
 
+@CONFERENCE{Falcou_Boost_2011,
+  author = {Sebastian Schaetz and Joel Falcou and Lionel Lacassagne},
+  title = {{Cell-MPI} Mastering the Cell Broadband Engine architecture through
+	a Boost based parallel communication library},
+  booktitle = {the 5th Annual Boost Libraries Conference (BoostCon 2011)},
+  year = {2011},
+  address = {Aspen, CO, USA},
+  organization = {Boost},
+  publisher = {Boost}
+}
+
 @CONFERENCE{heart2010,
   author = {Claude Tadonki and Lionel Lacassagne and Tarik Saidani and Joel Falcou
 	and Khaled Hamidouche},
@@ -762,6 +824,15 @@
   year = {2010},
   owner = {saidani},
   timestamp = {2011.10.15}
+}
+
+@BOOK{Vandevoorde_Templates,
+  title = {{C++ Templates: The Complete Guide}},
+  publisher = {Addison-Wesley Professional},
+  year = {2002},
+  author = {Vandevoorde, David and Josuttis, Nicolai M.},
+  edition = {1},
+  month = nov
 }
 
 @TECHREPORT{exp_tpl,

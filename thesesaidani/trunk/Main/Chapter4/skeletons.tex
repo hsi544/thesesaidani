@@ -1,11 +1,11 @@
-%=================SECTION SKELL BE==================================================================
+%=================SECTION \texttt{SKELL BE}==================================================================
 Les outils de programmation pour le Cell présentés dans le chapitre qui précède, sont basés sur un modèle de programmation qui exploite le parallélisme de données. Nous avons constaté que ces outils qui visent une facilité de mise en oeuvre du code et une généricité au niveau du domaine d'application, n'apportent pas une réponse adéquate à l'optimisation de la performance sur le processeur Cell.\\
 Dans ce chapitre nous présentons un outil développé conjointement par Dr. Joel Falcou, Dr. Lionel Lacassagne et moi même, et qui vise à répondre au mieux aux exigences de performances du domaine du traitement d'images.\\ 
-La programmation parallèle structurée qu'on appelle programmation par squelettes algorithmiques \cite{skeletons_cole, skell_02, skell_03, skell_04} restreint l'expression du parallèlisme à la composition d'un nombre prédéfini de patrons nommés squelettes. Les squelettes algorithmiques sont des briques de base génériques, portables et réutilisables pour lesquelles une implémentation parallèle peut exister. Ils sont issus des langages de programmation fonctionnelle. Un système de programmation basé sur les squelettes fournit un ensemble fixe de squelettes. Chaque squelette représente une manière unique d'exploiter le parallélisme dans une organisation spécifique du calcul, tels que le parallélisme de données, de tâches, le \emph{divide-and-conquer} parallèle ou encore le pipeline. En combinant ces \emph{patterns} le développeur peut construire une spécification haut-niveau de son programme parallèle. Le système peut ainsi exploiter cette spécification pour la transformation de code, l'exploitant efficace des ressources ou encore le placement.\\
-La composition des squelettes peut se faire d'une manière non-hiérarchique en mettant en séquence les différents blocs en en utilisant des variables temporaires pour sauvegarder les résultats intermédiaires, ou alors de manière hiérarchique en imbriquant les fonctions squelette et en construisant une fonction composée dans laquelle le code de plusieurs squelettes est passé en paramètre d'un autre squelette. Ceci présente une manière élégante d'exprimer le parallélisme multi-niveau.\\
-Dans la programmation par squelettes, la composition hiérarchique procure au générateur de code plus de liberté de choix pour les transformations automatiques et l'utilisation efficace des ressources, comme par exemple le nombre de processeurs utilisé en parallèle dans un niveau particulier de la hiérarchie. Les squelettes ne pouvant pas être imbriqués  sont généralement implémentés avec juste une librairie générique alors que les squelettes imbriqués requièrent un pré-traitement qui déroule la hiérarchie du squelette en utilisant par exemple les templates C++ ou les macros de pré-processeur en C. 
-L'outil SKELL\_BE développé trouve ses origines dans les travaux de thèse de Joel Falcou \cite{these_falcou}. Dans ces travaux une bibliothèque de vectorisation pour les applications de visions par ordinateurs E.V.E \cite{eve_2005} est développée. L'outil QUAFF \cite{quaff_2006} utilisant le modèle de programmation par squelettes algorithmiques est également développé pour la parallélisation de code sur cluster de machines distribuées.\\
-SKELL\_BE est une adaptation de QUAFF et EVE pour le processeur Cell. J'ai apporté les briques logicielles de base pour l'outil de génération de code déjà développé. J'ai également participé à la conception de la librairie de communication et  de synchronisation nécessaire au déploiement de QUAFF sur le processeur Cell. 
+La programmation parallèle structurée qu'on appelle programmation par squelettes algorithmiques \cite{skeletons_cole, skell_02, skell_03, skell_04} restreint l'expression du parallèlisme à la composition d'un nombre prédéfini de patrons nommés squelettes. Les squelettes algorithmiques sont des briques de base génériques, portables et réutilisables pour lesquelles une implémentation parallèle peut exister. Ils sont issus des langages de programmation fonctionnelle. Un système de programmation basé sur les squelettes fournit un ensemble fixe de patrons. Chaque squelette représente une manière unique d'exploiter le parallélisme dans une organisation spécifique du calcul, tels que le parallélisme de données, de tâches, le \emph{divide-and-conquer} parallèle ou encore le pipeline. En combinant ces \emph{patterns} le développeur peut construire une spécification haut-niveau de son programme parallèle. Le système peut ainsi exploiter cette spécification pour la transformation de code, l'exploitant efficace des ressources ou encore le placement.\\
+La composition des squelettes peut se faire d'une manière non-hiérarchique en mettant en séquence les différents blocs en utilisant des variables temporaires pour sauvegarder les résultats intermédiaires, ou alors de manière hiérarchique en imbriquant les fonctions squelette et en construisant une fonction composée dans laquelle le code de plusieurs squelettes est passé en paramètre d'un autre squelette. Ceci présente une manière élégante d'exprimer le parallélisme multi-niveau.\\
+Dans la programmation par squelettes, la composition hiérarchique procure au générateur de code plus de liberté de choix pour les transformations automatiques et l'utilisation efficace des ressources, comme par exemple le nombre de processeurs utilisés en parallèle dans un niveau particulier de la hiérarchie. Les squelettes ne pouvant pas être imbriqués  sont généralement implémentés avec juste une librairie générique alors que les squelettes imbriqués requièrent un pré-traitement qui déroule la hiérarchie du squelette en utilisant par exemple les templates \emph{C++} \cite{Vandevoorde_Templates} ou les macros de pré-processeur en C. 
+L'outil \texttt{SKELL BE} développé trouve ses origines dans les travaux de thèse de Joel Falcou \cite{these_falcou}. Dans ces travaux une bibliothèque de vectorisation pour les applications de vision par ordinateurs E.V.E \cite{Falcou_2004_EVE} est développée. L'outil QUAFF \cite{Falcou_2006_QUAFF} utilisant le modèle de programmation par squelettes algorithmiques est également développé pour la parallélisation de code sur cluster de machines distribuées.\\
+SKELL BE est une adaptation de QUAFF et EVE pour le processeur Cell. Ma contribution personnelle dans l'outil \texttt{SKELL BE}, s'est concrétisée dans l'apport des briques logicielles de base pour l'outil de génération de code déjà développé. J'ai également participé à la conception de la librairie de communication et  de synchronisation Cell-MPI \cite{Falcou_Boost_2011}, nécessaire au déploiement de QUAFF sur le processeur Cell. 
 Les travaux développés dans ce chapitre ont été publiées dans \cite{sympa08} et \cite{skellbepact}
 %\begin{itemize}
 %\item \bibentry{sympa08}
@@ -29,14 +29,14 @@ Le modèle de programmation parallèle par squelettes algorithmiques repose sur l'
 \item Instancier des squelettes en spécifiant les fonctions qui les définissent.
 \item Exprimer la composition des ces squelettes.
 \end{itemize}
-L'expression de la composition peut se faire en encodant cette dernière sous la forme d'un \textbf{arbre}(Fig. \ref{fig_tree}) dont les noeuds représentent les squelettes utilisés et les feuilles, les fonctions séquentielles passées en paramètres à ces squelettes.
+L'expression de la composition peut se faire en encodant cette dernière sous la forme d'un \textbf{arbre} (Fig. \ref{fig_tree}) dont les noeuds représentent les squelettes utilisés et les feuilles, les fonctions séquentielles passées en paramètres à ces squelettes.
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= 0.7\columnwidth]{Chapter4/figures/fig_tree}
 	\caption{Arbre représentant le squelette en Figure \ref{skelexple}}
 	\label{fig_tree}
 \end{figure}
-Dans la figure \ref{fig_tree}, le squelette \textbf{Pipeline} décrit le schéma générique correspondant à la section \textbf{B} du graphe de processus communiquant initial. Le squelette \textbf{Farm} représente quant à lui la partie \textbf{A} de ce même schéma. Les fonctions $F_{i}$ apparaissent aux feuilles de l'arbre, c'est à dire en argument des squelettes. On note aussi que les fonctions \textbf{Distrib} et \textbf{Collect} n'apparaissent plus explicitement, car elles font partie intégrante du squelette \textbf{Farm}. Cette représentation met en avant un des aspects les plus importants de l'approche à base de squelettes algorithmiques : à partir d'un nombre restreint de squelettes (classiquement moins d'une dizaine), il est possible de définir des applications complexes. Ceci suppose toutefois que l'on ait formalisé le type d'application que l'on va chercher à paralléliser, de définir précisément le jeu de squelettes que l'on désire mettre à disposition du développeur et de spécifier leurs sémantiques fonctionnelles et opérationnelles. Il existe plusieurs classifications des squelettes. Une classification possible consiste à les répartir en trois groupes : les squelettes dédiés au parallélisme de tâches, les squelettes dédiés au parallélisme de données et les squelettes dédiés à la structuration séquentielle de l'application.
+Dans la figure \ref{fig_tree}, le squelette \textbf{Pipeline} décrit le schéma générique correspondant à la section \textbf{B} du graphe de processus communicant initial. Le squelette \textbf{Farm} représente quant à lui la partie \textbf{A} de ce même schéma. Les fonctions $F_{i}$ apparaissent aux feuilles de l'arbre, c'est à dire en argument des squelettes. On note aussi que les fonctions \textbf{Distrib} et \textbf{Collect} n'apparaissent plus explicitement, car elles font partie intégrante du squelette \textbf{Farm}. Cette représentation met en avant un des aspects les plus importants de l'approche à base de squelettes algorithmiques : à partir d'un nombre restreint de squelettes (classiquement moins d'une dizaine), il est possible de définir des applications complexes. Ceci suppose toutefois que l'on ait formalisé le type d'application que l'on va chercher à paralléliser, de définir précisément le jeu de squelettes que l'on désire mettre à disposition du développeur et de spécifier leurs sémantiques fonctionnelles et opérationnelles. Il existe plusieurs classifications des squelettes. Une classification possible consiste à les répartir en trois groupes : les squelettes dédiés au parallélisme de tâches, les squelettes dédiés au parallélisme de données et les squelettes dédiés à la structuration séquentielle de l'application.
 
 \subsection{Squelettes dédiés au parallélisme de contrôle}
 Cette classe de squelettes permet d'exploiter le parallélisme de tâches des applications. On peut citer deux squelettes qui couvrent cette forme de parallélisme \textbf{Pipeline} et \textbf{Pardo}
@@ -48,7 +48,8 @@ Cette classe de squelettes permet d'exploiter le parallélisme de tâches des appl
 	\label{skell-pipe}
 \end{figure}
 Ce squelette couvre les situations dans lesquelles une liste de fonctions qui doivent s'exécuter en série, sont réparties sur un ensemble de processeurs différents. En régime permanent l'exécution de la fonction $F_{i}$ sur les données $D_{i+1}$ se fait alors en parallèle avec celle de la fonction $F_{i+1}$ sur les données $D_{i}$. La figure \ref{skell-pipe} illustre ce fonctionnement en régime permanent.
-Le parallélisme résulte du fait que l'évaluation des différents fonctions du \textbf{Pipeline} sur des éléments différents du flux ($D_{0}$, $D_{1}$ par exemple sur la figure \ref{skell-pipe}) se fait de manière indépendante. Deux grandeurs caractérisent alors le \textbf{Pipeline} : (1)la latence qui est la durée de traitement d'un élément de flux par tous les étages du pipeline, (2) le débit, qui mesure le nombre de résultats fournis par unités de temps et qui est déterminé par l'étage le plus lent du \textbf{Pipeline}.
+Le parallélisme résulte du fait que l'évaluation des différentes fonctions du \textbf{Pipeline} sur des éléments différents du flux ($D_{0}$, $D_{1}$ par exemple sur la figure \ref{skell-pipe}) se fait de manière indépendante. Deux grandeurs caractérisent alors le \textbf{Pipeline} : (1)la latence qui est la durée de traitement d'un élément de flux par tous les étages du pipeline, (2) le débit, qui mesure le nombre de résultats fournis par unités de temps et qui est déterminé par l'étage le plus lent du \textbf{Pipeline}.
+
 \subsubsection{Le squelette \textbf{Pardo}}
 \begin{figure}[!htb]
 	\centering
@@ -57,7 +58,8 @@ Le parallélisme résulte du fait que l'évaluation des différents fonctions du \te
 	\label{skell-pardo}
 \end{figure}
 Le squelette \textbf{Pardo} permet de placer de manière \emph{ad hoc} $N$  fonctions sur $N$ processeurs (Fig. \ref{skell-pardo}). Le schéma de communication est alors implicite. Ce type de squelette est fait pour faciliter la mise en oeuvre d'applications qui ne correspondent pas à un squelette bien défini. Le squelette \textbf{Pardo} est notamment utilisé pour rassembler plusieurs fonctions indépendantes opérant sur un flux de données. Le temps d'exécution d'un tel schéma est alors celui de la fonction qui prend le plus de temps à s'exécuter. 
-\subsection{Squelettes dédiés au parallélisme de donées}
+
+\subsection{Squelettes dédiés au parallélisme de données}
 Le parallélisme de données très présent dans beaucoup d'applications, peut être couvert par deux squelettes \textbf{Farm} et \textbf{SCM}, le premier gère le parallélisme de données simple et le second gère le parallélisme de donnée par décomposition de domaine
 \subsubsection{Squelette Farm}
 \begin{figure}[!htb]
@@ -103,7 +105,7 @@ Plusieurs squelettes algorithmiques ont été proposés dans la littérature \cite{s
 \item Le squelette \textbf{SEQ} qui permet d'encapsuler des fonctions définies par l'utilisateur afin de les utiliser comme paramètres de squelettes.
 \item Le squelette \textbf{PIPELINE} qui est équivalent à la composition parallèle de fonctions (Fig. \ref{skell-pipe})
 \item Le squelette \textbf{MAP} permet de modéliser le parallélisme de données régulier dans lequel les données sont partitionnées et envoyées au unités de traitement esclaves. Une fois ces partitions de données traitées elles sont collectées au sein de la même tâche qui les a envoyées.
-\item Le squelette \textbf{FARM} permet de modéliser le parallélisme de données irrégulier et asynchrone basé sur une stratégie d'équilibrage de charge arbitraire.
+\item Le squelette \textbf{Farm} permet de modéliser le parallélisme de données irrégulier et asynchrone basé sur une stratégie d'équilibrage de charge arbitraire.
 \end{itemize}
 
 
@@ -114,10 +116,10 @@ Les spécificités de l'architecture du Cell induit des choix au niveau de la conc
 \item Le squelette \textbf{CHAIN} qui modélise l'appel séquentiel de deux fonctions de traitement au sein du même SPE. 
 \item Le squelette \textbf{PARDO} (Fig. \ref{skell-pardo}) modélise des tâches s'exécutant de manière concurrente sur les SPEs.
 \end{itemize}
-Ce sous-ensemble est assez riche pour supporter plusieurs schémas de parallélisation sans induire des schémas de communication et de synchronisation complexes. Cependant, l'imbrication des squelettes n'est pas supportées car les SPEs ne peuvent supporter qu'un seul \emph{thread} qui ne peut pas engendrer d'autres.
+Ce sous-ensemble est assez riche pour supporter plusieurs schémas de parallélisation sans induire des schémas de communication et de synchronisation complexes. Cependant, l'imbrication des squelettes n'est pas supportées car les SPEs ne peuvent supporter qu'un seul \emph{thread} qui ne peut pas en engendrer d'autres.
 
-\section{Modèle de programmation \texttt{SKELL\_BE}}
-Dans le modèle de programmation \texttt{SKELL\_BE} \cite{skellbepact}, \cite{sympa08}, le processeur Cell est considéré comme une machine asymétrique. Le modèle inclue deux processus, un pour le PPE et un autre pour le SPE. Du point de vue du PPE une application peut appeler un \emph{kernel} de calcul qui est compilé et exécuté sur le SPE comme dans une application de \emph{stream processing} (listing \ref{skellbe01}). Le \emph{kernel} est une fonction de calcul qui prend en entrées des données, applique un traitement défini par son code source et renvoie les données résultantes en sortie.
+\section{Modèle de programmation \texttt{SKELL BE}}
+Dans le modèle de programmation \texttt{SKELL BE} \cite{skellbepact}, \cite{sympa08}, le processeur Cell est considéré comme une machine asymétrique. Le modèle inclue deux processus, un pour le PPE et un autre pour le SPE. Du point de vue du PPE une application peut appeler un \emph{kernel} de calcul qui est compilé et exécuté sur le SPE comme dans une application de \emph{stream processing} (listing \ref{skellbe01}). Le \emph{kernel} est une fonction de calcul qui prend en entrée des données, applique un traitement défini par son code source et renvoie les données résultantes en sortie.
 \newpage
 %===============================Listing PPEKERNEL =======================================
 \lstset{ %
@@ -134,13 +136,13 @@ captionpos=b,			% sets the caption-position to bottom
 breaklines=true,		% sets automatic line breaking
 breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
 escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
-caption = Exemple d'un appel à un kernel PPE dans \texttt{SKELL\_BE},
+caption = Exemple d'un appel à un kernel PPE dans \texttt{SKELL BE},
 label = skellbe01
 }
 \lstinputlisting{Chapter4/Code/ppekernel.c}
 %===================================================================================
-Un \emph{kernel} est défini par la macro \texttt{SKELL\_KERNEL} comme un prototype de fonction dans lequel les arguments passés par référence sont considérés comme des sorties du \emph{kernel}, alors que les arguments passées par valeur ou par référence contante sont les entrées su \emph{kernel}. La ligne 9 du listing \ref{skellbe01} montre un exemple d'appel de \emph{kernel} au \emph{\emph{runtime}}, l'initialisation du processeur Cell qui est effectuée par un appel à \texttt{skell:environment} démarre un groupe de \emph{\emph{threads}} SPE et les mets en attente d'un appel à un \emph{kernel} ce qui réduit le surcoût de création de \emph{\emph{threads}} à chaque fois. La terminaison des \emph{\emph{threads}} est effectuée de la même manière à la fin de la portée de la fonction \emph{main}.\\
-\indent Du point de vue des SPEs, chacun d'eux est un noeud de \emph{cluster} qui supporte la communication point-à-point. Les applications sont construites en composant des squelettes instanciés avec des fonctions définies par l'utilisateur qui considèrent la mémoire centrale comme un mémoire distante à partir de laquelle peuvent être lues ou écrite de manière asynchrone au travers des commandes DMA de la librairie standard ou à des fonctions fournies par \texttt{SKELl\_BE} (listing \ref{skellbe02}).
+Un \emph{kernel} est défini par la macro \texttt{SKELL KERNEL} comme un prototype de fonction dans lequel les arguments passés par référence sont considérés comme des sorties du \emph{kernel}, alors que les arguments passées par valeur ou par référence constante sont les entrées du \emph{kernel}. La ligne 9 du listing \ref{skellbe01} montre un exemple d'appel de \emph{kernel} à l'exécution. L'initialisation du processeur Cell qui est effectuée par un appel à \texttt{skell:environment} démarre un groupe de \emph{\emph{threads}} SPE et les mets en attente d'un appel à un \emph{kernel} ce qui réduit le surcoût de création de \emph{\emph{threads}} à chaque fois. La terminaison des \emph{\emph{threads}} est effectuée de la même manière à la fin de la portée de la fonction \emph{main}.\\
+\indent Du point de vue des SPEs, chacun d'eux est un noeud de \emph{cluster} qui supporte la communication point-à-point. Les applications sont construites en composant des squelettes instanciés avec des fonctions définies par l'utilisateur. Les squelettes voient la mémoire centrale comme une mémoire distante à partir de laquelle peuvent être lues ou écrite des données de manière asynchrone au travers des commandes DMA de la librairie standard ou des fonctions fournies par \texttt{SKELl\_BE} (listing \ref{skellbe02}).
 \newpage
 %===============================Listing SPEKERNEL =======================================
 \lstset{ %
@@ -157,20 +159,20 @@ captionpos=b,			% sets the caption-position to bottom
 breaklines=true,		% sets automatic line breaking
 breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
 escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
-caption = Exemple de définition d'un kernel SPE dans \texttt{SKELL\_BE},
+caption = Exemple de définition d'un kernel SPE dans \texttt{SKELL BE},
 label = skellbe02
 }
 \lstinputlisting{Chapter4/Code/spekernel.c}
 %======================Conclusion Générale ==================================
 Ces deux derniers codes source illustrent plusieurs aspects :
 \begin{itemize}
-\item la macro \texttt{SKELL\_BE} (listing \ref{skellbe01} ligne 4) génère le \emph{stub} de la fonction \texttt{main} et l'introspection de code requise par \texttt{SKELL\_BE}.
-\item la fonction \texttt{run} qui est utilisée dans la foncion de \emph{kernel} pour construire une aplication en utilisant les constructeurs de squelettes \texttt{pardo} et \texttt{seq}.
+\item la macro \texttt{SKELL BE} (listing \ref{skellbe01} ligne 4) génère le \emph{stub} de la fonction \texttt{main} et l'introspection de code requise par \texttt{SKELL BE}.
+\item la fonction \texttt{run} qui est utilisée dans la fonction de \emph{kernel} pour construire une aplication en utilisant les constructeurs de squelettes \texttt{pardo} et \texttt{seq}.
 \item l'objet \texttt{argN\_} qui fournit un accès transparent au $N^{ième}$ argument du \emph{kernel} stocké dans la mémoire centrale (listing \ref{skellbe02} lignes 7 et 9).
 \item les fonction \texttt{pull} et \texttt{push} (lignes 7 et 9 du listing \ref{skellbe02}) qui permettent un accès asynchrone à la mémoire principale adressée par le PPE. Ces fonctions déduisent la meilleurs manière de rapatrier les données à partir de leurs arguments. Si celles-ci sont dans la mémoire locale des SPE une commandes DMA est effectuée alors que si les données sont déjà présentes en mémoire externe, une copie inutile est évitée. Les données sont découpées statiquement en fonction du nombre de SPEs impliqués et de la taille de leur mémoire privée. 
 \item La fonction \texttt{terminate} déclenche la terminaison du \emph{kernel}. Celle-ci n'est appelée qu'une fois per \emph{kernel}, dès que toutes les données transférées de la mémoire centrale on été traitées.
 \end{itemize}
-Le tableau \ref{skellbeapi} résume les principales fonctions de l'interface utilisateur (API) de \texttt{SKELL\_BE}.
+Le tableau \ref{skellbeapi} résume les principales fonctions de l'interface utilisateur (API) de \texttt{SKELL BE}.
 \begin{table}
 \centering
 %\begin{tabular}{ll}
@@ -219,17 +221,17 @@ Le tableau \ref{skellbeapi} résume les principales fonctions de l'interface util
 \hline
 %\end{tabular}
 \end{tabularx}
-\caption{Interface utilisateur \texttt{SKELL\_BE}}
+\caption{Interface utilisateur \texttt{SKELL BE}}
 \label{skellbeapi}
 \end{table}
 
 \section{Détails de l'implémentation}
-Le développement d'une librairie de calcul parallèle à base squelettes algorithmiques à la fois efficace et expressive est une tâche complexe. Plusieurs tentatives \cite{skell_02, skell_03, skell_04} ont montré que le compromis entre expressivité et efficacité était déterminant pour le succès d'une telle librairie. Le polymorphisme est à première vue une bonne solution pour exprimer la relation entre les squelettes et les objets fonctions, l'expérience démontre que le surcout induit par le polymorphisme à l'exécution affecte considérablement la performance globale d'une application. Dans le cas des squelettes, le polymorphisme au \emph{runtime} n'est pas vraiment nécessaire : par conception, la structure d'une application exprimée sous forme de squelettes imbriqués est connue à la compilation. Il suffit juste de trouver une manière d'exploiter cette information disponible à la compilation d'une manière judicieuse.\\
-\indent Considérons les constructeurs de squelettes comme des mots-clés d'un petit langage déclaratif \emph{domain-specific}\footnote{en opposition à un langage \emph{general-purpose}}. L'information sur l'application à générer est donnée par la sémantique opérationnelle de ces constructeurs. Dans notre cas, le défi était de trouver une manière de définir un tel langage comme une extension de C++ qui définit un EDSL (\emph{Embedded Domain Specific Language}), sans construire une nouvelle variation d'un compilateur mais seulement en utilisant la méta-programmation.\\
-La méta-programmation est un ensemble de techniques héritées de la programmation générative qui permet la manipulation, la génération et l'introspection de fragments de code dans un langage. A titre comparatif, lorsqu'une fonction est exécutée au \emph{\emph{runtime}} pour produire des valeurs à l'exécution, une méta-fonction opère à la compilation sur des fragments de code pour générer des fragments de code plus spécialisés qui seront compilés. l'exécution d'un tel code se fait par conséquent en deux passes. En C++, un tel système est mis en oeuvre par les classes et les fonctions \emph{template}. En utilisant la flexibilité de la surcharge d'opérateur et de fonctions en C++ et le fait que les \emph{templates} C++ peuvent effectuer des calculs arbitraires à la compilation, on peut évaluer la structure d'une application parallèle décrite par une combinaison de squelettes \textbf{à la compilation}. Pour ce faire, la structure extraite de la définition de l'application doit être transformée en une représentation intermédiaire basée sur un réseau de processus séquentiels. Dans le cas de \texttt{SKELL\_BE} la difficulté fut d'enfouir les constructeur de squelettes dans des éléments de langage, de générer le code sur les SPEs et d'effectuer le transfert d'arguments entre le PPE et les SPEs.
+Le développement d'une librairie de calcul parallèle à base de squelettes algorithmiques à la fois efficace et expressive est une tâche complexe. Plusieurs tentatives \cite{skell_02, skell_03, skell_04} ont montré que le compromis entre expressivité et efficacité était déterminant pour le succès d'une telle librairie. Le polymorphisme est à première vue une bonne solution pour exprimer la relation entre les squelettes et les objets fonctions, l'expérience démontre que le sourcoût induit par le polymorphisme à l'exécution affecte considérablement la performance globale d'une application. Dans le cas des squelettes, le polymorphisme au \emph{runtime} n'est pas vraiment nécessaire : par conception, la structure d'une application exprimée sous forme de squelettes imbriqués est connue à la compilation. Il suffit juste de trouver une manière d'exploiter cette information disponible à la compilation d'une manière judicieuse.\\
+\indent Considérons les constructeurs de squelettes comme des mots-clés d'un petit langage déclaratif \emph{domain-specific}(\emph{domain specific language \cite{Mernik_2005_DSL}})\footnote{en opposition à un langage \emph{general-purpose}}. L'information sur l'application à générer est donnée par la sémantique opérationnelle de ces constructeurs. Dans notre cas, le défi était de trouver une manière de définir un tel langage comme une extension de \emph{C++} qui définit un EDSL (\emph{Embedded Domain Specific Language}), sans construire une nouvelle variation d'un compilateur mais seulement en utilisant la \emph{méta-programmation}.\\
+La \emph{méta-programmation} est un ensemble de techniques héritées de la programmation générative qui permet la manipulation, la génération et l'introspection de fragments de code dans un langage. A titre comparatif, lorsqu'une fonction est exécutée au pour produire des valeurs, une \emph{méta-fonction} opère à la compilation sur des fragments de code pour générer des fragments de code plus spécialisés qui seront compilés. l'exécution d'un tel code se fait par conséquent en deux passes. En \emph{C++}, un tel système est mis en oeuvre par les classes et les fonctions \emph{template}. En utilisant la flexibilité de la surcharge d'opérateur et de fonctions en \emph{C++} et le fait que les \emph{templates} \emph{C++} peuvent effectuer des calculs arbitraires à la compilation, on peut évaluer la structure d'une application parallèle décrite par une combinaison de squelettes \textbf{à la compilation}. Pour ce faire, la structure extraite de la définition de l'application doit être transformée en une représentation intermédiaire basée sur un réseau de processus séquentiels. Dans le cas de \texttt{SKELL BE} la difficulté fut d'enfouir les constructeur de squelettes dans des éléments de langage, de générer le code sur les SPEs et d'effectuer le transfert d'arguments entre le PPE et les SPEs.
 \section{Génération de code pour les SPEs}
-L'implémentation d'un \emph{EDSL} (\emph{Embedded Domain Specific Language}) en C++ impose d'avoir une méthode pour trouver de manière adéquate des informations non-triviales à partir de l'arbre de syntaxe abstraite d'une expression (\emph{AST : Abstract Syntax Tree}). Ceci est effectué en général à l'aide d'une technique connue sous le nom de \emph{Expression Templates} \cite{exp_tpl}. Les \emph{Expression Templates} utilisent la surcharge de fonctions et d'opérateurs pour construire une représentation simplifiée de l'arbre de syntaxe abstraite d'une expression. La structure arbre est un type template complexe structuré comme une représentation linéaire de l'arbre. Les information sur les terminaux de l'expression sont sauvegardées en tant que références dans l'objet \emph{AST}. Cet objet temporaire peut alors être passé comme un argument à d'autres fonctions qui analysent son type est extraient les informations requises pour la tâche en effectuant ce que l'on appelle une \textbf{évaluation partielle} \cite{parteval}.\\
-\indent Pour transformer un \emph{AST} en un code exploitable, il faut transformer l'arbre en un réseau de processus. Afin d'y parvenir, la sémantique opérationnelle définie par Falcou et \emph{al.} dans \cite{falcousem} est transformé en méta-programme capable de générer une liste statique de processes. Chacune des constructeurs de squelettes de \texttt{SKELL\_BE} génère un objet sans état dont le type encode le structure du squelette. Le code de l'opérateur \texttt{pipe} est donné dans le listing \ref{pipecode} à titre d'exemple. On notera qu'aucun calcul n'est effectué à cette étape mais que la structure du squelette est elle même enfouie dans le type de retour.
+L'implémentation d'un \emph{EDSL} (\emph{Embedded Domain Specific Language}) en \emph{C++} impose d'avoir une méthode pour trouver de manière adéquate des informations non-triviales à partir de l'arbre de syntaxe abstraite d'une expression (\emph{AST : Abstract Syntax Tree}). Ceci est effectué en général à l'aide d'une technique connue sous le nom de \emph{Expression Templates} \cite{exp_tpl}. Les \emph{Expression Templates} utilisent la surcharge de fonctions et d'opérateurs pour construire une représentation simplifiée de l'arbre de syntaxe abstraite d'une expression. La structure arbre est un type template complexe structuré comme une représentation linéaire de l'arbre. Les information sur les terminaux de l'expression sont sauvegardées en tant que références dans l'objet \emph{AST}. Cet objet temporaire peut alors être passé comme un argument à d'autres fonctions qui analysent son type est extraient les informations requises pour la tâche en effectuant ce que l'on appelle une \textbf{évaluation partielle} \cite{parteval}.\\
+\indent Pour transformer un \emph{AST} en un code exploitable, il faut transformer l'arbre en un réseau de processus. Afin d'y parvenir, la sémantique opérationnelle définie par Falcou et \emph{al.} dans \cite{falcousem} est transformée en méta-programme capable de générer une liste statique de processus. Chacun des constructeurs de squelettes de \texttt{SKELL BE} génère un objet sans état dont le type encode le structure du squelette. Le code de l'opérateur \texttt{pipe} est donné dans le listing \ref{pipecode} à titre d'exemple. On notera qu'aucun calcul n'est effectué à cette étape mais que la structure du squelette est elle même enfouie dans le type de retour.
 \newpage
 %===============================Listing PIPECODE =======================================
 \lstset{ %
@@ -250,7 +252,7 @@ caption = L'opérateur \texttt{pipe},
 label = pipecode
 }
 \lstinputlisting{Chapter4/Code/pipecode.c}
-Le type \emph{template} est désormais utilisable avec nos méta-fonctions. Celles-ci se chargent de la génération de structures représentants un réseau de \emph{process}. La fonction \texttt{run} appelle une méta-function qui parse le \emph{template} AST et génère l'instantiation du type \texttt{process\_network} adéquat. La règle de sémantique appropriée est appliquée sur chaque squelette rencontré dans l'AST en utilisant la spécialisation partielle des \emph{templates} comme mécanisme de \emph{pattern matching}. Une fois défini, ce réseau est transformé en code en itérant sur ses noeuds et en générant une séquence de fragments de codes SPMD dans lesquelles la liste d'instructions du \emph{process} est exécutée. Ceci est réalisé en construisant un tuple d'objets fonction qui contient le code d'opérations de base qui sont instantiées une fois par SPE. Par exemple, considérons l'expression squelette suivante qui construit un \emph{pipeline} simple à trois étages :
+Le type \emph{template} est désormais utilisable avec nos méta-fonctions. Celles-ci se chargent de la génération de structures représentant un réseau de processus. La fonction \texttt{run} appelle une méta-function qui parse le \emph{template} AST et génère l'instantiation du type \texttt{process\_network} adéquat. La règle de sémantique appropriée est appliquée sur chaque squelette rencontré dans l'AST en utilisant la spécialisation partielle des \emph{templates} comme mécanisme de \emph{pattern matching}. Une fois défini, ce réseau est transformé en code en itérant sur ses noeuds et en générant une séquence de fragments de codes SPMD dans lesquelles la liste d'instructions du \emph{process} est exécutée. Ceci est réalisé en construisant un tuple d'objets fonction qui contient le code d'opérations de base qui sont instantiées une fois par SPE. Par exemple, considérons l'expression squelette suivante qui construit un \emph{pipeline} simple à trois étages :
 \begin{center}
 \texttt{run( seq(A) | seq(B) | seq(C) );}
 \end{center}
@@ -291,11 +293,11 @@ captionpos=b,			% sets the caption-position to bottom
 breaklines=true,		% sets automatic line breaking
 breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
 escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
-caption =Représentation sous forme de réseau \emph{process},
+caption =Représentation sous forme de réseau de processus,
 label = processnetwork
 }
 \lstinputlisting{Chapter4/Code/processnetwork.c}
-Le type \emph{template} \texttt{network} contient toutes les informations qui décrivent le réseau de \emph{process} série communicants construit à partir des squelettes, notamment : le PID du premier noeud du réseau, le PID du dernier noeud du réseau et une liste de \emph{process}. Dans le même esprit, la structure \emph{template} \texttt{process} contient des informations dont son propre PID et un descripteur de code. Ce descripteur contient les PID des \emph{process} prédécesseur et successeur et ainsi qu'une liste de macro-instructions qui sont construites à partir de la sémantique du squelette.\\
+Le type \emph{template} \texttt{network} contient toutes les informations qui décrivent le réseau de processus série communicants construit à partir des squelettes, notamment : le PID du premier noeud du réseau, le PID du dernier noeud du réseau et une liste de processus. Dans le même esprit, la structure \emph{template} \texttt{process} contient des informations dont son propre PID et un descripteur de code. Ce descripteur contient les PID des \emph{process} prédécesseur et successeur et ainsi qu'une liste de macro-instructions qui sont construites à partir de la sémantique du squelette.\\
 \indent La dernière étape est l'itération sur ces types et l'instantiation du code SPMD adéquat. Le listing \ref{finalcode} illustre le code final ainsi généré.
 
 \newpage
@@ -319,11 +321,11 @@ label = finalcode
 }
 \lstinputlisting{Chapter4/Code/finalcode.c}
 
-La structure SPMD des instructions \texttt{if} chaînées montrent la nature itérative du générateur de code. Chacun des ces blocs effectue les même opérations. En premier lieu, les types de entrées/sorties sont récupérés de l'analyse de type. Ces types sont ensuite instanciés sous forme d'un tuple. Le code du processus est ensuite exécuté, dans une boucle qui se met en attente d'un signal de terminaison. Dans cette boucle, chacune des macro-instructions qui apparaissent dans la description du type  réseau de \emph{process} génère un appel concret à un transfert DMA, soit à un proxy d'appels de fonctions qui extrait les données d'un tuple, alimente une fonction définie par l'utilisateur et retourne un tuple de résultats. Une grande partie de ce processus est facilité par les librairies Boost telles que Proto qui gère la génération des règles de sémantique méta-programmées et Fusion qui gère la transition entre les comportement à la compilation et au \emph{\emph{runtime}} \cite{falcouboost}.\\
-\indent Le processus de génération permet de mieux comprendre pourquoi \texttt{SKELL\_BE} est plus performant que d'autre solution à base de C++. Dans le code généré, toutes les fonctions et le code dépendant des squelettes sont résolues statiquement. Tous les types de données sont concrets et tous les appels de fonctions sont directs. Il n'y a pas donc pas de polymorphisme à l'exécution et le compilateur est capable d'aligner plus de code et d'effectuer plus d'optimisations.
+La structure SPMD des instructions \texttt{if} chaînées montre la nature itérative du générateur de code. Chacun des ces blocs effectue les mêmes opérations. En premier lieu, les types de entrées/sorties sont récupérés de l'analyse de type. Ces types sont ensuite instanciés sous forme d'un tuple. Le code du processus est ensuite exécuté, dans une boucle qui se met en attente d'un signal de terminaison. Dans cette boucle, chacune des macro-instructions qui apparaissent dans la description du type  réseau de \emph{process} génère un appel concret à un transfert DMA, soit à un proxy d'appels de fonctions qui extrait les données d'un tuple, alimente une fonction définie par l'utilisateur et retourne un tuple de résultats. Une grande partie de ce processus est facilité par les librairies Boost telles que \emph{Proto} qui gère la génération des règles de sémantique méta-programmées et \emph{Fusion} qui gère la transition entre les comportement à la compilation et à l'exécution \cite{falcouboost}.\\
+\indent Le processus de génération permet de mieux comprendre pourquoi \texttt{SKELL BE} est plus performant que d'autres solutions à base de \emph{C++}. Dans le code généré, toutes les fonctions et le code dépendant des squelettes sont résolues statiquement. Tous les types de données sont concrets et tous les appels de fonctions sont directs. Il n'y a pas donc pas de polymorphisme à l'exécution et le compilateur est capable d'aligner plus de code et d'effectuer plus d'optimisations.
 
 \section{Communications PPE/SPEs}
-L'autre difficulté dans la conception d'une librairie de parallélisation de code pour le Cell, est son architecture mémoire distribuée qui requiert une gestion explicite des transferts de données entre la mémoire centrale et les mémoire locale des SPEs. Le but étant de trouver une manière de transférer les données de la mémoire centrale vers les SPEs d'une manière transparente du point de vue de l'utilisateur. Une stratégie usuelle passe par le transfert au début du programme, d'une structure appelée \emph{control block} qui contient les informations communes aux SPEs et nécessaires à l'exécution du \emph{kernel}. En général, cette structure dépend de l'application et contient toutes les données dont le \emph{kernel} a besoin. Dans notre cas, ces données sont fournies comme arguments de l'appel de fonction du \emph{kernel} principal. Il est ensuite nécessaire de construire à la compilation la structure \emph{control block} appropriée. Ceci est rendu possible en utilisant la méta-pogrammation \emph{template} qui analyse le prototype de la fonction pour extraire une liste des types de ces arguments. Le \emph{control block} contiendra ainsi l'adresse de base de l'espace mémoire de chaque SPE et un tuple en utilisant sur l'algorithme suivant.
+L'autre difficulté dans la conception d'une librairie de parallélisation de code pour le Cell, est son architecture mémoire distribuée qui requiert une gestion explicite des transferts de données entre la mémoire centrale et les mémoires locales des SPEs. Le but étant de trouver une manière de transférer les données de la mémoire centrale vers les SPEs d'une manière transparente du point de vue de l'utilisateur. Une stratégie usuelle passe par le transfert au début du programme, d'une structure appelée \emph{control block} qui contient les informations communes aux SPEs et nécessaires à l'exécution du \emph{kernel}. En général, cette structure dépend de l'application et contient toutes les données dont le \emph{kernel} a besoin. Dans notre cas, ces données sont fournies comme arguments de l'appel de fonction du \emph{kernel} principal. Il est ensuite nécessaire de construire à la compilation la structure \emph{control block} appropriée. Ceci est rendu possible en utilisant la méta-pogrammation \emph{template} qui analyse le prototype de la fonction pour extraire une liste des types de ces arguments. Le \emph{control block} contiendra ainsi l'adresse de base de l'espace mémoire de chaque SPE et un tuple en utilisant l'algorithme suivant.
 \begin{itemize}
 \item Les entrées de types natifs sont stockés par valeurs.
 \item Les sorties de types natifs sont stockées dans une paire contenant leur adresse et une valeur statique contenant leur taille.
@@ -380,10 +382,10 @@ label = transfill
 }
 \lstinputlisting{Chapter4/Code/transfill.c}
 
-Du côté du SPE, les objets \texttt{argN} fournissent un opérateur de cast \emph{template} implicite qui récupère les valeurs du $N^{ième}$ élément du tuple au travers d'une commande DMA, ainsi qu'un opérateur d'affectation qui transfert une valeur à la données correspondante dans l'espace d'adressage du PPE. La déduction automatique des arguments \emph{template} permet une syntaxe à la fois compacte et intuitive de sorte que le compilateur puisse appeler la bonne primitive de transfert DMA en se basant sur l'index des arguments et le type de la valeur.
+Du côté du SPE, les objets \texttt{argN} fournissent un opérateur de cast \emph{template} implicite qui récupère les valeurs du $N^{ième}$ élément du tuple à l'aide d'une commande DMA, ainsi que d'un opérateur d'affectation qui transfert une valeur à la donnée correspondante dans l'espace d'adressage du PPE. La déduction automatique des arguments \emph{template} permet une syntaxe à la fois compacte et intuitive de telle manière que le compilateur puisse appeler la bonne primitive de transfert DMA en se basant sur l'indice des arguments et le type de la valeur.
 
 \section{Résultats expérimentaux}
-Nous avons mené une campagne de mesure qui a eu pour but de prouver que SKELL BE ne provoque pas de pertes importantes au niveau de la performance. Pour ce faire, nous avons effectué plusieurs tests. Le premier vise à créer des applications synthétiques à base de squelettes afin d'évaluer le surcout des méta-programmes qui est matérialisé par le temps que le système de génération de code ajoute au temps d'exécution total de l'application sans génération automatique. Le deuxième test consiste en l'évaluation de la performance d'algorithmes de calcul numérique de base et enfin le troisième et celui de l'algorithme Harris pour la détection de point d'intérêt traité plus en détail par la suite. Les test on été effectués sur une lame IBM QS20 et la compilation est faite avec la chaîne \texttt{gcc}. La métrique temporelle utilisée est le nombre de cycles moyen par point traité.
+Nous avons effectué des mesures qui ont eu pour but de prouver que \texttt{SKELL BE} ne provoque pas de pertes importantes au niveau de la performance. Pour ce faire, nous avons effectué plusieurs tests. Le premier vise à créer des applications synthétiques à base de squelettes afin d'évaluer le surcoût des méta-programmes qui est matérialisé par le temps que le système de génération de code ajoute au temps d'exécution total de l'application sans génération automatique. Le deuxième test consiste en l'évaluation de la performance d'algorithmes de calcul numérique de base et enfin le troisième et celui de l'algorithme de Harris pour la détection de point d'intérêt vu précédemment. Les tests on été effectués sur une lame IBM QS20 et la compilation est faite avec la chaîne \texttt{gcc}. La métrique temporelle utilisée est le nombre de cycles moyen par point traité.
 
 \subsection{Benchmarks synthétiques}
 \begin{figure}[!htb]
@@ -400,78 +402,78 @@ Nous avons mené une campagne de mesure qui a eu pour but de prouver que SKELL BE
 	\label{overhead-pipe}
 \end{figure}
 
-Cette mesure a pour but de prouver que le surcoût induit par la couche de méta-programmation d'un squelette est négligeable. Pour ce faire, nous avons évalué le temps d'exécution d'un squelette SKELL BE représentatif en augmentant le nombre de SPEs mis en jeu et l'avons comparé à un code source similaire écrit à la main.  Les premiers résultats permettent de constater que l'exécution d'une fonction au travers des opérateur CHAIN ou SEQ , n'induit pas un surcout important par rapport à l'implémentation manuelle du code. L'examen du code source assembleur généré démontre que la seule différence entre l'appel direct et la version squelette est une indirection de pointeur qui permet de retrouver l'adresse de la fonction à partir de l'objet adaptateur de fonction utilisé en interne.\\
-\indent Le test pour le squelette Pipeline construit un \emph{pipeline} de 2 jusqu'à 8 SPEs dans lequel la quantité de transfert de données est négligeable. Chaque étage de ce \emph{pipeline} exécute une fonction dont la durée est comprise entre 10 $ms$ et 200 $ms$. Les mêmes tests ont été effectués pour le squelette PARDO avec une fonction qui dure entre 10 $ms$ et 200 $ms$ et un nombre de SPEs variant de 2 à 8. Les figures \ref{overhead-pardo} et \ref{overhead-pipe} illustrent les résultats de mesures. On peut ainsi constater que le surcoût ne dépasse jamais 1.5 \% pour différentes valeur de durée de fonctions de tests exécutée de 10ms à 200ms. Le surcout diminue également avec l'augmentation du nombre de SPEs ce qui peut paraitre étonnant à première vue mais cela est justifié par le fait que la mesure ne tiens pas en compte le surcout dû à la création du \emph{thread} SPE mais celui engendré par la génération de code SPE qui est amortie au fur et à mesure que le nombre de SPE augmente.
+Cette mesure a pour but de prouver que le surcoût induit par la couche de \emph{méta-programmation} d'un squelette est négligeable. Pour ce faire, nous avons évalué le temps d'exécution d'un squelette \texttt{SKELL BE} représentatif en augmentant le nombre de SPEs mis en jeu et l'avons comparé à un code source similaire écrit à la main.  Les premiers résultats permettent de constater que l'exécution d'une fonction au travers des opérateur CHAIN ou SEQ , n'induit pas un sourcoût important par rapport à l'implémentation manuelle du code. L'examen du code source assembleur généré démontre que la seule différence entre l'appel direct et la version squelette est une indirection de pointeur qui permet de retrouver l'adresse de la fonction à partir de l'objet adaptateur de fonction utilisé en interne.\\
+\indent Le test pour le squelette Pipeline construit un \emph{pipeline} de 2 jusqu'à 8 SPEs dans lequel la quantité de transferts de données est négligeable. Chaque étage de ce \emph{pipeline} exécute une fonction dont la durée est comprise entre 10 $ms$ et 200 $ms$. Les mêmes tests ont été effectués pour le squelette PARDO avec une fonction qui dure entre 10 $ms$ et 200 $ms$ et un nombre de SPEs variant de 2 à 8. Les figures \ref{overhead-pardo} et \ref{overhead-pipe} illustrent les résultats des mesures. On peut ainsi constater que le surcoût ne dépasse jamais 1.5 \% pour les différentes valeurs de la durée des fonctions de tests exécutées (10 $ms$ à 200 $ms$). Le sourcoût diminue également avec l'augmentation du nombre de SPEs ce qui peut paraître étonnant à première vue, mais qui est justifié par le fait que la mesure ne tiens pas en compte du sourcoût induit par la création du \emph{thread} SPE mais celui engendré par la génération de code SPE qui est amortie au fur et à mesure que le nombre de SPEs augmente.
 
 \subsection{Benchmarks de passage à l'échelle}
-L'évaluation qui suit mesure la \emph{scalability} (passage à l'echelle) de notre outil SKELL BE et fait une comparaison avec d'une part un code équivalent écrit à la main ou alors un code \emph{OpenMP} compilé avec \emph{XLC single source compiler} pour le Cell. La mesure s'est faite sur certains noyaux de calculs de l'API \emph{BLAS 1.2}  (\emph{Basic Linear Algebra Subprograms}), produit scalaire (DOT), convolution 3x3 (CONVO)  et la multiplication matrice vecteur (SGEMV) (Tab. \ref{scaldot}, \ref{scalconvo} et \ref{scalsgemv}).L'évaluation de la \emph{scalability }se fait en mesurant un \emph{speedup} relatif en comparaison avec l'exécution sur un SPE. Le PPE ayant une architecture foncièrement différente de celle des SPES, nous ne l'avons pas considéré comme référence pour la mesure du passage à l'échelle. Sauf mention du contraire les benchmarks effectué adoptent tous un squelettes du type FARM donc data parallel par définition.
+L'évaluation qui suit, mesure le passage à l'echelle (\emph{scalability}) de notre outil \texttt{SKELL BE} et fait une comparaison avec d'une part, un code équivalent écrit à la main et d'autre part un code \emph{OpenMP} compilé avec \emph{XLC single source compiler} pour le Cell. La mesure s'est faite sur certains noyaux de calculs de l'API \emph{BLAS 1.2}\cite{Dongarra_1990_BLAS}  (\emph{Basic Linear Algebra Subprograms}), produit scalaire (DOT), convolution 3x3 (CONVO)  et la multiplication matrice vecteur (SGEMV) (Tab. \ref{scaldot}, \ref{scalconvo} et \ref{scalsgemv}).L'évaluation du passage à l'échelle se fait en mesurant une accélération relative en comparaison avec l'exécution sur un SPE. Le PPE ayant une architecture foncièrement différente de celle des SPEs, nous ne l'avons pas considéré comme référence pour la mesure du passage à l'échelle. Sauf mention du contraire, les benchmarks effectués adoptent tous un squelette du type \textbf{Farm} donc \emph{data parallel} par définition.
 \subsubsection{Le noyau \texttt{DOT}}
 \begin{table}
 \centering
 \begin{tabular}{|c||c|c|c|c|}
 \hline
-\textbf{SPE} & \textbf{OMP (ms)} & \textbf{Manual (ms)} & \textbf{SKELL BE (ms)} & \textbf{\emph{Surcoût}}\\
+\rowcolor{medium-gray} \textbf{SPE} & \textbf{OMP (ms)} & \textbf{Manual (ms)} & \textbf{SKELL BE (ms)} & \textbf{\emph{Surcoût}}\\
 \hline
 \hline
 1 & 219.7 & 65.9 & 67.9 & 3.1 \%\\
 \hline
-2 & 263.7 & 32.9 & 34.5 & 4.7 \%\\
+\rowcolor{light-gray}2 & 263.7 & 32.9 & 34.5 & 4.7 \%\\
 \hline
 4 & 131.9 & 16.5 & 17.3 & 4.78 \%\\
 \hline
-8 & 66.1 & 8.3 & 8.7 & 4.9 \%\\
+\rowcolor{light-gray}8 & 66.1 & 8.3 & 8.7 & 4.9 \%\\
 \hline
 \end{tabular}
 \caption{Résultat du benchmark du produit scalaire \texttt{DOT}}\label{scaldot}
 \end{table}
 
-Dans ce programme nous effectuons le produit scalaire de deux tableaux d'un milliard d'éléments flottants simple-précision. La versions OpenMP utilise une directive de réduction alors que les versions écrite à la main et SKELL BE collectent explicitement les résultats partiels pour les additionner.  Dans ce cas là le $cpp$ minimum pour la version OpenMP est de 66 donnant un \emph{speedup} maximal relatif de 3.32 lorsque la version manuelle donne elle, un \emph{speedup} de7.98. La version OpenMP est limitée par le surcoût induit par la gestion implicite des communication et de la synchronisation. Dans la même situation SKELL BE fournit un accélération maximale de 7.85 ce qui représente un surcoût de 5\% par rapport à la version écrite à la main. 
+Dans ce programme nous effectuons le produit scalaire de deux tableaux d'un milliard d'éléments flottants simple-précision. La versions OpenMP utilise une directive de réduction alors que les versions écrite à la main et \texttt{SKELL BE} collectent explicitement les résultats partiels pour les additionner.  Dans ce cas là le $cpp$ minimum pour la version OpenMP est de 66 donnant un \emph{speedup} maximal relatif de $\times$3,32 lorsque la version manuelle donne elle, un \emph{speedup} de $\times$7,98. La version OpenMP est limitée par le surcoût induit par la gestion implicite des communications et de la synchronisation. Dans la même situation, \texttt{SKELL BE} fournit un accélération maximale de $\times$7,85 ce qui représente un surcoût de 5\% par rapport à la version écrite à la main. 
 \subsubsection{Le noyau \texttt{CONVO}}
 \begin{table}
 \centering
 \begin{tabular}{|c||c|c|c|c|}
 \hline
-\textbf{SPE} & \textbf{OMP(ms)} & \textbf{Manual (ms)} & \textbf{SKELL BE (ms)} & \textbf{\emph{Surcoût}}\\
+\rowcolor{medium-gray}\textbf{SPE} & \textbf{OMP(ms)} & \textbf{Manual (ms)} & \textbf{SKELL BE (ms)} & \textbf{\emph{Surcoût}}\\
 \hline
 \hline
 1 & 2402 & 649 & 672 & 3.6\%\\
 \hline
-2 & 4289 & 391 & 411 & 5.0 \%\\
+\rowcolor{light-gray}2 & 4289 & 391 & 411 & 5.0 \%\\
 \hline
 4 & 2146 & 172 & 181 & 5.2 \%\\
 \hline
-8 & 1073 &   98 &  103 & 5.4\%\\
+\rowcolor{light-gray}8 & 1073 &   98 &  103 & 5.4\%\\
 \hline
 \end{tabular}
 \caption{Résultat du benchmark de la convolution 3x3 \texttt{CONVO}}\label{scalconvo}
 \end{table}
 
-Dans ce deuxième opérateur testé, nous effectuons un produit de convolution sur des images de taille $4096 \times 4096$ avec un masque de taille $3 \times 3$ Dans toutes les versions le masque est dupliqué dans chaque SPE.  Les versions manuelles atteignent jusqu'à $6.54$ comparativement au \emph{speedup} OpenMP de 2.24 et celui de SKELL BE mesuré à 6.52. Le surcoût quant à lui a augmenté à cause notamment de la gestion des transfert non-alignés (qui se fait au \emph{\emph{runtime}}) du noyau de convolution. Il est autour de 5\%. 
+Dans ce deuxième opérateur testé, nous effectuons un produit de convolution sur des images de taille 4096$\times$4096 avec un masque de taille 3$\times$3. Dans toutes les versions le masque est dupliqué dans chaque SPE.  Les versions manuelles atteignent jusqu'à $\times$6,54 comparativement au \emph{speedup} OpenMP de $\times$2,24 et celui de \texttt{SKELL BE} mesuré à $\times$6,52. Le surcoût quant à lui a augmenté à cause notamment de la gestion des transferts non-alignés (qui se fait à l'exécution) du noyau de convolution. Il est autour de 5\%. 
 
 \subsubsection{Le noyau \texttt{SGEMV}}
 \begin{table}
 \centering
 \begin{tabular}{|c||c|c|c|c|}
 \hline
-\textbf{SPE} & \textbf{OMP (ms)} & \textbf{Manual (ms)} & \textbf{SKELL BE (ms)} & \textbf{\emph{Surcoût}}\\
+\rowcolor{medium-gray}\textbf{SPE} & \textbf{OMP (ms)} & \textbf{Manual (ms)} & \textbf{SKELL BE (ms)} & \textbf{\emph{Surcoût}}\\
 \hline
 \hline
 1 & 200.7 & 179.8& 187.9 & 4.6\%\\
 \hline
-2 & 208.5 & 79.9 & 83.9 & 4.9 \%\\
+\rowcolor{light-gray}2 & 208.5 & 79.9 & 83.9 & 4.9 \%\\
 \hline
 4 & 104.3 & 42.2 & 44.5 & 5.5 \%\\
 \hline
-8 & 52.2 &   23.6 &  25.0 & 5.9\%\\
+\rowcolor{light-gray}8 & 52.2 &   23.6 &  25.0 & 5.9\%\\
 \hline
 \end{tabular}
 \caption{Résultat du benchmark de la multiplication matrice vecteur \texttt{SGEMV}}\label{scalsgemv}
 \end{table}
-Ce benchmark est un produit  entre une matrice $4096 \times 4096$ et un vecteur $4096 \times 1$. On remarque la même chose que dans le cas précèdent, c'est à dire une bonne \emph{scalability} de SKELL BE avec un surcout toujours autour de 5\%.
+Ce benchmark est un produit  entre une matrice 4096$\times$4096 et un vecteur 4096$\times$1. On remarque la même chose que dans le cas précèdent, c'est à dire un bon passage à l'échelle de \texttt{SKELL BE} avec un sourcoût toujours autour de 5\%.
 
 \subsection{Algorithme de Harris}
-Cette application est plus complexe que celle étudiées précédemment car elle comporte plusieurs opérateurs, à la fois point-à-point et noyaux de convolution. Ce benchmark a pour but de prouver que SKELL BE est également adapté pour le traitement d'images. Plusieurs schémas de parallélisation sont possibles pour cet algorithme, comme vu dans le chapitre 2. Nous avons choisi ici trois versions de déploiement :  une version complètement chaînée où tous les opérateurs sont regroupés au sein d'un seul et même SPE et répliqués 8 fois; la versions chaînée à moitié, ou les opérateurs sont chaînés deux à deux sur un SPE, un \emph{pipeline} est ensuite formé entre deux SPEs ce qui permet de répliquer 4 fois; Et enfin une version ou chaque opérateur occupe un SPE,  ce qui permet de répliquer 2 fois. Le listing \ref{harrisskell} représente les \emph{kernels} SPE des différentes versions.  Le chaînage y est représenté par une virgule (\textbf{,}) et le \emph{pipeline} par un opérateur \textbf{\textbar}.
-\newpage
+Cette application est plus complexe que celles vues précédemment car elle comporte plusieurs opérateurs, à la fois point-à-point et noyaux de convolution. Ce benchmark a pour but de prouver que \texttt{SKELL BE} est également adapté pour le traitement d'images. Plusieurs schémas de parallélisation sont possibles pour cet algorithme, comme vu dans le chapitre 2. Nous avons choisi ici trois versions de déploiement :  une version complètement chaînée où tous les opérateurs sont regroupés au sein d'un seul et même SPE et dupliqués 8 fois; la versions chaînée à moitié, où les opérateurs sont chaînés deux à deux sur un SPE, un \emph{pipeline} est ensuite formé entre deux SPEs ce qui permet de dupliquer 4 fois; Et enfin une version où chaque opérateur occupe un SPE,  ce qui permet de dupliquer 2 fois. Le listing \ref{harrisskell} représente les \emph{kernels} SPE des différentes versions.  Le chaînage y est représenté par une virgule (\textbf{,}) et le \emph{pipeline} par un opérateur \textbf{\textbar}.
+%\newpage
 %===============================Listing transfill =======================================
 \lstset{ %
 language=C,                % choose the language of the code
@@ -487,22 +489,22 @@ captionpos=b,			% sets the caption-position to bottom
 breaklines=true,		% sets automatic line breaking
 breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
 escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
-caption = Les \emph{kernels SPE des implémentations de l'opérateur de Harris},
+caption = Les \emph{kernels} SPE des implémentations de l'opérateur de Harris,
 label = harrisskell
 }
 \lstinputlisting{Chapter4/Code/harrisskell.c}
 
-On compare les différentes versions en terme de nombre de cycles par pixel avec des implémentations manuelles de l'algorithme sur des images $512 \times 512$ (Tableau \ref{tabharrisskell}). L'surcout est également de 5\% ce qui valide notre approche car le compromis surcout rapidité de mise en oeuvre est très bon. 
+On compare les différentes versions en terme de nombre de cycles par pixel avec des implémentations manuelles de l'algorithme sur des images 512$\times$512 (Tableau \ref{tabharrisskell}). Le sourcoût est également de 5\% ce qui valide notre approche car le compromis sourcoût rapidité de mise en oeuvre est très bon. 
 \begin{table}[htb]
 \centering
 \begin{tabular}{|c||c|c|c|}
 \hline
-\textbf{Manual} & \textbf{Full-Chain}  & \textbf{Half-Chain}  & \textbf{No-Chain}  \\
+\rowcolor{medium-gray}\textbf{Manual} & \textbf{Full-Chain}  & \textbf{Half-Chain}  & \textbf{No-Chain}  \\
 \hline
 \hline
 \textbf{Manual} & 11.26 & 8.36 & 9.97 \\
 \hline
-\textbf{SKELL BE} & 11.86 & 8.64 & 10.43 \\
+\rowcolor{light-gray}\textbf{SKELL BE} & 11.86 & 8.64 & 10.43 \\
 \hline
 \textbf{\emph{Surcoût}} & 5.33 \%&  3.35 \% &  4.61 \% \\
 \hline
@@ -510,25 +512,26 @@ On compare les différentes versions en terme de nombre de cycles par pixel avec 
 \caption{Benchmarks de l'algorithme de Harris}\label{tabharrisskell}
 \end{table}
 \subsubsection{Impact sur la taille de l'exécutable}
-La méta-programmation est souvent blâmée par-ce qu'elle produit des exécutables trop grands à cause de la réplication de code. Sur le processeur Cell, ce problème devient critique à cause de la taille limitée des \emph{local store} (256 Ko) et doit par conséquent rester sous contrôle. Pour évaluer l'iampact de la méta-programmation sur la taille du code source nous avons comparé la taille des codes générés par SKELL BE avec ceux écrits à la main. 
+La \emph{méta-programmation} est souvent blâmée par-ce qu'elle produit des exécutables trop grands à cause de la réplication de code. Sur le processeur Cell, ce problème devient critique à cause de la taille limitée des \emph{local store} (256 Ko) et doit par conséquent rester sous contrôle. Pour évaluer l'impact de la \emph{méta-programmation} sur la taille du code source nous avons comparé la taille des codes générés par \texttt{SKELL BE} avec ceux écrits à la main.\\
 \begin{table}[htb]
 \centering
 \begin{tabular}{|c||c|c|c|c|}
 \hline 
-\textbf{Opérateur} & \textbf{\texttt{DOT}}& \textbf{\texttt{CONVO}} & \textbf{\texttt{SGEMV}}& \textbf{\texttt{HARRIS}} \\
+\rowcolor{medium-gray}\textbf{Opérateur} & \textbf{\texttt{DOT}}& \textbf{\texttt{CONVO}} & \textbf{\texttt{SGEMV}}& \textbf{\texttt{HARRIS}} \\
 \hline
 \hline
 \textbf{Code écrit à la main} & 1.1 Ko & 1.2 Ko & 2.3 Ko & 5.3 Ko \\
 \hline
-\textbf{Code Généré par SKELL BE} & 12.6 Ko & 14.5 Ko & 22.7 Ko & 49.4 Ko \\
+\rowcolor{light-gray}\textbf{Code Généré par \texttt{SKELL BE}} & 12.6 Ko & 14.5 Ko & 22.7 Ko & 49.4 Ko \\
 \hline
 \end{tabular}
 \caption{Benchmarks de l'algorithme de Harris}\label{codesize}
 \end{table}
-De manière générale, le code SKELL BE tiens largement dans les 256 Ko du \emph{local store} mais celui-ci est 10 fois plus grand qu'un code équivalent écrit à la main. Ceci est principalement du au fait que SKELL BE génère par défaut un code SPMD contenant une structure du type \emph{switch}  qui englobe le code de tous les SPEs, ce qui donne approximativement un code 8 fois plus gros. Une des solutions dans ce cas là serait de passer le PID du SPE comme symbole au pré-processeur et de ne faire compiler que le code propre à ce même SPE.
+De manière générale, le code \texttt{SKELL BE} tiens largement dans les 256 Ko du \emph{local store} mais celui-ci est 10 fois plus grand qu'un code équivalent écrit à la main. Ceci est principalement du au fait que \texttt{SKELL BE} génère par défaut un code SPMD contenant une structure du type \emph{switch}  qui englobe le code de tous les SPEs, ce qui donne approximativement un code 8 fois plus important. Une des solutions dans ce cas là serait de passer le PID du SPE comme symbole au pré-processeur et de ne faire compiler que le code propre à ce même SPE.
 \subsection{Impact sur le temps de compilation}
-L'autre problème de la méta-programmation est le temps de compilation. En effet, le temps de compilation d'un programme SKELL BE peut être décomposé en deux étapes principales : une première étape qui englobe les directives du pré-processeur qui gèrent les fonction définies par l'utilisateur; une deuxième étape proportionnelle au nombre de types de squelettes utilisés. Dans le pire des cas, qui est celui du squelette Half-Pipe la compilation prend 10s. 
+L'autre problème de la \emph{méta-programmation} est le temps de compilation. En effet, le temps de compilation d'un programme \texttt{SKELL BE} peut être décomposé en deux étapes principales : une première étape qui englobe les directives du pré-processeur qui gèrent les fonction définies par l'utilisateur; une deuxième étape proportionnelle au nombre de types de squelettes utilisés. Dans le pire des cas, qui est celui du squelette Half-Pipe la compilation prend 10s. 
+
 \section{Conclusion}
-SKELL BE est une solution à base de langage spécifique à un domaine, enfouis dans C++. Cet outil est basé sur les squelettes algorithmiques, un modèle de programmation parallèle très flexible. Il est très adapté au processeur Cell car le placement du graphe d'application y est primordial pour la performance. Les résultats qui précèdent tendent à prouver que l'on obtient de bonnes performances tant au niveau temporel brut qu'au niveau du passage à l'échelle. Les mesures sur des squelettes simples ont prouvé que le surcout induit est négligeable comparativement à un code écrit à la main. Le déploiement de l'algorithme de Harris sur le Cell à l'aide de SKELL BE selon plusieurs schémas de parallélisation,  permettent d'apprécier la flexibilité et l'expressivité fournies par l'outil. Les performances obtenues sur l'algorithme de Harris prouvent l'efficacité de SKELL BE sur une application de moyenne complexité.\\
-Dans les chapitres précédents nous avons étudié le processeur Cell et ses contraintes de programmation. Nous avons également étudié le portage d'une application typique du traitement d'images sur cette architecture parallèle. Nous n'avons pas pu mener une comparaison plus large avec tous les outils présentés dans le chapitre précédent exception faire de OpenMP. \emph{RapidMind} est devenu un outil payant que nous n'avons pas pu nous procurer et les autres outils libres n'était pas suffisamment stables pour pouvoir mener une telle étude.\\
+SKELL BE est une solution à base de langage spécifique à un domaine, enfouis dans \emph{C++}. Cet outil est basé sur les squelettes algorithmiques, un modèle de programmation parallèle très flexible. Il est très adapté au processeur Cell car le placement du graphe d'application y est primordial pour la performance. Les résultats présentés tendent à prouver que l'on obtient de bonnes performances tant au niveau temporel brut qu'au niveau du passage à l'échelle. Les mesures sur des squelettes simples ont prouvé que le sourcoût induit est négligeable comparativement à un code écrit à la main. Le déploiement de l'algorithme de Harris sur le Cell à l'aide de \texttt{SKELL BE} selon plusieurs schémas de parallélisation,  permet d'apprécier la flexibilité et l'expressivité fournies par l'outil. Les performances obtenues sur l'algorithme de Harris prouvent l'efficacité de \texttt{SKELL BE} sur une application de moyenne complexité.\\
+Dans les chapitres précédents nous avons étudié le processeur Cell et ses contraintes de programmation. Nous avons également étudié le portage d'une application de traitement d'images bas-niveau, sur cette architecture parallèle. Nous n'avons pas pu mener une comparaison plus large avec tous les outils présentés dans le chapitre précédent exception faite de OpenMP. \emph{RapidMind} est devenu un outil payant que nous n'avons pas pu nous procurer et les autres outils libres n'était pas suffisamment stables pour pouvoir mener une telle étude.\\
 Le chapitre suivant est consacré à une étude comparative entre le Cell est d'autres architectures parallèles du marché ayant leurs propres outils de programmation. Cette étude nous est parue pertinente pour tirer une conclusion globale sur l'adéquation du processeur Cell pour notre domaine d'application à savoir le traitement d'images bas-niveau.
