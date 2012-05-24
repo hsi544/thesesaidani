@@ -24,13 +24,18 @@
 \usepackage{bibentry}
 \nobibliography*
 \linespread{1.5}
+\usepackage[]{nomencl} 
+\makenomenclature
 \begin{document}
+
 \input{./titlepage.tex}
 
 %\maketitle
 \tableofcontents
 \listoffigures
+%\addcontentsline{toc}{section}{List of Figures}
 \listoftables
+\printnomenclature[2.5cm]
 %defining a shade of gray
 \definecolor{light-gray}{gray}{0.95}
 \definecolor{medium-gray}{gray}{0.80}
