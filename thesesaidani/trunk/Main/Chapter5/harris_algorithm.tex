@@ -601,27 +601,27 @@ Dans ce schéma de déploiement, l'image est divisée en 8 régions de même taille, 
 	\label{harris-pipeline}
 \end{figure}
 Cette implémentation de l'algorithme consiste à déployer le graphe d'opérateurs sous forme de pipeline. L'image n'est pas subdivisée en régions de traitement mais chaque tuile traitée traverse le pipeline avant qu'une nouvelle tuile ne puisse le faire. L'algorithme est par conséquent fortement sérialisé car la possibilité d'exécuter des \emph{threads} concurrents y est réduite à cause des dépendances de données introduites dans le graphe. Par contre, la bande-passante inter-SPEs est bien exploitée car la majorité des transferts se font entre SPEs et par conséquent la pression exercée sur le bus précédemment est atténuée car elle est répartie sur l'ensemble de l'anneau.
-\subsubsection{Chainage d'opérateurs par paires : Fig. \ref{harris-hchain}}
+\subsubsection{Chainage d'opérateurs par paires (\emph{Halfchain}) : Fig. \ref{harris-hchain}}
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= \columnwidth]{Chapter5/figures/harris-hchain}
-	\caption{Schéma de Parallélisation Chainage d'opérateurs par paires}
+	\caption{Schéma de Parallélisation Chainage d'opérateurs par paires (\emph{Halfchain})}
 	\label{harris-hchain}
 \end{figure}
 Dans cette version deux opérateurs successifs sont placés sur le même SPE. Ainsi, les opérateurs \emph{Sobel} et \emph{Mul} sont placés sur un même SPE et \emph{Gauss} et \emph{Coarsity} sont placés sur un autre SPE. Le nombre de SPEs dans un processeur Cell étant de 8, ce schéma permet d'avoir 4 régions de l'image traitées en parallèle. Si l'on compare cette version à la précédente, on notera que la pression sur le bus d'interconnexion est plus importante car les transferts concurrents sont plus nombreux et par conséquent le risque de contention du bus est plus probable.
-\subsubsection{Chainage et fusion d'opérateurs par paires : Fig. \ref{harris-hchainhpipe}}
+\subsubsection{Chainage et fusion d'opérateurs par paires (\emph{Halfchain+Halfpipe}): Fig. \ref{harris-hchainhpipe}}
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= 0.6\columnwidth]{Chapter5/figures/harris-hchainhpipe}
-	\caption{Schéma de Parallélisation Chainage et fusion d'opérateurs par paires}
+	\caption{Schéma de Parallélisation Chainage et fusion d'opérateurs par paires (\emph{Halfchain+Halfpipe})}
 	\label{harris-hchainhpipe}
 \end{figure}
 Cette version est une variante de celle qui la précède. L'idée étant de fusionner les opérateurs présents sur un même SPE, et ce afin d'éliminer les instructions de \texttt{\textbf{load}} et \texttt{\textbf{store}} présents à la sortie du premier et à l'entrée du second. De ce fait, le nombre de cycles peut être considérablement réduit, surtout lorsque l'on sait que la latence des instructions mémoire est de 6 cycles sur les SPE \cite{cell_handbook}.
-\subsubsection{Chaînage complet et fusion d'opérateur par paires : Fig. \ref{harris-hchainfpipe}}
+\subsubsection{Chaînage complet et fusion d'opérateur par paires (\emph{Halfchain + Fullpipe}): Fig. \ref{harris-hchainfpipe}}
 \begin{figure}[htb]
 	\centering
   \includegraphics[width= 0.6\columnwidth]{Chapter5/figures/harris-hchainfpipe}
-	\caption{Schéma de Parallélisation Chaînage et fusion d'opérateurs par paires}
+	\caption{Schéma de Parallélisation Chaînage et fusion d'opérateurs par paires  (\emph{Halfchain + Fullpipe})}
 	\label{harris-hchainfpipe}
 \end{figure}
 Dans cette implémentation tous les opérateurs sont exécutés sur le même SPE. D'une part ceci permet d'éviter les transferts DMA entre SPEs et minimise donc les transactions sur le bus d'interconnexion.

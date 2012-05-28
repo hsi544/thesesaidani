@@ -240,7 +240,7 @@ Penryn T9600 &scalaire& 140.7 & 81.6 &32.0 &16.1\\
  \rowcolor {light-gray}& SIMD & 48.0 & 11.0 & 20.0 & 6.3 & x 22.2 & 0.59 \\
 
 \hline
-bi-Yorkfield scalaire & 145 & 16.9 & 32 &4.3 & & \\
+bi-Yorkfield & scalaire & 145 & 16.9 & 32 &4.3 & & \\
 & SIMD & 55.0 & 3.6 & 8.4 & 1.6 & x90.6 & 0.14 \\
 \hline
 \rowcolor {light-gray}bi-Nehalem & scalaire &49 &7.2 &24.5& 3.4 & &\\
@@ -271,7 +271,7 @@ Il est intéressant d'observer l'efficacité énergétique de ces machines pour des 
 Jusqu'à maintenant, les performances des machines étaient évaluées pour des  tailles fixes d'images. Il peut être intéressant de prendre le problème à l'envers et de s'interroger sur l'intervalle de taille d'image pour lequel ces processeurs sont performants.\\
 Si l'efficacité du Cell est constante (absence de cache) et celle des GPU croît avec la taille des images (problème de l'alimentation en données), les GPP ne sont efficaces que tant que les données tiennent dans les caches. Le tiling (automatique ou manuel) des données est nécessaire dans ce cas pour assurer une performance moyenne constante quand la taille des données augmente. Une configuration de type serveur est plus efficace (bus rapide) plus longtemps (2 processeurs quadri-coeurs Yorkfield ont un total de 24 Mo de cache L2) qu'une configuration portable (les dual coeurs ont entre 4 et 6 Mo de cache L2).
 En recalculant l'efficacité des Penryn pour une taille d'image 300$\times$300 au lieu de 512x512, le classement des processeurs efficaces est modifié. Le Penryn U9300 qui était aussi efficace que le bi-Yorkfield devient alors $\times$2,5 fois plus efficace.\\
-La taille des caches est un facteur primordial pour les performances des GPP, plus même que le nombre de coeurs (pour le moment). Les optimisations présentées, en repoussant le seuil des sorties de cache (version Halfpipe) et en diminuant leur amplitude, voire en les annulant (version Fullpipe et a priori version Halfpipe avec buffers circulaires), sont nécessaires pour limiter l'accroissement de la taille des caches tout en ayant de bonnes performances pour des images de grande taille.
+La taille des caches est un facteur primordial pour les performances des GPP, plus même que le nombre de coeurs (pour le moment). Les optimisations présentées, en repoussant le seuil des sorties de cache (version Halfpipe) et en diminuant leur amplitude, voire en les annulant (version Fullpipe et a priori version Halfpipe), sont nécessaires pour limiter l'accroissement de la taille des caches tout en ayant de bonnes performances pour des images de grande taille.
  
 \begin{table}
 \begin{tabular}{|c|c|c|c|c|}

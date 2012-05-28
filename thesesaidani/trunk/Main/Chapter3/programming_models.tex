@@ -298,7 +298,7 @@ La granularité du parallélisme dans \emph{\textbf{Sequoia}} est la \emph{tâche} 
 \emph{\textbf{Sequoia}} introduit des primitives de décomposition de tableaux et de placement de tâches, elles sont décrites ci-dessous:\\
 
 \noindent \rule{\textwidth}{0.2mm}\\
-\textbf{\emph{\textbf{Sequoia}} blocking primitives}\\
+\textbf{\emph{Sequoia blocking primitives}}\\
 \begin{itemize}
 \item \texttt{\textbf{blkset}}\\
 Un objet \emph{\textbf{Sequoia}} opaque représentant une collection de blocs de tableaux.\\
@@ -311,7 +311,7 @@ Génère un ensemble de blocs du tableau A de tailles non régulières. Les indices 
 \item \texttt{\textbf{gather(A, IdxBlkset)}}\\
 Génère un ensemble de blocs en rassemblant les éléments d'un tableau source A en utilisant des indices fournis dans les blocs de \texttt{IdxBlkset}. Le \texttt{blkset } résultant possède les mêmes nombre et taille que les blocs de \texttt{IdxBlkset}.\\
 \end{itemize}
-\textbf{\emph{\textbf{Sequoia}} mapping primitives}\\
+\textbf{\emph{Sequoia mapping primitives}}\\
 \begin{itemize}
 \item \texttt{\textbf{mappar(i=i0 to iM, j=j0 to jN ...)   {...}}}\\
 Une boule \texttt{\textbf{for}} multi-dimensionnelle contenant uniquement un appel à une \emph{sous-tâche} dans le corps de boucle. La tâche est mappée en parallèle en une collection de blocs.

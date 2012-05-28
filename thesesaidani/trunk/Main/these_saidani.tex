@@ -40,13 +40,14 @@
 \definecolor{light-gray}{gray}{0.95}
 \definecolor{medium-gray}{gray}{0.80}
 
-\pagestyle{fancy}
 \fancyhead[RO,LE]{}
 
 \frontmatter
+\pagestyle{plain}
 \chapter{Introduction}
 \input{Chapter1/introduction}
 \mainmatter
+\pagestyle{fancy}
 \chapter{Architecture du processeur Cell}
 \input{Chapter2/cell_architecture}
 \chapter{Parallélisation de la détection de coins d'Harris}
@@ -57,8 +58,10 @@
 \input{Chapter4/skeletons}
 \chapter{Comparaison avec les autres architectures parallèles}
 \input{Chapter6/comparaison}
+\pagestyle{plain}
 \backmatter
 \chapter{Conclusion générale et perspectives}
+\thispagestyle{empty}
 \input{Chapter7/conclusion}
 
 
