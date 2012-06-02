@@ -584,7 +584,7 @@ Nous observons d'après les tableaux \ref{tile_perf_01}, \ref{tile_perf_02}, \ref
 
 
 \subsection{Schémas de parallélisation}\label{parallel_schemes}
-Dans ce qui suit, nous abordons l'optimisation de notre algorithme à un niveau d'abstraction plus haut, celui des tâches. L'architecture du Cell permet plusieurs placements possibles du graphe d'opérateurs par la présence de 8 SPEs et la possibilité de mettre en place différents schémas de communication. Dans les figures qui suivent, les opérateurs sont représentés par des cercles, les processeurs par des rectangles à coins arrondis, les tuiles sont de forme rectangulaire et peuvent contenir des bords. Les flèches à trait fin représentent des instruction \texttt{\textbf{load/store}} dans la mémoire privée du SPE alors que les flèches plus épaisses représentent des commandes DMA inter-SPE ou alors entre la mémoire centrale et la mémoire locale d'un SPE. La lettre $S$ représente le gradient de \emph{Sobel} en $x$ et $y$ combinés. La lettre $G$ représente le noyau de lissage de \emph{Gauss}. La lettre $M$ représente une multiplication point à point et la lettre $H$ le calcul de la coarsité. Si des chiffres précèdent les lettres citées auparavant, ils correspondent au nombre d'occurrences de l'opérateur. Par exemple, $3M$ représente trois instances de l'opérateur de multiplication. Les différents placements se basent sur le graphe de référence de la figure \ref{fig_HarrisAlgorithm}.
+Dans ce qui suit, nous abordons l'optimisation de notre algorithme à un niveau d'abstraction plus haut, celui des tâches. L'architecture du Cell permet plusieurs placements possibles du graphe d'opérateurs par la présence de 8 SPEs et la possibilité de mettre en place différents schémas de communication. Dans les figures qui suivent, les opérateurs sont représentés par des cercles, les processeurs par des rectangles à coins arrondis, les tuiles sont de forme rectangulaire et peuvent contenir des bords. \emph{MS} (\emph{Main Storage}) désigne la mémoire centrale , alors que \emph{LS} (\emph{Local Store}) désigne une mémoire locale de SPE. Les flèches à trait fin représentent des instructions \texttt{\textbf{load/store}} dans la mémoire privée du SPE alors que les flèches plus épaisses représentent des commandes DMA inter-SPE ou alors entre la mémoire centrale et la mémoire locale d'un SPE. La lettre $S$ représente le gradient de \emph{Sobel} en $x$ et $y$ combinés. La lettre $G$ représente le noyau de lissage de \emph{Gauss}. La lettre $M$ représente une multiplication point à point et la lettre $H$ le calcul de la coarsité. Si des chiffres précèdent les lettres citées auparavant, ils correspondent au nombre d'occurrences de l'opérateur. Par exemple, $3M$ représente trois instances de l'opérateur de multiplication. Les différents placements se basent sur le graphe de référence de la figure \ref{fig_HarrisAlgorithm}.
 \subsubsection{Data parallel :  Fig. \ref{harris-spmd}}
 \begin{figure}[!htb]
 	\centering
@@ -605,7 +605,7 @@ Cette implémentation de l'algorithme consiste à déployer le graphe d'opérateurs 
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= \columnwidth]{Chapter5/figures/harris-hchain}
-	\caption{Schéma de Parallélisation Chainage d'opérateurs par paires (\emph{Halfchain})}
+	\caption{Schéma de parallélisation chaînage d'opérateurs par paires (\emph{Halfchain})}
 	\label{harris-hchain}
 \end{figure}
 Dans cette version deux opérateurs successifs sont placés sur le même SPE. Ainsi, les opérateurs \emph{Sobel} et \emph{Mul} sont placés sur un même SPE et \emph{Gauss} et \emph{Coarsity} sont placés sur un autre SPE. Le nombre de SPEs dans un processeur Cell étant de 8, ce schéma permet d'avoir 4 régions de l'image traitées en parallèle. Si l'on compare cette version à la précédente, on notera que la pression sur le bus d'interconnexion est plus importante car les transferts concurrents sont plus nombreux et par conséquent le risque de contention du bus est plus probable.
@@ -613,7 +613,7 @@ Dans cette version deux opérateurs successifs sont placés sur le même SPE. Ainsi
 \begin{figure}[!htb]
 	\centering
   \includegraphics[width= 0.6\columnwidth]{Chapter5/figures/harris-hchainhpipe}
-	\caption{Schéma de Parallélisation Chainage et fusion d'opérateurs par paires (\emph{Halfchain+Halfpipe})}
+	\caption{Schéma de parallélisation chaînage et fusion d'opérateurs par paires (\emph{Halfchain+Halfpipe})}
 	\label{harris-hchainhpipe}
 \end{figure}
 Cette version est une variante de celle qui la précède. L'idée étant de fusionner les opérateurs présents sur un même SPE, et ce afin d'éliminer les instructions de \texttt{\textbf{load}} et \texttt{\textbf{store}} présents à la sortie du premier et à l'entrée du second. De ce fait, le nombre de cycles peut être considérablement réduit, surtout lorsque l'on sait que la latence des instructions mémoire est de 6 cycles sur les SPE \cite{cell_handbook}.
@@ -621,7 +621,7 @@ Cette version est une variante de celle qui la précède. L'idée étant de fusionne
 \begin{figure}[htb]
 	\centering
   \includegraphics[width= 0.6\columnwidth]{Chapter5/figures/harris-hchainfpipe}
-	\caption{Schéma de Parallélisation Chaînage et fusion d'opérateurs par paires  (\emph{Halfchain + Fullpipe})}
+	\caption{Schéma de parallélisation chaînage et fusion d'opérateurs par paires  (\emph{Halfchain + Fullpipe})}
 	\label{harris-hchainfpipe}
 \end{figure}
 Dans cette implémentation tous les opérateurs sont exécutés sur le même SPE. D'une part ceci permet d'éviter les transferts DMA entre SPEs et minimise donc les transactions sur le bus d'interconnexion.
