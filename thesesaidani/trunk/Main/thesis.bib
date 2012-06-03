@@ -27,8 +27,6 @@
   pages = {445--455},
   address = {Berlin, Heidelberg},
   publisher = {Springer-Verlag},
-  doi = {http://dx.doi.org/10.1007/978-3-540-85451-7_49},
-  isbn = {978-3-540-85450-0},
   location = {Las Palmas de Gran Canaria, Spain}
 }
 
@@ -57,10 +55,7 @@
   publisher = {ACM},
   acmid = {1188546},
   articleno = {86},
-  doi = {http://doi.acm.org/10.1145/1188455.1188546},
-  isbn = {0-7695-2700-0},
-  location = {Tampa, Florida},
-  url = {http://doi.acm.org/10.1145/1188455.1188546}
+  location = {Tampa, Florida}
 }
 
 @INPROCEEDINGS{celllinuxkernel,
@@ -105,8 +100,34 @@
   issue = {4},
   keywords = {GPUs, Heterogeneous programming, compiler, runtime},
   numpages = {12},
-  publisher = {IOS Press},
-  url = {http://dl.acm.org/citation.cfm?id=1662626.1662632}
+  publisher = {IOS Press}
+}
+
+@ARTICLE{Buck_Brook_2004,
+  author = {Buck, Ian and Foley, Tim and Horn, Daniel and Sugerman, Jeremy and
+	Fatahalian, Kayvon and Houston, Mike and Hanrahan, Pat},
+  title = {Brook for GPUs: stream computing on graphics hardware},
+  journal = {ACM Trans. Graph.},
+  year = {2004},
+  volume = {23},
+  pages = {777--786},
+  number = {3},
+  month = aug,
+  address = {New York, NY, USA},
+  issn = {0730-0301},
+  issue_date = {August 2004},
+  numpages = {10},
+  publisher = {ACM}
+}
+
+@ARTICLE{Parmacs_1994,
+  author = {R Calkin and R Hempel and H.-C Hoppe and P Wypior},
+  title = {Portable programming with the PARMACS message-passing library},
+  journal = {Parallel Computing},
+  year = {1994},
+  volume = {20},
+  pages = {615 - 632},
+  number = {4}
 }
 
 @BOOK{skeletons_cole,
@@ -175,6 +196,27 @@
 	stream using the 8 SPEs}
 }
 
+@ARTICLE{OpenMP_1998,
+  author = {Dagum, L. and Menon, R.},
+  title = {{OpenMP: an industry standard API for shared-memory programming}},
+  journal = {IEEE Computational Science and Engineering},
+  year = {1998},
+  volume = {5},
+  pages = {46--55},
+  number = {1}
+}
+
+@CONFERENCE{Merrimac_2003,
+  author = {W. J. Dally and P. Hanrahan and M. Erez and T. J. Knight and F. Labonte
+	and J-H A. and N. Jayasena and U. J. Kapasi and A. Das and J. Gummaraju
+	and I. Buck},
+  title = {Merrimac: Supercomputing with streams},
+  booktitle = {{SC'}03},
+  year = {2003},
+  address = {Phoenix, Arizona},
+  month = {November}
+}
+
 @INPROCEEDINGS{skell_02,
   author = {Darlington, John and Field, A. J. and Harrison, Peter G. and Kelly,
 	Paul H. J. and Sharp, D. W. N. and Wu, Q.},
@@ -200,7 +242,6 @@
   month = {March},
   acmid = {624350},
   address = {Los Alamitos, CA, USA},
-  doi = {10.1109/40.848475},
   issue = {2},
   numpages = {11},
   publisher = {IEEE Computer Society Press}
@@ -305,13 +346,10 @@
   month = sep,
   acmid = {1228535},
   address = {Amsterdam, The Netherlands, The Netherlands},
-  doi = {10.1016/j.parco.2006.06.001},
-  issn = {0167-8191},
   issue_date = {September 2006},
   keywords = {C++, MPI, computer vision, parallel skeletons, template meta-programming},
   numpages = {12},
-  publisher = {Elsevier Science Publishers B. V.},
-  url = {http://dx.doi.org/10.1016/j.parco.2006.06.001}
+  publisher = {Elsevier Science Publishers B. V.}
 }
 
 @INPROCEEDINGS{Falcou_2004_EVE,
@@ -468,6 +506,17 @@
   publisher = {IBM Corp.}
 }
 
+@INPROCEEDINGS{Imagine_2002,
+  author = {Ujval Kapasi and William J. Dally and Scott Rixner and John D. Owens
+	and Brucek Khailany},
+  title = {The {I}magine Stream Processor},
+  booktitle = {Proceedings 2002 IEEE International Conference on Computer Design},
+  year = {2002},
+  pages = {282--288},
+  month = sep,
+  optaddress = {Freiburg, Germany}
+}
+
 @ARTICLE{Kapasi_2003,
   author = {Kapasi, Ujval J. and Rixner, Scott and Dally, William J. and Khailany,
 	Brucek and Ahn, Jung Ho and Mattson, Peter and Owens, John D.},
@@ -508,6 +557,20 @@
   author = {Kennedy, Ken and Allen, John R.},
   address = {San Francisco, CA, USA},
   isbn = {1-55860-286-0}
+}
+
+@INPROCEEDINGS{Kennedy_HPF_2007,
+  author = {Kennedy, Ken and Koelbel, Charles and Zima, Hans},
+  title = {The rise and fall of High Performance Fortran: an historical object
+	lesson},
+  booktitle = {Proceedings of the third ACM SIGPLAN conference on History of programming
+	languages},
+  year = {2007},
+  series = {HOPL III},
+  pages = {7-1--7-22},
+  address = {New York, NY, USA},
+  publisher = {ACM},
+  location = {San Diego, California}
 }
 
 @MANUAL{opencl,
@@ -709,23 +772,7 @@
   volume = {26},
   pages = {80--113},
   number = {1},
-  abstract = {The rapid increase in the performance of graphics hardware, coupled
-	with recent improvements in its programmability, have made graphics
-	hardware a compelling platform for computationally demanding tasks
-	in a wide variety of application domains. In this report, we describe,
-	summarize, and analyze the latest research in mapping general-purpose
-	computation to graphics hardware. We begin with the technical motivations
-	that underlie general-purpose computation on graphics processors
-	(GPGPU) and describe the hardware and software developments that
-	have led to the recent interest in this field. We then aim the main
-	body of this report at two separate audiences. First, we describe
-	the techniques used in mapping general-purpose computation to graphics
-	hardware. We believe these techniques will be generally useful for
-	researchers who plan to develop the next generation of GPGPU algorithms
-	and techniques. Second, we survey and categorize the latest developments
-	in general-purpose application development on graphics hardware.},
-  keywords = {GPGPU survey},
-  url = {http://www.blackwell-synergy.com/doi/pdf/10.1111/j.1467-8659.2007.01012.x}
+  keywords = {GPGPU survey}
 }
 
 @ARTICLE{tsi_2010,
@@ -763,6 +810,21 @@
   isbn = {0521806860}
 }
 
+@ARTICLE{HPF_STD_1993,
+  author = {Rice University, CORPORATE},
+  title = {High performance Fortran language specification},
+  journal = {SIGPLAN Fortran Forum},
+  year = {1993},
+  volume = {12},
+  pages = {1--86},
+  number = {4},
+  month = dec,
+  address = {New York, NY, USA},
+  issue_date = {Dec. 1993},
+  numpages = {86},
+  publisher = {ACM}
+}
+
 @ARTICLE{skell_03,
   author = {S\'{e}rot, Jocelyn and Ginhac, Dominique},
   title = {Skeletons for parallel image processing: an overview of the SKIPPER
@@ -774,7 +836,6 @@
   month = {December},
   acmid = {772854},
   address = {Amsterdam, The Netherlands, The Netherlands},
-  doi = {10.1016/S0167-8191(02)00189-8},
   issue = {12},
   numpages = {24},
   publisher = {Elsevier Science Publishers B. V.}
@@ -843,6 +904,20 @@
   publisher = {Boost}
 }
 
+@ARTICLE{PVM_1990,
+  author = {Sunderam, V. S.},
+  title = {{PVM}: a framework for parallel distributed computing},
+  journal = {Concurrency: Pract. Exper.},
+  year = {1990},
+  volume = {2},
+  pages = {315--339},
+  number = {4},
+  month = nov,
+  address = {Chichester, UK},
+  issue_date = {Dec. 1990},
+  publisher = {John Wiley and Sons Ltd.}
+}
+
 @CONFERENCE{heart2010,
   author = {Claude Tadonki and Lionel Lacassagne and Tarik Saidani and Joel Falcou
 	and Khaled Hamidouche},
@@ -852,6 +927,15 @@
   year = {2010},
   owner = {saidani},
   timestamp = {2011.10.15}
+}
+
+@INPROCEEDINGS{Streamit_2002,
+  author = {William Thies and Michal Karczmarek and Saman Amarasinghe},
+  title = {StreamIt: A Language for Streaming Applications},
+  booktitle = {International Conference on Compiler Construction},
+  year = {2002},
+  address = {Grenoble, France},
+  month = {Apr}
 }
 
 @BOOK{Vandevoorde_Templates,
@@ -869,14 +953,6 @@
   year = {1995},
   number = {5},
   month = {June},
-  abstract = {Expression Templates is a C++ technique for passing expressions as
-	function arguments. The expression can be inlined into the function
-	body, which results in faster and more convenient code than C-style
-	callback functions. This technique can also be used to evaluate vector
-	and matrix expressions in a single pass without temporaries. In preliminary
-	benchmark results, one compiler evaluates vector expressions at 95-99.5\%
-	efficiency of hand- coded C using this technique (for long vectors).
-	The speed is 2-15 times that of a conventional C++ vector class.},
   journal = {C++ Report},
   pages = {26--31},
   volume = {7}
@@ -901,5 +977,10 @@
   address = {New York, NY, USA},
   publisher = {ACM},
   location = {Reno, Nevada, United States}
+}
+
+@ARTICLE{,
+  owner = {saidani},
+  timestamp = {2012.06.03}
 }
 
