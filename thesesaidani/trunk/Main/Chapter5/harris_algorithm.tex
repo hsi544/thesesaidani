@@ -221,6 +221,7 @@ La deuxième particularité des noyaux de l'opérateur de convolution est une notio
 \label{tab_over_mem}
 \caption{Réduction de la complexité mémoire par chevauchement des noyaux}
 \end{table}
+
 \subsubsection{Séparation des noyaux et chevauchement}
 Cette optimisation n'est en fait qu'une combinaison des deux précédentes. En effet on profite d'une part du fait que les noyaux soient séparables pour réduire la complexité arithmétique, et d'autre part du chevauchement des noyaux pour mémoriser le résultat précédent. Ainsi, au lieu de mémoriser les deux dernières colonnes, on mémorise le résultat du filtrage par le premier filtre 1D pour le réutiliser à l'itération suivante de la boucle. Dans ce cas là; la compléxité arithmétique est la même que celle de la version avec séparation des noyaux, alors que la complexité mémoire est réduite d'avantage.
 Les tableau \ref{tab_sepaover_arith} et \ref{tab_sepaover_mem} donnent la différence en terme de complexité arithmétique et mémoire entre la version de base de l'algorithme et la version tenant compte des deux optimisations combinées.
