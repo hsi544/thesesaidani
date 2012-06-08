@@ -10,24 +10,38 @@ Les logiciels ont été conçus historiquement pour une exécution séquentielle. Les
 Ce modèle fut inventé par le mathématicien hongrois \emph{John von Neumann} qui a posé les premières bases de la conception d'un ordinateur dans son papier de 1945 \cite{vonneumann}. A partir de ce moment, la majorité des ordinateurs ont été conçus sur ces bases. L'architecture \emph{von Neumann} (Fig. \ref{figvonneumann}) est constituée de 4 composants principaux: une mémoire, une unité de contrôle, une unité arithmétique et logique (\emph{ALU}) des entrées/sorties (\emph{I/O})\nomenclature{I/O}{Input/Output}. La mémoire à accès aléatoire (\emph{RAM}) en lecture/écriture est utilisée pour stocker les instructions ainsi que les données. L'unité de contrôle va chercher les instructions ou les données de la mémoire, décode les instructions et coordonne séquentiellement les opérations afin d'accomplir la tâche programmée. L'ALU effectue les opérations arithmétiques de base. Les I/O font l'interface avec l'utilisateur humain.
 \subsection{Classification de Flynn des machines parallèles}
 Il existe plusieurs manières de classer les machines parallèles. Toutefois, il existe une classification qui est largement utilisée depuis 1966 et qui est celle de \emph{Flynn} \cite{flynn} (\emph{Flynn's Taxonomy}). Cette classification distingue les architectures parallèles selon deux paramètres indépendants qui sont les instructions et les données : chacun de ces deux paramètres peut avoir deux états possibles \emph{Single} ou \emph{Multiple}. Ainsi le tableau \ref{flynn} illustre la classification de Flynn.
+%\begin{table}
+%\centering
+%\begin{tabular}{|c||c|}
+%\hline
+%\rowcolor{medium-gray}\textbf{SISD} &  \textbf{SIMD}\nomenclature{SIMD}{Single Instruction Multiple Data} \\
+%\hline
+%Single Instruction Single Data & Single Instruction Multiple Data\\
+%\hline
+%\hline
+%\rowcolor{medium-gray}\textbf{MISD} &  \textbf{MIMD} \\
+%\hline
+%Multiple Instruction Single Data& Multiple Instruction Multiple Data\\
+%\hline
+%\end{tabular}
+%\caption{Classification de \emph{Flynn} des machines parallèles}
+%\label{flynn}
+%\end{table}
 \begin{table}
 \centering
-\begin{tabular}{|c||c|}
+\begin{tabular}{c|c||c|}
+\cline{2-3}
+ & \cellcolor{medium-gray} \textbf{Single Data} & \cellcolor{medium-gray} \textbf{Multiple Data} \\
 \hline
-\rowcolor{medium-gray}\textbf{SISD} &  \textbf{SIMD}\nomenclature{SIMD}{Single Instruction Multiple Data} \\
-\hline
-Single Instruction Single Data & Single Instruction Multiple Data\\
+\multicolumn{1}{|c|}{\cellcolor{medium-gray} \textbf{Single Instruction}}  & SISD & SIMD \\
 \hline
 \hline
-\rowcolor{medium-gray}\textbf{MISD} &  \textbf{MIMD} \\
-\hline
-Multiple Instruction Single Data& Multiple Instruction Multiple Data\\
+\multicolumn{1}{|c|}{\cellcolor{medium-gray} \textbf{Multiple Instruction}}  & MISD & MIMD \\
 \hline
 \end{tabular}
 \caption{Classification de \emph{Flynn} des machines parallèles}
 \label{flynn}
 \end{table}
-
 \subsubsection{Single instruction, single data (SISD)}
 Une machine séquentille qui ne peut exécuter qu'un seul flux d'instructions en un cycle d'horloge \emph{CPU}. De plus, un seul flux de données est utilisé comme entrée en un cycle d'horloge. L'exécution du programme y est déterministe et il constitue le type de machines à la fois le plus ancien est le plus répandu de nos jours.
 \subsubsection{Single instruction, multiple data (SIMD)}
@@ -39,7 +53,7 @@ C'est un type de machines parallèles dont les processeurs exécutent la même inst
 De plus, la majorité des processeurs des stations de travail actuelles et des unités de traitement graphiques, comportent une unité de traitement spécialisée SIMD, on parle alors de \emph{SWAR} (\emph{SIMD Within A Register}).\nomenclature{SWAR}{SIMD Within A Register}
 
 \subsubsection{Multiple instruction, single data (MISD)}
-Un seul flux de données alimente plusieurs unités de traitement et chaque unité de traitement opère sur les données de manière indépendante grâce à un flot d'instructions indépendantes. On ne connaît pas de machines de ce type qui a été conçue.
+Un seul flux de données alimente plusieurs unités de traitement et chaque unité de traitement opère sur les données de manière indépendante grâce à un flot d'instructions indépendantes. Hennessy et Patterson dans \cite{Hennessy_2011} affirment qu'il n'y a pas de machines de ce type qui ait été conçue, alors que Flynn dans son article de 1996 \cite{Flynn_1996} classe les architecture systoliques \cite{Kung_Systolic_1978} dans cette catégorie. 
 \subsubsection{Multiple instruction, multiple data (MIMD)}
 C'est actuellement le type le plus commun de machines parallèles. Chaque processeur de ces machines peut exécuter un flux d'instructions différent et peut opérer sur un flux de données différent. L'exécution peut être synchrone ou asynchrone, déterministe ou non-déterministe. On peut citer les \emph{Supercomputers} actuels, les clusters de machines parallèles mis en réseau, les grilles de calculs, les multi-processeurs SMP (\emph{Symetric Multi-Processor}) \nomenclature{SMP}{Symetric Multi-Processor}
  et les processeurs multi-core. De plus, plusieurs de ces machines contiennent des unités de traitement SIMD.
@@ -149,8 +163,8 @@ Avant même de commencer à développer la version parallèle d'une application, la 
 \subsubsection{Partitionner le problème}
 \begin{figure}[!htb]
 	\centering
-	\includegraphics[width=\columnwidth]{Chapter1/Figures/prob_part}
-	\caption{Partitionnement du problème : (a) partitionnement de domaine (b) partitionnement fonctionnel}
+	\includegraphics[width=\columnwidth]{Chapter1/Figures/func_data_decomp}
+	\caption{Partitionnement du problème : (a) partitionnement de domaine (b) partitionnement fonctionnel. D désigne des données similaires, D0 à D3 désigne des block de données résultant d'une décomposition. $f$ est une même fonction, $f1$ à $f3$ désignes une décomposition d'une fonction en plusieurs fonctions pouvant s'exécuter en parallèle}
 	\label{figPartitionning}
 \end{figure}
 La deuxième étape de la parallélisation concerne le partitionnement du problème. Selon la nature du parallélisme contenu dans l'application : parallélisme de données ou de tâches. Il existe deux manières de décomposer le problème. La première décomposition qui exploite le parallélisme de données consiste à diviser la structure de données en partie égales ou non et d'assigner à chacune des tâches une partition de données sur laquelle elle effectue des calculs. Dans ce cas précis, les tâches effectuent les mêmes opérations sur les données. La décomposition fonctionnelle est la deuxième manière de partitionner  le problème, le parallélisme de tâches est alors exploité. Les tâches exécutent des portions de code différentes sur les mêmes données.
