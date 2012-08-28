@@ -685,30 +685,90 @@ Comme il est démontré dans \cite{cell_bw02} et \cite{cellnoc} la taille du bloc 
 La comparaison de la performance globale des différents schémas d'implémentation ne suffit pas à prouver que l'optimisation de l'utilisation de la mémoire est le facteur principal de l'amélioration de la performance. Dans le but de donner une analyse plus précise et donc plus complète, nous avons effectué des mesures au niveau du SPE où nous avons estimé le gain apporté par la composition des fonctions et les transferts DMA inter-SPE. Le tableau \ref{tabspuperf} donne en nombre de cycles \emph{SPU} les versions ou les opérateurs ne sont pas composés deux à deux et celle ou ils le sont. Comme on peut le constater, cette optimisation permet d'avoir une accélération pouvant atteindre $\times 7,2$. Cette technique, permet une utilisation maximale des registres au détriment de la mémoire et par conséquent elle est limitée par la taille du banc de registres du processeur (128 registres pour le SPE). D'autre part l'optimisation de la localité des données en chainant les opérateurs d'un même SPE est certe bénéfique, mais elle est limitée par le niveau de hiérarchie mémoire juste au dessus des registres qui est la mémoire locale, limité lui à 256 Ko.
 \subsection{Mesure des métriques de passage à l'échelle}
 
-\begin{figure}[htb]
-	\centering
-  \includegraphics[width= 0.8\columnwidth]{Chapter5/figures/Speedup}
-	\caption{Mesure de l'accélération des versions data parallel (SPMD) et chaînage complet (HPIPE+FCHAIN) en fonction du nombre de SPEs}
-	\label{speedup}
-\end{figure}
+%\begin{figure}[htb]
+%	\centering
+%  \includegraphics[width= 0.8\columnwidth]{Chapter5/figures/Speedup}
+%	\caption{Mesure de l'accélération des versions data parallel (SPMD) et chaînage complet (HPIPE+FCHAIN) en fonction du nombre de SPEs}
+%	\label{speedup}
+%\end{figure}
 
-\begin{figure}[htb]
-	\centering
- \includegraphics[width= 0.8\columnwidth]{Chapter5/figures/Efficiency}
-	\caption{Mesure de l'Efficacité des versions data parallel (SPMD) et chaînage complet (HPIPE+FCHAIN) en fonction du nombre de SPEs}
-	\label{efficiency}
-\end{figure}
+%\begin{figure}[htb]
+%	\centering
+% \includegraphics[width= 0.8\columnwidth]{Chapter5/figures/Efficiency}
+%	\caption{Mesure de l'Efficacité des versions data parallel (SPMD) et chaînage complet (HPIPE+FCHAIN) en fonction du nombre de SPEs}
+%	\label{efficiency}
+%\end{figure}
 
-Lorsque l'on mesure les performance d'une machine parallèle on ne peut se contenter de mesurer les performances temporelles brutes. Il est également intéressant de s'attarder sur d'autres paramètres qui permettent de comparer deux architectures parallèles ou alors d'isoler un goulot d'étranglement qui limite la performance. Ce que l'on veut évaluer est le passage à l'échelle ou \emph{scalability} qui permet de mesurer sur un système à plusieurs processeurs, le rendement des $N$ unités par rapport à une seul. Les métriques les plus connues sont l'accélération (\emph{Speedup}) et l'efficacité (\emph{Efficiency}), et sont définies comme suit:
+%----------- table FCHAIN+HPIPE --------%
+
+\begin{table}
+\centering
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\rowcolor{medium-gray} \textbf{\textit{taille}} & \textbf{\textit{p}} & \textbf{\textit{temps (sec)}} & \textbf{\textit{s}} &  \textbf{\textit{e}} & \textbf{\textit{f}}\\
+\hline
+ 256$\times$256    & 1  & 0.612 &  - & - & - \\
+\rowcolor{light-gray} 512$\times$512     & 1  & 2.442 &  - & - & - \\
+1024$\times$1024 & 1  & 9.765 & - & -  & - \\
+\hline
+\rowcolor{light-gray} 256$\times$256     & 2 & 0.308 &  1.987 & 0.994 & 0.006 \\
+512$\times$512     & 2 & 1.224 &  1.995 & 0.997 & 0.003 \\
+\rowcolor{light-gray} 1024$\times$1024 & 2 & 4.890 &  1.997 & 0.999  & 0.001 \\
+\hline
+256$\times$256     & 4 & 0.160 &  3.827 & 0.957 & 0.015 \\
+\rowcolor{light-gray} 512$\times$512     & 4 & 0.628 &  3.888 & 0.972 & 0.010 \\
+1024$\times$1024 & 4 & 2.504 &  3.900 & 0.975  & 0.009 \\
+\hline
+\rowcolor{light-gray} 256$\times$256     & 8 & 0.086 &  7.116 & 0.889  & 0.018 \\
+512$\times$512     & 8 & 0.323 &  7.557 & 0.945 & 0.008 \\
+\rowcolor{light-gray} 1024$\times$1024 & 8 & 1.272 &  7.677 & 0.960 & 0.006 \\
+\hline
+\end{tabular}
+\caption{Mesure des métriques de passage à l'échelle pour la version FCHAIN+HPIPE}
+\label{tab_scal_fchainhpipe}
+\end{table}
+%----------- table SPMD --------%
+\begin{table}
+\centering
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\rowcolor{medium-gray} \textbf{\textit{taille}} & \textbf{\textit{p}} & \textbf{\textit{temps (sec)}} & \textbf{\textit{s}} &  \textbf{\textit{e}} & \textbf{\textit{f}}\\
+\hline
+ 256$\times$256    & 1  & 1.628 &  - & - & - \\
+\rowcolor{light-gray} 512$\times$512     & 1  & 6.509 &  - & - & - \\
+1024$\times$1024 & 1  & 26.236 & - & -  & - \\
+\hline
+\rowcolor{light-gray} 256$\times$256     & 2 & 0.821 &  1.983 & 0.992 & 0.011 \\
+512$\times$512     & 2 & 3.282 &  1.983 & 0.992 & 0.008 \\
+\rowcolor{light-gray} 1024$\times$1024 & 2 & 13.221 &  1.984 & 0.992  & 0.008 \\
+\hline
+256$\times$256     & 4 & 0.432 &  3.770 & 0.942 & 0.020 \\
+\rowcolor{light-gray} 512$\times$512     & 4 & 1.706 &  3.815 & 0.954 & 0.016 \\
+1024$\times$1024 & 4 & 6.872 &  3.818 & 0.954  & 0.016 \\
+\hline
+\rowcolor{light-gray} 256$\times$256     & 8 & 0.266 &  6.124 & 0.776  & 0.044 \\
+512$\times$512     & 8 & 1.035 &  6.124 & 0.766 & 0.044 \\
+\rowcolor{light-gray} 1024$\times$1024 & 8 & 4.151 &  6.320 & 0.790 & 0.038 \\
+\hline
+\end{tabular}
+\caption{Mesure des métriques de passage à l'échelle pour la version SPMD}
+\label{tab_scal_spmd}
+\end{table}
+
+Lorsque l'on mesure les performance d'une machine parallèle on ne peut se contenter de mesurer les performances temporelles brutes. Il est également intéressant de s'attarder sur d'autres paramètres qui permettent de comparer deux architectures parallèles ou alors d'isoler un goulot d'étranglement qui limite la performance. Ce que l'on veut évaluer est le passage à l'échelle ou \emph{scalability} qui permet de mesurer sur un système à plusieurs processeurs, le rendement des $p$ unités par rapport à une seule. Les métriques les plus connues sont l'accélération (\emph{Speedup}) et l'efficacité (\emph{Efficiency}), et sont définies comme suit:
 \begin{equation}
-Speedup = \frac{\mbox{Temps d'Exécution sur 1 Processeur}}{\mbox{Temps d'Exécution sur $P$ Processeurs}} \nonumber
+s = \frac{\mbox{Temps d'Exécution sur 1 Processeur}}{\mbox{Temps d'Exécution sur $p$ Processeurs}} \nonumber
 \end{equation}
 \begin{equation}
-Efficiency = \frac{\mbox{Temps d'Exécution sur 1 Processeur}}{P \times \mbox{Temps d'Exécution sur $P$ Processeurs}}\nonumber
+e = \frac{\mbox{Temps d'Exécution sur 1 Processeur}}{p \times \mbox{Temps d'Exécution sur $p$ Processeurs}}\nonumber
 \end{equation}
-Ces mesures sont essentielles pour l'adaptation d'un code séquentiel à une machine parallèle. Elles permettent d'une part de détecter les limitations d'un système parallèle pour la parallélisation d'un code. Par exemple, on peut évaluer la complexité due au contrôle des \emph{threads} et à leur synchronisation. D'autre part, on peut mesurer l'efficacité du réseau d'interconnexion dans la distribution des données de manière parallèle aux différents noeuds. Elles peuvent également justifier l'ajout d'une quantité supplémentaire de processeurs si cela n'altère pas la performance en induisant un coût de gestion supplémentaire. \\
-\indent D'après les figures \ref{speedup} et \ref{efficiency} on peut constater que notre implémentation de l'algorithme de Harris passe bien à l'échelle sur l'architecture du Cell. En effet, on peut noter dans les deux cas étudiés à la fois, une accélération proche de $P$ le nombre de SPEs et une efficacité proche de 1. On peut tout de même noter certaines différences entre les deux implémentations étudiées, d'une part la version SPMD et d'autre part la version avec composition de fonctions et chainage sur le même SPE. La première implique une pression importante sur le bus de données car presque tous les lectures/écritures mémoire se font sur la mémoire externe. Au contraire, la seconde version minimise le trafic vers la mémoire externe. Ceci explique la différence au niveau de l'efficacité et permet de déduire que plus le ratio transfert/calcul est grand et moins le passage à l'échelle est bon.
-
+Karp et Flatt définissent également la portion séquentielle expérimentale dans \cite{karp_flatt} par : 
+\begin{equation}
+f = \frac{1/s-1/p}{1-1/p}\nonumber
+\end{equation}
+Ces mesures sont essentielles pour l'adaptation d'un code séquentiel à une machine parallèle. Elles permettent d'une part de détecter les limitations d'un système parallèle pour la parallélisation d'un code. Par exemple, on peut évaluer la complexité due au contrôle des \emph{threads} et à leur synchronisation. D'autre part, on peut mesurer l'efficacité du réseau d'interconnexion dans la distribution des données de manière parallèle aux différents noeuds. Elles peuvent également justifier l'ajout d'unités de traitement supplémentaires si cela n'altère pas la performance en induisant un coût de gestion supplémentaire. \\
+\indent D'après les tableaux \ref{tab_scal_fchainhpipe} et \ref{tab_scal_spmd} on peut constater que notre implémentation de l'algorithme de Harris passe bien à l'échelle sur l'architecture du Cell. En effet, on peut noter dans les deux cas étudiés à la fois, une accélération proche de $p$ le nombre de SPEs et une efficacité proche de 1. On peut tout de même noter certaines différences entre les deux implémentations étudiées, d'une part la version SPMD et d'autre part la version avec composition de fonctions et chainage sur le même SPE. La première implique une pression importante sur le bus de données car presque toutes les lectures/écritures mémoire se font sur la mémoire externe. Au contraire, la seconde version minimise le trafic vers la mémoire externe. Ceci explique la différence au niveau de l'efficacité et permet de déduire que plus le ratio transfert/calcul est grand et moins le passage à l'échelle est bon.
+La mesure de la fraction séquentielle $f$ conforte les remarques citées dans ce qui précède. En effet, la fraction séquentielle croit avec le nombre de processeurs $p$ ce qui s'explique par le surcoût induit par un plus grand nombre de \emph{threads}. D'autre part, $f$ est  plus important pour la version SPMD car la pression sur le bus d'interconnexion est plus importante ce qui provoque  une diminution de la bande passante et par conséquent une sérialisation plus importante des communications.
 \section{Conclusion}
 Dans ce chapitre nous avons mis en oeuvre la parallélisation d'un code de traitement d'images sur le Cell. L'algorithme qui a été choisi est le détecteur de points d'intérêts de \emph{Harris} qui est à la fois représentatif des traitements bas-niveau, présent dans plusieurs traitements plus complexes et permet plusieurs schémas de parallélisation et d'optimisation. Plusieurs techniques d'optimisation on été présentées : certaines sont spécifiques au traitement du signal et des images et sont applicables à d'autres architectures. D'autres techniques sont plus spécifiques et relèvent de l'adéquation entre l'algorithme et l'architecture spécifique du processeur Cell. L'accent à été mis sur l'optimisation des transferts mémoire à plusieurs niveaux et de plusieurs manières, car elles constituent le principal facteur limitant la performance pour notre domaine d'application. Plusieurs squelettes de parallélisation ont été mis en oeuvre afin d'avoir une idée globale de squelette de parallélisation qui donne les meilleures performances. Les performances ont été mesurées de plusieurs manières et à différents niveaux : au niveau des noyaux de calcul une estimation et une mesure des gains apportés par les optimisation bas-niveau ont été effectuées. Au niveau des transferts, une mesure de la bande passante fut menée en fonction du schéma de parallélisation, et l'influence de la taille et de la forme de la tuile de calcul ont été étudiées. Enfin, des métriques de passage à l'échelle (\emph{Scalability}) ont été utilisées afin de mesurer l'efficacité de la parallélisation de notre algorithme sur le processeur Cell.
 Les performances obtenues lors de cette étude ont été obtenues après un temps de développement important. Elles sont le fruit d'une méthodologie d'optimisation itérative et de l'acquisition d'une expertise sur l'architecture du Cell. Dans le cadre de développement d'applications industrielles, des contraintes de temps de livraison et de maintenabilité du code se posent. L'outil de base n'est pas adapté pour répondre à de telles contraintes. C'est pour ces raisons que des outils d'aide au portage de code sur le processeur Cell ont vu le jour.

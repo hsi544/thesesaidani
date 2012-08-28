@@ -488,8 +488,27 @@ Dans ce deuxième opérateur testé, nous effectuons un produit de convolution sur 
 Ce benchmark est un produit  entre une matrice 4096$\times$4096 et un vecteur 4096$\times$1. On remarque la même chose que dans le cas précèdent, c'est à dire un bon passage à l'échelle de \texttt{SKELL BE} avec un sourcoût toujours autour de 5\%.
 
 \subsection{Algorithme de Harris}
-Cette application est plus complexe que celles vues précédemment car elle comporte plusieurs opérateurs, à la fois point-à-point et noyaux de convolution. Ce benchmark a pour but de prouver que \texttt{SKELL BE} est également adapté pour le traitement d'images. Plusieurs schémas de parallélisation sont possibles pour cet algorithme, comme vu dans le chapitre 2. Nous avons choisi ici trois versions de déploiement :  une version complètement chaînée où tous les opérateurs sont regroupés au sein d'un seul et même SPE et dupliqués 8 fois; la versions chaînée à moitié, où les opérateurs sont chaînés deux à deux sur un SPE, un \emph{pipeline} est ensuite formé entre deux SPEs ce qui permet de dupliquer 4 fois; Et enfin une version où chaque opérateur occupe un SPE,  ce qui permet de dupliquer 2 fois. Le listing \ref{harrisskell} représente les \emph{kernels} SPE des différentes versions.  Le chaînage y est représenté par une virgule (\textbf{,}) et le \emph{pipeline} par un opérateur \textbf{\textbar}.
-%\newpage
+\begin{figure}[htb]
+	\centering
+  \includegraphics[width= \columnwidth]{Chapter4/figures/fullchain_pardo8}
+	\caption{Squelette de la version complètement chaînée}
+	\label{fullchain_pardo8}
+\end{figure}
+\begin{figure}[htb]
+	\centering
+  \includegraphics[width= \columnwidth]{Chapter4/figures/halfchain_pardo4}
+	\caption{Squelette de la versions chaînée à moitié}
+	\label{halfchain_pardo4}
+\end{figure}
+\begin{figure}[htb]
+	\centering
+  \includegraphics[width= \columnwidth]{Chapter4/figures/nochain_pardo2}
+	\caption{Squelette de la version non chaînée}
+	\label{nochain_pardo2}
+\end{figure}
+
+Cette application est plus complexe que celles vues précédemment car elle comporte plusieurs opérateurs, à la fois point-à-point et noyaux de convolution. Ce benchmark a pour but de prouver que \texttt{SKELL BE} est également adapté pour le traitement d'images. Plusieurs schémas de parallélisation sont possibles pour cet algorithme, comme vu dans le chapitre 2. Nous avons choisi ici trois versions de déploiement :  une version complètement chaînée (Fig. \ref{fullchain_pardo8}) où tous les opérateurs sont regroupés au sein d'un seul et même SPE et dupliqués 8 fois; la versions chaînée à moitié (Fig. \ref{halfchain_pardo4}), où les opérateurs sont chaînés deux à deux sur un SPE, un \emph{pipeline} est ensuite formé entre deux SPEs ce qui permet de dupliquer 4 fois; Et enfin une version où chaque opérateur occupe un SPE (Fig. \ref{nochain_pardo2}),  ce qui permet de dupliquer 2 fois. Le listing \ref{harrisskell} représente les \emph{kernels} SPE des différentes versions.  Le chaînage y est représenté par une virgule (\textbf{,}) et le \emph{pipeline} par un opérateur \textbf{\textbar}.
+\newpage
 %===============================Listing transfill =======================================
 \lstset{ %
 language=C,                % choose the language of the code
