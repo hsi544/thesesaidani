@@ -8,8 +8,8 @@ Les logiciels ont été conçus historiquement pour une exécution séquentielle. Les
 	\label{figvonneumann}
 \end{figure}
 Ce modèle fut inventé par le mathématicien hongrois \emph{John von Neumann} qui a posé les premières bases de la conception d'un ordinateur dans son papier de 1945 \cite{vonneumann}. A partir de ce moment, la majorité des ordinateurs ont été conçus sur ces bases. L'architecture \emph{von Neumann} (Fig. \ref{figvonneumann}) est constituée de 4 composants principaux: une mémoire, une unité de contrôle, une unité arithmétique et logique (\emph{ALU}) des entrées/sorties (\emph{I/O})\nomenclature{I/O}{Input/Output}. La mémoire à accès aléatoire (\emph{RAM}) en lecture/écriture est utilisée pour stocker les instructions ainsi que les données. L'unité de contrôle va chercher les instructions ou les données de la mémoire, décode les instructions et coordonne séquentiellement les opérations afin d'accomplir la tâche programmée. L'ALU effectue les opérations arithmétiques de base. Les I/O font l'interface avec l'utilisateur humain.
-\subsection{Classification de Flynn des machines parallèles}
-Il existe plusieurs manières de classer les machines parallèles. Toutefois, il existe une classification qui est largement utilisée depuis 1966 et qui est celle de \emph{Flynn} \cite{flynn} (\emph{Flynn's Taxonomy}). Cette classification distingue les architectures parallèles selon deux paramètres indépendants qui sont les instructions et les données : chacun de ces deux paramètres peut avoir deux états possibles \emph{Single} ou \emph{Multiple}. Ainsi le tableau \ref{flynn} illustre la classification de Flynn.
+\subsection{Classification de \emph{Flynn} des machines parallèles}
+Il existe plusieurs manières de classer les machines parallèles. Toutefois, il existe une classification qui est largement utilisée depuis 1966 et qui est celle de \emph{Flynn} \cite{flynn} (\emph{Flynn's Taxonomy}). Cette classification distingue les architectures parallèles selon deux paramètres indépendants qui sont les instructions et les données : chacun de ces deux paramètres peut avoir deux états possibles \emph{Single} ou \emph{Multiple}. Le tableau \ref{flynn} illustre la classification de \emph{Flynn}.
 %\begin{table}
 %\centering
 %\begin{tabular}{|c||c|}
@@ -45,7 +45,7 @@ Il existe plusieurs manières de classer les machines parallèles. Toutefois, il e
 \subsubsection{Single instruction, single data (SISD)}
 Une machine séquentille qui ne peut exécuter qu'un seul flux d'instructions en un cycle d'horloge \emph{CPU}. De plus, un seul flux de données est utilisé comme entrée en un cycle d'horloge. L'exécution du programme y est déterministe et il constitue le type de machines à la fois le plus ancien est le plus répandu de nos jours.
 \subsubsection{Single instruction, multiple data (SIMD)}
-C'est un type de machines parallèles dont les processeurs exécutent la même instruction en un cycle d'horloge donné. Cependant, chaque unité de traitement peut opérer sur un élément de données différent. Ce type de machines est bien taillé pour des problèmes réguliers tels que le traitement d'images et le rendu graphique. L'exécution des programmes y est synchrone et déterministe. Deux variantes de ces machines existent : 
+C'est un type de machines parallèles dont les processeurs exécutent la même instruction en un cycle d'horloge donné. Cependant, chaque unité de traitement peut opérer sur un élément de données différent. Ce type de machines est bien adapté pour des problèmes réguliers tels que le traitement d'images et le rendu graphique. L'exécution des programmes y est synchrone et déterministe. Deux variantes de ces machines existent : 
 \begin{itemize}
 \item Processor Arrays: Connection Machine CM-2, MasPar MP-1 \& MP-2, ILLIAC IV
 \item Vector Pipelines: IBM 9000, Cray X-MP, Y-MP \& C90, Fujitsu VP, NEC SX-2, Hitachi S820, ETA10 
@@ -98,7 +98,7 @@ Comme les machines à mémoire partagée, les machines à mémoire distribuée varient
 	\caption{Machine parallèle à mémoire hybride}
 	\label{figHMEM}
 \end{figure}
-Les machines les plus rapides du monde emploient des architectures mémoire dites hybrides qui regroupent les deux types précédents: partagée et distribuée. La composante mémoire partagée est souvent une machine SMP. La composante distribuée quant à elle consiste en la mise en réseau de plusieurs machines SMP. Les différents SMPs ne peuvent adresser que leur propre mémoire et le transfert de données entre deux SMPs requiert des communications au travers du réseau.
+Les machines les plus rapides du monde emploient des architectures mémoire dites hybrides qui regroupent les deux types précédents: partagée et distribuée. La composante mémoire partagée est souvent une machine SMP. La composante distribuée quant à elle consiste en la mise en réseau de plusieurs machines SMP. Les différents SMPs ne peuvent adresser que leur propre mémoire et le transfert de données entre deux SMPs requiert des communications au travers du réseau. La différence majeure entre ce type d'architectures et les SMP NUMA, est le fait que l'espace mémoire n'est pas partagé et que la communication inter-processeur passe par un réseau d'interconnexion de type \emph{Ethernet} ou \emph{Infiniband}.
 %Selon le niveau dans lequel on se trouve, ce type de machines possède les inconvénients et avantages des deux précédentes architectures mémoire.
 
 %\subsection{Récapitulatif sur les architectures parallèles}
@@ -248,6 +248,21 @@ s = \frac{\frac{1}{S}-\frac{1}{p}}{1-\frac{1}{p}} \nonumber
 Ainsi, plus $s$ est petit et plus la parallélisation du code est bonne.\\
 Cette métrique est venue apporter une correction aux deux lois d'\emph{Amdahl} et \emph{Gustafson-Barsis} en déterminant de manière expérimentale la portion séquentielle du code. En effet, la loi d'\emph{Amdahl} ne prend en compte ni les problèmes d'équilibrage de charge ni le surcoût induit par la parallélisation.\\
 Pour un problème de taille fixe, l'efficacité d'un programme parallèle décroit lorsque le nombre de processeurs augmente. En utilisant la portion séquentielle obtenue expérimentalement, on peut déterminer si l'efficacité décroit à cause de la diminution des opportunités de parallélisation ou à cause de l'augmentation du surcoût algorithmique ou architectural.
+
+\subsubsection{Débogage}
+Une fois que l'application a été parallélisée, le développeur fait face à un cycle classique de débogage qui inclut potentiellement de nouveaux bugs induits par l'exécution parallèle du programme. Les bugs non-liés à la parallélisation peuvent se résoudre avec les techniques classiques de débogage alors que ceux liées à l'exécution parallèle requièrent plus d'attention. On doit tout d'abord en comprendre les causes pour ensuite tenter de les résoudre. Ils sont difficiles à détecter et requièrent plus de temps et d'attention que des bugs classiques. Les plus communs sont :
+
+\paragraph{La situation de compétition (\emph{race condition})}
+Une \emph{race condition} survient quand deux ou plusieurs \emph{threads} essaient d'accéder à la même ressource en même temps. Si les \emph{threads} ne communiquent pas de manière efficace, il est impossible de savoir quel \emph{thread} accèdera à la ressource en premier. Cela conduit la plupart du temps à des résultat incohérents lors de l'exécution du programme. A titre d'exemple, dans un \emph{data race} de lecture/écriture, un \emph{thread} tente d'écrire dans une variable en même temps qu'un autre \emph{thread} essaie d'en lire la valeur. Le \emph{thread} qui lit la variable reçoit une valeur différente selon l'ordre relatif de l'opération de lecture par rapport à l'écriture dans la variable par l'autre \emph{thread}. On corrige ce type d'erreurs par l'insertion d'une section critique autour de la ressource partagée. Cela restreint l'accès à un seul \emph{thread} à la fois et assure ainsi une exécution séquentielle de la portion de code concernée. Ce type de synchronisation doit être utilisé modérément car il peut induire un surcoût important et dégrader ainsi les performances.
+
+\paragraph{La famine (\emph{ressource stagnation})}
+ Cette situation peut survenir lors de l'utilisation de \emph{locks}. Si un \emph{thread} réserve une ressource et passe en suite au reste du programme sans libérer celle-ci. Quand un second \emph{thread} essaie d'accéder à la même ressource, il se met en attente pendant un temps infini, ce qui cause une famine. Le développeur doit alors toujours s'assurer de libérer une ressource réservée avant de continuer dans le programme.
+
+\paragraph{L'interblocage (\emph{deadlock})}
+Un interblocage est similaire à une famine mais il survient lorsqu'une hiérarchie de \emph{locks} est utilisée. Par exemple, le \emph{thread 1} réserve la variable A et tente ensuite de réserver la variable B pendant que le \emph{thread 2} tente de réserver la variable B et A par la suite. On dit alors que les deux \emph{threads} s'interbloquent car les deux essaient d'accéder à une variable que l'autre à reservé. Les hiérarchies complexes de blocage doivent être évitées car les erreurs résident souvent dans un mauvais ordre de réservation et de libération des ressources.
+
+\paragraph{Le faux partage (\emph{false sharing})}
+Le faux partage n'est pas une erreur dans le programme mais plutôt un problème qui peut affecter la performance. Le \emph{false sharing} survient lorsque deux \emph{threads} manipulent des données qui se trouvent dans la même ligne de cache. Dans une architecture de type \emph{SMP}, la cohérence de cache est assurée par le système. Ainsi, la modification d'une ligne de cache doit être signalée à tous les processeurs. Lorsqu'un \emph{thread} modifie une donnée de la ligne il cause une invalidation de celle-ci et les autres \emph{threads} doivent attendre que la ligne de cache soit rechargée de la mémoire centrale. Si cela arrive souvent, par exemple dans une boucle, la performance est dégradée considérablement.
 
 \section{Architecture du processeur Cell}
 %\begin{quote}
