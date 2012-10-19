@@ -464,6 +464,66 @@ Sur un système Linux pour le Cell, le \emph{thread} principal s'exécute sur le P
 Une API de gestion des \emph{threads} SPE similaire à la bibliothèque POSIX a été conçue, dans le but de fournir à la fois un environnement de programmation familier et une flexibilité dans la gestion des SPEs. Cette API supporte à la fois la création et la terminaison des tâches SPE ainsi que l'exclusion mutuelle par des primitives de mise à jour atomiques. L'API peut accéder aux SPEs en utilisant un modèle virtuel dans lequel l'OS affecte dynamiquement les \emph{threads} aux SPEs dans l'ordre de leur disponibilité. Les applications, peuvent spécifier de manière optionnelle un masque d'affinité pour affecter les \emph{threads} à un SPE spécifique. Les dispositifs architecturaux de communication entre les \emph{threads} ainsi que les mécanismes de synchronisation (mailbox, signaux, etc...) peuvent être accèdés via un ensemble d'appels système ou alors via l'application qui mappe un bloc de contrôle du SPE dans l'espace mémoire de l'application. Sur le Cell il existe trois blocs de contrôle du SPE, un accédé par l'application, un autre par l'OS et un troisième par un superviseur. Une interface accessible à l'utilisateur permet  la communication directe entre les processeurs SPEs ou PPE, ceci permet d'éviter des appels système couteux.\\
 Lorsque l'application fait une requête de création de \emph{threads}, la bibliothèque de \emph{threads} SPE envoie la requête à l'OS pour allouer un SPE et créer un \emph{thread} SPE à partir d'un fichier objet de format ELF (\emph{Executable and Linkable Format}) intégré dans un exécutable Cell. Le \emph{miniloader} un programme SPE de 256 bits, charge le segment de code à exécuter sur le SPE. L'avantage de cette approche est d'une part d'éviter au PPE d'effectuer cette tâche et d'autre part de profiter du fait que les les transferts PPE-SPE quand il se font du côté SPE, sont nettement plus efficace grâce à une interface qui contient plus de canaux de communication. Le code à exécuter réside alors dans la mémoire locale des SPEs.
 
+\subsubsection{Exemple de mise en oeuvre}
+Dans le but de donner plus de détails sur la mise en oeuvre d'un programme sur le processeur Cell, nous utilisons un exemple simple d'addition de deux vecteurs. Le listing \ref{vecadd::common} est un fichier d'entête qui contient la définition de certaines structures fondamentales telles que le \emph{control block} servant à transmettre des informations nécessaires au SPEs pour l'exécution du calcul. Ce fichier contient également les déclarations de certaines constantes ainsi que la redéfinitions de certains types pour une écriture plus compacte. Le listing \ref{vecadd::ppe} contient le code exécuté par le PPE, qui est en charge de la création, de la synchronisation et de la destruction des \emph{threads} SPE. Ce code contient également la logique nécessaire à la distribution du calcul sur les SPEs. Le fichier listé dans \ref{vecadd:spe} contient le code source de calcul : c'est la partie exécutée par le SPE. On pourra noter la distinction entre les sections de code de transferts et de calcul. Nous avons utilisé les instructions vectorielles pour le calcul car la vectorisation automatique n'était pas très bien gérée par les compilateurs. Enfin, le code source est volontairement verbeux car nous voulions démontrer la complexité que représente la mise en oeuvre d'un code très simple sur le processeur Cell, en utilisant les outils de base fournis par IBM. La structure de base du code PPE ainsi que les fonctions de transferts une fois implantées et testées ont été regroupées dans des librairies utilisées par la suite dans le développement de code et dans la bibliothèque \texttt{CELL\_MPI}.
+\newpage
+%===============================Listing mise en oeuvre : common.h =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = Exemple d'addition de deux vecteurs en \emph{pthreads} :  fichier d'entête commun \texttt{common.h},
+label = vecadd::common
+}
+\lstinputlisting{Chapter2/Code/common.h}
+
+%===============================Listing mise en oeuvre : vecadd_ppu.c =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = Exemple d'addition de deux vecteurs en \emph{pthreads} :  code source du \emph{PPE} \texttt{vecadd\_ppu.c},
+label = vecadd::ppe
+}
+\lstinputlisting{Chapter2/Code/vecadd_ppu.c}
+
+%===============================Listing mise en oeuvre : vecadd_spu.c =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = Exemple d'addition de deux vecteurs en \emph{pthreads} :  code source du \emph{SPE} \texttt{vecadd\_spu.c},
+label = vecadd::spe
+}
+\lstinputlisting{Chapter2/Code/vecadd_spu.c}
+
 \subsubsection{Processus de génération de code}
 \begin{figure}[!htbf]
 	\centering
