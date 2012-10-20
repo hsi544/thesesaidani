@@ -546,7 +546,7 @@ On compare les différentes versions en terme de nombre de cycles par pixel avec 
 \end{tabular}
 \caption{Benchmarks de l'algorithme de Harris}\label{tabharrisskell}
 \end{table}
-\subsubsection{Impact sur la taille de l'exécutable}
+\subsection{Impact sur la taille de l'exécutable}
 La \emph{méta-programmation} est souvent blâmée par-ce qu'elle produit des exécutables trop grands à cause de la réplication de code. Sur le processeur Cell, ce problème devient critique à cause de la taille limitée des \emph{local store} (256 Ko) et doit par conséquent rester sous contrôle. Pour évaluer l'impact de la \emph{méta-programmation} sur la taille du code source nous avons comparé la taille des codes générés par \texttt{SKELL BE} avec ceux écrits à la main.\\
 \begin{table}[htb]
 \centering
@@ -565,6 +565,46 @@ La \emph{méta-programmation} est souvent blâmée par-ce qu'elle produit des exécu
 De manière générale, le code \texttt{SKELL BE} tiens largement dans les 256 Ko du \emph{local store} mais celui-ci est 10 fois plus grand qu'un code équivalent écrit à la main. Ceci est principalement du au fait que \texttt{SKELL BE} génère par défaut un code SPMD contenant une structure du type \emph{switch}  qui englobe le code de tous les SPEs, ce qui donne approximativement un code 8 fois plus important. Une des solutions dans ce cas là serait de passer le PID du SPE comme symbole au pré-processeur et de ne faire compiler que le code propre à ce même SPE.
 \subsection{Impact sur le temps de compilation}
 L'autre problème de la \emph{méta-programmation} est le temps de compilation. En effet, le temps de compilation d'un programme \texttt{SKELL BE} peut être décomposé en deux étapes principales : une première étape qui englobe les directives du pré-processeur qui gèrent les fonction définies par l'utilisateur; une deuxième étape proportionnelle au nombre de types de squelettes utilisés. Dans le pire des cas, qui est celui du squelette Half-Pipe la compilation prend 10s. 
+\subsection{Gain en expressivité}
+Un des principaux apports de la programmation par squelettes algorithmiques et le gain en expressivité. En effet, tous les aspects liés à la création des \emph{threads}, à la distribution des données et à la synchronisation ne sont pas exposés au programmeur. La représentation du schéma de calcul sous forme de squelette permet la génération du code de calcul, de transfert et de synchronisation correspondant. On peut ainsi constater à partir des listings \ref{harris::spmd::ppe} et \ref{harris::spmd::spe}, le gain considérable en expréssivité. On peut comparer ce code source avec celui de la ligne 3 dans le listing \ref{harrisskell}.
+%===============================Listing HARRIS::SPMD::PPE =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+numbers=left,                   % where to put the line-numbers
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = Exemple d'implantation de la version SPMD en \emph{pthreads} : code du PPE,
+label = harris::spmd::ppe
+}
+\lstinputlisting{Chapter4/Code/harris_spmd_ppe.c}
+%===============================Listing HARRIS::SPMD::SPE =======================================
+\lstset{ %
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+numbers=left,                   % where to put the line-numbers
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
+caption = Exemple d'implantation de la version SPMD en \emph{pthreads} : code du SPE,
+label = harris::spmd::spe
+}
+\lstinputlisting{Chapter4/Code/harris_spmd_spe.c}
 
 \section{Conclusion}
 SKELL BE est une solution à base de langage spécifique à un domaine, enfouis dans \emph{C++}. Cet outil est basé sur les squelettes algorithmiques, un modèle de programmation parallèle très flexible. Il est très adapté au processeur Cell car le placement du graphe d'application y est primordial pour la performance. Les résultats présentés tendent à prouver que l'on obtient de bonnes performances tant au niveau temporel brut qu'au niveau du passage à l'échelle. Les mesures sur des squelettes simples ont prouvé que le sourcoût induit est négligeable comparativement à un code écrit à la main. Le déploiement de l'algorithme de Harris sur le Cell à l'aide de \texttt{SKELL BE} selon plusieurs schémas de parallélisation,  permet d'apprécier la flexibilité et l'expressivité fournies par l'outil. Les performances obtenues sur l'algorithme de Harris prouvent l'efficacité de \texttt{SKELL BE} sur une application de moyenne complexité.\\
