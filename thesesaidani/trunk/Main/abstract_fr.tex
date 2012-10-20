@@ -1,0 +1,18 @@
+Cette thèse vise à définir une méthodologie de mise en oeuvre d'applications performantes sur les processeurs embarqués du futur. Ces architectures nécessitent
+notamment d'exploiter au mieux les différents niveaux de parallélisme (grain fin, gros grain) et de gérer les communications et les accès à la mémoire.
+Pour étudier cette méthodologie, nous avons utilisé un processeur cible représentatif de ces architectures émergentes, le processeur CELL. Le détecteur de points d'intérêt de Harris est un exemple de traitement régulier nécessitant des unités de calcul intensif.  
+En étudiant plusieurs schémas de mise en oeuvre sur le processeur CELL, nous avons
+ainsi pu mettre en évidence des méthodes d'optimisation des calculs en adaptant les
+programmes aux unités spécifiques de traitement SIMD du processeur
+CELL. L'utilisation efficace de la mémoire nécessite par ailleurs, à la fois une bonne
+exploitation des transferts et un arrangement optimal des données en mémoire. Nous
+avons développé un outil d'abstraction permettant de simplifier et d'automatiser les
+transferts et la synchronisation, CELL MPI. Cette expertise nous a permis de développer une méthodologie permettant de
+simplifier la mise en oeuvre parallèle optimisée de ces algorithmes.
+Nous avons ainsi conçu un outil de programmation parallèle à base de squelettes
+algorithmiques : SKELL BE. Ce modèle de programmation propose une solution originale
+de génération d'applications à base de méta-programmation. Il permet, de manière
+automatisée, d'obtenir de très bonnes performances et de permettre une utilisation
+efficace de l'architecture, comme le montre la comparaison pour un ensemble de
+programmes test avec plusieurs autres outils dédiés à ce processeur.\\
+\textbf{Mots-clés : } Programmation parallèle, Processeur Cell, Traitement d'images, Squelettes algorithmiques, Calcul hautes performances, Méta-programmation, processeur embarqué
