@@ -1,7 +1,3 @@
-/* fichier : vecadd_ppu.c 
- * addition de deux vecteurs
- * code source du PPU
- */                                 
 #include "common.h"
 #include <sched.h>
 #include <libspe2.h>

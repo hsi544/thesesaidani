@@ -1,8 +1,3 @@
-/* fichier : common.h
- * contient toutes les structures
- * definies et les macros
- * ainsi que les redefinitions de types
- */
 #ifndef __COMMON_H__
 #define __COMMON_H__
 #include <stdlib.h>

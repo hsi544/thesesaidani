@@ -1,6 +1,3 @@
-// fichier  : vec_add_spu.c
-// addition de deux vecteurs
-// code source du SPU
 #include <spu_mfcio.h>
 #include <stdio.h>
 #include <malloc_align.h>

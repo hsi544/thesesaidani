@@ -249,8 +249,8 @@ Ainsi, plus $s$ est petit et plus la parallélisation du code est bonne.\\
 Cette métrique est venue apporter une correction aux deux lois d'\emph{Amdahl} et \emph{Gustafson-Barsis} en déterminant de manière expérimentale la portion séquentielle du code. En effet, la loi d'\emph{Amdahl} ne prend en compte ni les problèmes d'équilibrage de charge ni le surcoût induit par la parallélisation.\\
 Pour un problème de taille fixe, l'efficacité d'un programme parallèle décroit lorsque le nombre de processeurs augmente. En utilisant la portion séquentielle obtenue expérimentalement, on peut déterminer si l'efficacité décroit à cause de la diminution des opportunités de parallélisation ou à cause de l'augmentation du surcoût algorithmique ou architectural.
 
-\subsubsection{Débogage}
-Une fois que l'application a été parallélisée, le développeur fait face à un cycle classique de débogage qui inclut potentiellement de nouveaux bugs induits par l'exécution parallèle du programme. Les bugs non-liés à la parallélisation peuvent se résoudre avec les techniques classiques de débogage alors que ceux liées à l'exécution parallèle requièrent plus d'attention. On doit tout d'abord en comprendre les causes pour ensuite tenter de les résoudre. Ils sont difficiles à détecter et requièrent plus de temps et d'attention que des bugs classiques. Les plus communs sont :
+\subsubsection{Débogage d'un programme parallèle}
+Une fois que l'application a été parallélisée, le développeur fait face à un cycle classique de débogage qui inclut potentiellement de nouveaux bugs induits par l'exécution parallèle du programme. Les bugs non-liés à la parallélisation peuvent se résoudre avec les techniques classiques de débogage alors que ceux liés à l'exécution parallèle requièrent plus d'attention. On doit tout d'abord en comprendre les causes pour ensuite tenter de les résoudre. Ils sont difficiles à détecter et requièrent plus de temps et d'attention que des bugs classiques. Les plus communs sont :
 
 \paragraph{La situation de compétition (\emph{race condition})}
 Une \emph{race condition} survient quand deux ou plusieurs \emph{threads} essaient d'accéder à la même ressource en même temps. Si les \emph{threads} ne communiquent pas de manière efficace, il est impossible de savoir quel \emph{thread} accèdera à la ressource en premier. Cela conduit la plupart du temps à des résultat incohérents lors de l'exécution du programme. A titre d'exemple, dans un \emph{data race} de lecture/écriture, un \emph{thread} tente d'écrire dans une variable en même temps qu'un autre \emph{thread} essaie d'en lire la valeur. Le \emph{thread} qui lit la variable reçoit une valeur différente selon l'ordre relatif de l'opération de lecture par rapport à l'écriture dans la variable par l'autre \emph{thread}. On corrige ce type d'erreurs par l'insertion d'une section critique autour de la ressource partagée. Cela restreint l'accès à un seul \emph{thread} à la fois et assure ainsi une exécution séquentielle de la portion de code concernée. Ce type de synchronisation doit être utilisé modérément car il peut induire un surcoût important et dégrader ainsi les performances.
@@ -259,10 +259,10 @@ Une \emph{race condition} survient quand deux ou plusieurs \emph{threads} essaie
  Cette situation peut survenir lors de l'utilisation de \emph{locks}. Si un \emph{thread} réserve une ressource et passe en suite au reste du programme sans libérer celle-ci. Quand un second \emph{thread} essaie d'accéder à la même ressource, il se met en attente pendant un temps infini, ce qui cause une famine. Le développeur doit alors toujours s'assurer de libérer une ressource réservée avant de continuer dans le programme.
 
 \paragraph{L'interblocage (\emph{deadlock})}
-Un interblocage est similaire à une famine mais il survient lorsqu'une hiérarchie de \emph{locks} est utilisée. Par exemple, le \emph{thread 1} réserve la variable A et tente ensuite de réserver la variable B pendant que le \emph{thread 2} tente de réserver la variable B et A par la suite. On dit alors que les deux \emph{threads} s'interbloquent car les deux essaient d'accéder à une variable que l'autre à reservé. Les hiérarchies complexes de blocage doivent être évitées car les erreurs résident souvent dans un mauvais ordre de réservation et de libération des ressources.
+Un interblocage est similaire à une famine mais il survient lorsqu'une hiérarchie de \emph{locks} est utilisée. Par exemple, le \emph{thread 1} réserve la variable A et tente ensuite de réserver la variable B pendant que le \emph{thread 2} tente de réserver la variable B et A par la suite. On dit alors que les deux \emph{threads} s'interbloquent car les deux essaient d'accéder à une variable que l'autre à réservé. Les hiérarchies complexes de blocage doivent être évitées car les erreurs résident souvent dans un mauvais ordre de réservation et de libération des ressources.
 
 \paragraph{Le faux partage (\emph{false sharing})}
-Le faux partage n'est pas une erreur dans le programme mais plutôt un problème qui peut affecter la performance. Le \emph{false sharing} survient lorsque deux \emph{threads} manipulent des données qui se trouvent dans la même ligne de cache. Dans une architecture de type \emph{SMP}, la cohérence de cache est assurée par le système. Ainsi, la modification d'une ligne de cache doit être signalée à tous les processeurs. Lorsqu'un \emph{thread} modifie une donnée de la ligne il cause une invalidation de celle-ci et les autres \emph{threads} doivent attendre que la ligne de cache soit rechargée de la mémoire centrale. Si cela arrive souvent, par exemple dans une boucle, la performance est dégradée considérablement.
+Le faux partage n'est pas une erreur dans le programme mais plutôt un problème qui peut affecter la performance. Le \emph{false sharing} survient lorsque deux \emph{threads} manipulent des données qui se trouvent dans la même ligne de cache. Dans une architecture de type \emph{SMP}, la cohérence de cache est assurée par le système. Ainsi, la modification d'une ligne de cache doit être signalée à tous les processeurs. Lorsqu'un \emph{thread} modifie une donnée de la ligne il cause une invalidation de celle-ci et les autres \emph{threads} doivent attendre que la ligne de cache soit rechargée de la mémoire centrale. Si cela arrive souvent, par exemple dans une boucle, la performance est considérablement dégradée.
 
 \section{Architecture du processeur Cell}
 %\begin{quote}
@@ -465,7 +465,7 @@ Une API de gestion des \emph{threads} SPE similaire à la bibliothèque POSIX a ét
 Lorsque l'application fait une requête de création de \emph{threads}, la bibliothèque de \emph{threads} SPE envoie la requête à l'OS pour allouer un SPE et créer un \emph{thread} SPE à partir d'un fichier objet de format ELF (\emph{Executable and Linkable Format}) intégré dans un exécutable Cell. Le \emph{miniloader} un programme SPE de 256 bits, charge le segment de code à exécuter sur le SPE. L'avantage de cette approche est d'une part d'éviter au PPE d'effectuer cette tâche et d'autre part de profiter du fait que les les transferts PPE-SPE quand il se font du côté SPE, sont nettement plus efficace grâce à une interface qui contient plus de canaux de communication. Le code à exécuter réside alors dans la mémoire locale des SPEs.
 
 \subsubsection{Exemple de mise en oeuvre}
-Dans le but de donner plus de détails sur la mise en oeuvre d'un programme sur le processeur Cell, nous utilisons un exemple simple d'addition de deux vecteurs. Le listing \ref{vecadd::common} est un fichier d'entête qui contient la définition de certaines structures fondamentales telles que le \emph{control block} servant à transmettre des informations nécessaires au SPEs pour l'exécution du calcul. Ce fichier contient également les déclarations de certaines constantes ainsi que la redéfinitions de certains types pour une écriture plus compacte. Le listing \ref{vecadd::ppe} contient le code exécuté par le PPE, qui est en charge de la création, de la synchronisation et de la destruction des \emph{threads} SPE. Ce code contient également la logique nécessaire à la distribution du calcul sur les SPEs. Le fichier listé dans \ref{vecadd::spe} contient le code source de calcul : c'est la partie exécutée par le SPE. On pourra noter la distinction entre les sections de code de transfert et de calcul. Nous avons utilisé les instructions vectorielles pour le calcul car la vectorisation automatique n'était pas très bien gérée par les compilateurs. Enfin, le code source est volontairement verbeux car nous voulions démontrer la complexité que représente la mise en oeuvre d'un code très simple sur le processeur Cell, en utilisant les outils de base fournis par IBM. La structure de base du code PPE ainsi que les fonctions de transferts une fois implantées et testées ont été regroupées dans des librairies utilisées par la suite dans le développement de code et dans la bibliothèque \texttt{CELL\_MPI}.
+Dans le but de donner plus de détails sur la mise en oeuvre d'un programme sur le processeur Cell, nous utilisons un exemple simple d'addition de deux vecteurs. Le listing \ref{vecadd::common} est un fichier d'entête qui contient la définition de certaines structures fondamentales telles que le \emph{control block} servant à transmettre des informations nécessaires au SPEs pour l'exécution du calcul. Ce fichier contient également les déclarations de certaines constantes ainsi que la redéfinition de certains types pour une écriture plus compacte. Le listing \ref{vecadd::ppe} contient le code exécuté par le PPE, qui est en charge de la création, de la synchronisation et de la destruction des \emph{threads} SPE. Ce code contient également la logique nécessaire à la distribution du calcul sur les SPEs. Le fichier listé dans \ref{vecadd::spe} contient le code source de calcul : c'est la partie exécutée par le SPE. On pourra noter la distinction entre les sections de code de transfert et de calcul. Nous avons utilisé les instructions vectorielles pour le calcul car la vectorisation automatique n'était pas très bien gérée par les compilateurs. Enfin, le code source est volontairement verbeux car nous voulions démontrer la complexité que représente la mise en oeuvre d'un code très simple sur le processeur Cell, en utilisant les outils de base fournis par IBM. La structure de base du code PPE ainsi que les fonctions de transferts une fois implantées et testées ont été regroupées dans des librairies utilisées par la suite dans le développement de code et dans la bibliothèque \texttt{CELL\_MPI}.
 \newpage
 %===============================Listing mise en oeuvre : common.h =======================================
 \lstset{ %
@@ -480,13 +480,14 @@ tabsize=2,			% sets default tabsize to 2 spaces
 captionpos=b,			% sets the caption-position to bottom
 breaklines=true,		% sets automatic line breaking
 breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+numbers=left,                   % where to put the line-numbers
 escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
 caption = Exemple d'addition de deux vecteurs en \emph{pthreads} :  fichier d'entête commun \texttt{common.h},
 label = vecadd::common
 }
 \lstinputlisting{Chapter2/Code/common.h}
 
-%===============================Listing mise en oeuvre : vecadd_ppu.c =======================================
+%===============================Listing mise en oeuvre : vecadd_ppe.c =======================================
 \lstset{ %
 language=C,                % choose the language of the code
 basicstyle=\footnotesize,       % the size of the fonts that are used for the code
@@ -499,13 +500,14 @@ tabsize=2,			% sets default tabsize to 2 spaces
 captionpos=b,			% sets the caption-position to bottom
 breaklines=true,		% sets automatic line breaking
 breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+numbers=left,                   % where to put the line-numbers
 escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
-caption = Exemple d'addition de deux vecteurs en \emph{pthreads} :  code source du \emph{PPE} \texttt{vecadd\_ppu.c},
+caption = Exemple d'addition de deux vecteurs en \emph{pthreads} :  code source du \emph{PPE} \texttt{vecadd\_ppe.c},
 label = vecadd::ppe
 }
 \lstinputlisting{Chapter2/Code/vecadd_ppu.c}
 
-%===============================Listing mise en oeuvre : vecadd_spu.c =======================================
+%===============================Listing mise en oeuvre : vecadd_spe.c =======================================
 \lstset{ %
 language=C,                % choose the language of the code
 basicstyle=\footnotesize,       % the size of the fonts that are used for the code
@@ -518,8 +520,9 @@ tabsize=2,			% sets default tabsize to 2 spaces
 captionpos=b,			% sets the caption-position to bottom
 breaklines=true,		% sets automatic line breaking
 breakatwhitespace=false,	% sets if automatic breaks should only happen at whitespace
+numbers=left,                   % where to put the line-numbers
 escapeinside={\%*}{*)}  ,        % if you want to add a comment within your code
-caption = Exemple d'addition de deux vecteurs en \emph{pthreads} :  code source du \emph{SPE} \texttt{vecadd\_spu.c},
+caption = Exemple d'addition de deux vecteurs en \emph{pthreads} :  code source du \emph{SPE} \texttt{vecadd\_spe.c},
 label = vecadd::spe
 }
 \lstinputlisting{Chapter2/Code/vecadd_spu.c}
