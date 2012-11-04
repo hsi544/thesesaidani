@@ -1,22 +1,22 @@
 Le chapitre précédent a permis d'expérimenter plusieurs techniques d'optimisation pour le processeur Cell, sur un algorithme de traitement d'images bas-niveau : le détecteur de point d'interêts de Harris. Afin d'avoir une évaluation plus complète, il est nécessaire d'étudier d'autres architecture parallèles qui présentent un potentiel aussi intéressant que celui du Cell pour le traitement d'images.
-Dans ce chapitre, on se propose de comparer l'implémentation du même algorithme de détection de points d'intérêts de Harris sur d'autres architectures parallèles émérgentes utilisant éventuellement d'autres modèles de programmations que ceux utilisés pour le processeur Cell. Les architectures considérées dans cette étude sont des architectures du type SMP à mémoire partagée (Intel et PowerPC) ainsi que les cartes graphiques Nvidia et leur langage de programmation CUDA (\emph{Compute Unified Device Architecture})\nomenclature{CUDA}{Compute Unified Device Architecture}.  Les travaux qui sont exposés dans ce qui suit ont été publiés dans \cite{gretsi_09} et \cite{tsi_2010}.
+Dans ce chapitre, on se propose de comparer l'implantation du même algorithme de détection de points d'intérêts de Harris sur d'autres architectures parallèles émérgentes, utilisant éventuellement d'autres modèles de programmation que ceux utilisés pour le processeur Cell. Les architectures considérées dans cette étude sont des architectures du type SMP à mémoire partagée (Intel et PowerPC) ainsi que les cartes graphiques Nvidia et leur langage de programmation CUDA (\emph{Compute Unified Device Architecture})\nomenclature{CUDA}{Compute Unified Device Architecture}.  Les travaux qui sont exposés dans ce qui suit ont été publiés dans \cite{gretsi_09} et \cite{tsi_2010}.
 
-\section{Les Processeurs multi-coeurs}
-Ce type de processeurs constitue aujourd'hui le \emph{main stream} en terme de conception d'architectures parallèles et est à la fois le plus répandu dans les machines grand public. Le parallélisme y est présent à plusieurs niveaux car ces architectures reprennent les concepts des architectures classiques mono-coeurs et dupliquent les coeurs afin d'obtenir un niveau de parallélisme supérieur. La mémoire y est généralement partagée et la hiérarchie mémoire et basée sur plusieurs niveaux de caches communs ou pas. Les modèles et outils de programmation utilisés pour tirer profit du parallélisme de ces architectures sont les librairies de \emph{threads} \emph{Pthread} ainsi que les directives de compilation \emph{OpenMP}. En ce qui concerne les optimisations bas-niveau comme celles au niveau des instructions ou certaines optimisations SIMD, elles sont généralement bien gérés par les compilateurs modernes. La cohérence mémoire est assurée par le matériel à travers une hiérarchie mémoire à plusieurs niveaux de caches.
+\section{Les processeurs multi-coeurs}
+Ce type de processeurs constitue aujourd'hui le \emph{main stream} en terme de conception d'architectures parallèles et est également le plus répandu dans les machines grand public. Le parallélisme y est présent à plusieurs niveaux car ces architectures reprennent les concepts des architectures classiques mono-coeurs et dupliquent les coeurs afin d'obtenir un niveau de parallélisme supérieur. La mémoire y est généralement partagée et la hiérarchie mémoire est basée sur plusieurs niveaux de caches communs ou pas. Les modèles et outils de programmation utilisés pour tirer profit du parallélisme de ces architectures sont les bibliothèques de \emph{threads} \emph{Pthread} ainsi que les directives de compilation \emph{OpenMP}. En ce qui concerne les optimisations bas-niveau comme celles au niveau des instructions ou certaines optimisations SIMD, elles sont généralement bien gérées par les compilateurs modernes. La cohérence mémoire est assurée par le matériel à travers une hiérarchie mémoire à plusieurs niveaux de caches.
 
 \section{Les GPU Nvidia et CUDA}
 Les cartes graphiques (\emph{GPU}) ont connu ces dernières années un essor particulier, car elles ont subi une véritable révolution dans leur domaine d'utilisation. Les premiers pas du \emph{GPGPU} (\emph{General-Purpose computing on Graphics Processing Units })\nomenclature{GPGPU}{General-Purpose computing on Graphics Processing Units}  \cite{Owens:2007:ASO} ont consisté en l'utilisation de langages de rendu graphique, \emph{Cg} par exemple, pour en faire un usage plus généraliste, à savoir le calcul intensif pour des domaines d'applications qui relèvent plus du \emph{HPC}\nomenclature{HPC}{High Performance Computing}.  Cette première évolution a démontré que l'architecture des processeurs graphiques était bien adaptée au calcul intensif, mais le détournement des langages graphiques pour un usage généraliste était trop complexe pour le développeur habitué à programmer en langages \emph{C/C++}. La définition d'un modèle de programmation approprié est alors devenue une nécessité pour les fabricants de cartes graphiques. C'était également un moyen pour eux de concurrencer les constructeurs de processeurs généralistes sur le marché du \emph{HPC}.\\
 CUDA\cite{cuda} (\emph{Compute Unified Device Architecture}) de Nvidia est sans doute la plus importante des initiatives dans ce sens. En effet, CUDA constitue un écosystème complet de programmation parallèle sur les architectures des cartes graphiques. Il définit à la fois une architecture matérielle constituée d'un ensemble de processeurs parallèles organisés en Multi-processeurs SIMD et une hiérarchie mémoire adaptée au problèmes massivement parallèles, similaires aux traitements caractérisant le rendu graphique avancé. Un modèle de programmation propriétaire CUDA, a été développé pour l'exploitation de ce parallélisme. Celui-ci se décline sous forme de plusieurs outils de programmation : 
 
 \begin{itemize}
-\item une extension du langage C définissant de nouveaux types et mots clés propres aux architectures \emph{CUDA};
-\item une \emph{API Runtime} permettant l'exécution d'un modèle haut-niveau de programmation basé sur le parallélisme de donnée;
+\item une extension du langage C définissant de nouveaux types et mots clés propres aux architectures CUDA;
+\item une \emph{API Runtime} permettant l'exécution d'un modèle haut-niveau de programmation basé sur le parallélisme de données;
 \item une \emph{API Driver} permettant un contrôle plus fin de l'application mais aux prix d'une programmation plus verbeuse que celle de l'API de \emph{Runtime}.
 \end{itemize}
 
 \section{Comparaison des architectures matérielles}
-Au delà des performances intrinsèques sur un algorithme donné, obtenues sur une architecture donnée, il nous ai paru important de comparer dans un premier temps les architectures utilisées lors de la comparaison de l'algorithme de Harris sur les différentes plate-formes parallèles émergentes. Cette comparaison peut se faire sous différents critères mais les plus pertinents pour l'exploitation efficace du parallélisme sont les formes de parallélisme et la hiérarchie mémoire. Le tableaux \ref{compare_archi} contient cette comparaison.
-Au vu des comparaisons contenues dans le tableau, il est important de noter que les architectures même si elles possèdent plusieurs points communs, diffèrent par leur nature. Ainsi, les processeurs multi-core sont des machines complexes, capables de gérer un ou plusieurs systèmes d'exploitation en plus de tâches purement calculatoires, ceci explique leur architecture complexe qui permet d'avoir une généricité dans les tâches exécutées. Les GPU à l'opposé, ont été conçus initialement pour exécuter des tâches de rendu graphique 3D. Leurs architectures sont intimement liées à ce domaine d'application et sont ainsi non-adaptées à d'autres types d'applications  que celles massivement parallèle ne contenant pas de flot de contrôle complexe. Elles ne peuvent fonctionner qu'avec la présence d'un processeur hôte de type CPU. Le \emph{Cell} enfin, est une architecture hétérogène qui tient plus des processeurs présents dans l'embarqué que des architectures \emph{HPC} classiques. En effet, celui-ci a été conçu à l'image d'un DSP capable d'exécuter une quantité de calculs flottants en simple et double précision tout en ayant l'avantage des systèmes embarqués temps réels au niveau de la garantie d'un temps d'exécution prédictible. Dans le domaine du traitement d'images la majorité des applications sont \emph{data parallel} ce qui donne un avantage certain aux architectures GPU en terme d'adéquation avec les algorithmes. Par contre certains facteurs comme les fréquences d'horloge ainsi que les contraintes des bus de transferts mémoire qui sont critiques dans notre domaine d'application, rétablissent un équilibre avec les autres types d'architectures.
+Au delà des performances intrinsèques sur un algorithme donné, obtenues sur une architecture donnée, il nous a paru important de comparer dans un premier temps les architectures utilisées lors de la comparaison de l'algorithme de Harris sur les différentes plate-formes parallèles émergentes. Cette comparaison peut se faire sous différents critères mais les plus pertinents pour l'exploitation efficace du parallélisme sont les formes de parallélisme et la hiérarchie mémoire. Le tableau \ref{compare_archi} contient cette comparaison.
+Au vu des informations contenues dans le tableau, il est important de noter que les architectures même si elles possèdent plusieurs points communs, diffèrent par leur nature. Ainsi, les processeurs multi-core sont des machines complexes, capables de gérer un ou plusieurs systèmes d'exploitation en plus des tâches purement calculatoires, ceci explique leur architecture complexe qui permet d'avoir une généricité dans les tâches exécutées. Les GPU à l'opposé, ont été conçus initialement pour exécuter des tâches de rendu graphique 3D. Leurs architectures sont intimement liées à ce domaine d'application et sont ainsi non-adaptées à d'autres types d'applications  que celles massivement parallèles ne contenant pas de flot de contrôle complexe. Elles ne peuvent fonctionner qu'avec la présence d'un processeur hôte de type CPU. Le \emph{Cell} enfin, est une architecture hétérogène qui tient plus des processeurs présents dans l'embarqué que des architectures \emph{HPC} classiques. En effet, celui-ci a été conçu à l'image d'un DSP capable d'exécuter une quantité de calculs flottants en simple et double précision tout en ayant l'avantage des systèmes embarqués temps réel au niveau de la garantie d'un temps d'exécution prédictible. Dans le domaine du traitement d'images, la majorité des applications sont \emph{data parallel} ce qui donne un avantage certain aux architectures GPU en terme d'adéquation avec les algorithmes. Par contre certains facteurs comme les fréquences d'horloge ainsi que les contraintes des bus de transfert mémoire qui sont critiques dans notre domaine d'application, rétablissent un équilibre avec les autres types d'architectures.
 
 \begin{table}
 \centering
@@ -26,16 +26,16 @@ Au vu des comparaisons contenues dans le tableau, il est important de noter que 
   \hline
    \textbf{Type} & Homogène (SMP à mémoire partagée) & Hétérogène  (à mémoire distribuée) & SIMD (Stream Processors)\\
  \hline
- \rowcolor{light-gray}\textbf{Parallélisme d'Instructions} & oui & oui & non\\
+ \rowcolor{light-gray}\textbf{Parallélisme d'instructions} & oui & oui & oui (parallélisme entre calculs et transferts)\\
  \hline
- \textbf{Parallélisme de Données} & oui & oui & oui\\
+ \textbf{Parallélisme de données} & oui & oui & oui\\
  \hline
-  \rowcolor{light-gray}\textbf{Parallélisme de Tâches} &  oui & oui & non\\
+  \rowcolor{light-gray}\textbf{Parallélisme de tâches} &  oui & oui & oui depuis Fermi\\
  \hline
  \hline
-\textbf{Hiérarchie Mémoire} & Partagée (Plusieurs Niveaux de Cache)  & Distribuée (Mémoire Privées dans SPE) & Hybride (Mémoire Partagée, Globale, Texture ... )\\
+\textbf{Hiérarchie mémoire} & Partagée (Plusieurs niveaux de cache)  & distribuée (mémoire privées dans SPE) & hybride (mémoire partagée, globale, texture ... )\\
 \hline
- \rowcolor{light-gray}\textbf{Optimisation de la Mémoire} & Partagée (Plusieurs Niveaux de Cache)  & Explicite (programmation du DMA) & Explicite (Utilisation des différents niveaux mémoire)\\
+ \rowcolor{light-gray}\textbf{Optimisation de la mémoire} & partagée (plusieurs niveaux de cache)  & explicite (programmation du DMA) & explicite (utilisation des différents niveaux mémoire)\\
 \hline
 \end{tabular}
 \caption{Comparaison des niveaux de parallélisme et de la hiérarchie mémoire des architectures matérielles}
@@ -43,7 +43,7 @@ Au vu des comparaisons contenues dans le tableau, il est important de noter que 
 \end{table}
 
 \section{Comparaison des modèles de programmation}
-Les modèles de programmation représentent l'interface entre le développeur et l'architecture matérielle qui permet au premier d'exploiter pleinement les dispositifs de celle-ci. C'est pour cette raison que la comparaison des modèles de programmation des différentes plate-formes parallèles nous a paru nécessaire. Il est évident que la comparaison ne peut pas permettre de dégager une architecture, ou un modèle de programmation idéal, mais plutôt une adéquation entre un modèle et une architecture donnée ou encore une adéquation entre ce couple et un domaine d'applications, dans notre cas le traitement d'images. Il faut noter que le tableau \ref{compare_models01} n'adresse pas les architectures GPU car il n'existait pas d'implémentation d'OpenMP pour GPU utilisable lors de notre expérimentation. Toutefois il faut noter qu'un traducteur OpenMP vers CUDA est présenté dans \cite{openmp_gpu}. De plus, l'outil HMPP \cite{hmpp_2007, hmpp_2009} (\emph{Hybrid Multicore Parallel Programming}) développé par la société CAPS Entreprise adopte une approche à base d'annotation de code très similaire à OpenMP.
+Les modèles de programmation représentent l'interface entre le développeur et l'architecture matérielle qui permet au premier d'exploiter pleinement les dispositifs de celle-ci. C'est pour cette raison que la comparaison des modèles de programmation des différentes plate-formes parallèles nous a paru nécessaire. Il est évident que la comparaison ne peut pas permettre de dégager une architecture ou un modèle de programmation idéal, mais plutôt une adéquation entre un modèle et une architecture donnée ou encore une adéquation entre ce couple et un domaine d'applications, dans notre cas le traitement d'images. Il faut noter que le tableau \ref{compare_models01} n'adresse pas les architectures GPU car il n'existait pas d'implantation d'OpenMP pour GPU utilisable lors de nos expérimentations. Toutefois il faut noter qu'un traducteur OpenMP vers CUDA est présenté dans \cite{openmp_gpu}. De plus, l'outil HMPP \cite{hmpp_2007, hmpp_2009} (\emph{Hybrid Multicore Parallel Programming}) développé par la société CAPS Entreprise adopte une approche à base d'annotation de code très similaire à OpenMP.
 
 \begin{table}
 \centering
@@ -64,19 +64,19 @@ Les modèles de programmation représentent l'interface entre le développeur et l'
                                                                                                                                                                                   \item L'architecture hétérogène du Cell complique la répartition de charge
                                                                                                                                                                                 \end{itemize} \\
  \hline
- \textbf{Exploitation du Parallélisme} & 
+ \textbf{Exploitation du parallélisme} & 
                                                                          \begin{itemize} 
-                                                                           \item Parallélisme de Tâches 
-                                                                           \item Parallélisme de Données 
-                                                                           \item Vectorisation et Parallélisme d'instructions bien gérés par le compilateur
+                                                                           \item Parallélisme de tâches 
+                                                                           \item Parallélisme de données 
+                                                                           \item Vectorisation et parallélisme d'instructions bien gérés par le compilateur
                                                                          \end{itemize}&                       
                                                                                                                                                                                                                           \begin{itemize}
-                                                                                                                                                                                                                             \item Parallélisme de Tâches uniquement 
+                                                                                                                                                                                                                             \item Parallélisme de données uniquement 
                                                                                                                                                                                                                              \item Vectorisation mal gérée par le compilateur
                                                                                                                                                                                                                           \end{itemize}\\
  \hline
  \hline
- \rowcolor{light-gray}\textbf{Gestion de la mémoire} & Implicite (Gérée par le compilateur)  & Explicite (à la main par le programmeur) \\
+ \rowcolor{light-gray}\textbf{Gestion de la mémoire} & Implicite (Gérée par le compilateur)  & Implicite (à l'aide du compilateur et d'un cache logiciel) \\
 \hline
 \end{tabular}
 \caption{OpenMP et les architectures parallèles}
@@ -102,22 +102,22 @@ Les modèles de programmation représentent l'interface entre le développeur et l'
                                                                                                                                                                                   \item La flexibilité permet une exploitation plus riche de l'architecture
                                                                                                                                                                                 \end{itemize} \\
  \hline
- \textbf{Exploitation du Parallélisme} & 
+ \textbf{Exploitation du parallélisme} & 
                                                                          \begin{itemize} 
                                                                            \item Détermination du parallélisme gérée par le programmeur
                                                                            \item Synchronisation gérée par le programmeur
                                                                            \item Vectorisation et optimisation bas-niveau 
                                                                          \end{itemize}&                       
                                                                                                                                                                                                                           \begin{itemize}
-                                                                                                                                                                                                                             \item Parallélisme de Tâches uniquement 
+                                                                                                                                                                                                                             \item Parallélisme de données et de tâches 
                                                                                                                                                                                                                              \item Vectorisation mal gérée par le compilateur
                                                                                                                                                                                                                           \end{itemize}\\
  \hline
  \hline
-  \rowcolor{light-gray}\textbf{Gestion de la mémoire} & Implicite (Gérée par le compilateur)  & Explicite (à la main par le programmeur) \\
+  \rowcolor{light-gray}\textbf{Gestion de la mémoire} & Explicite (à la main par le programmeur) & Explicite (à la main par le programmeur) \\
 \hline
 \end{tabular}
-\caption{Pthreads et les architectures parallèles}
+\caption{les Pthreads et les architectures parallèles}
 \label{compare_models02}
 \end{table}
 
@@ -134,12 +134,12 @@ Les modèles de programmation représentent l'interface entre le développeur et l'
                                                                             \item Programmation de complexité intermédiaire
                                                                            \end{itemize}  \\
  \hline
-   \rowcolor{light-gray}\textbf{Exploitation du Parallélisme} & 
+   \rowcolor{light-gray}\textbf{Exploitation du parallélisme} & 
                                                                          \begin{itemize} 
-                                                                          \item Parallélisme de données uniquement
+                                                                          \item Parallélisme de données uniquement (parallélisme de tâches depuis Fermi)
                                                                            \item Détermination du parallélisme gérée par le programmeur
                                                                            \item Synchronisation gérée par le programmeur
-                                                                           \item Optimisations des transferts mémoire et du taux d'occupation des multiprocesseurs 
+                                                                           \item Optimisation des transferts mémoire et du taux d'occupation des multiprocesseurs 
                                                                          \end{itemize}\\
  \hline
  \hline
@@ -151,19 +151,19 @@ Les modèles de programmation représentent l'interface entre le développeur et l'
 \end{table}
 
 \subsection{Mise en oeuvre du code parallèle}
-Un des points critiques pour le passage d'un code d'une version séquentielle vers une version partiellement ou entièrement parallèle est celui du temps de développement nécessaire à cette tâche. Afin de simplifier la comparaison, on se place dans le cas où le code possède un fort potentiel de parallélisation et les portions de code exploitables ont été identifiées. L'hypothèse supplémentaire pour avoir une comparaison objective est la possibilité d'exploiter la forme de parallélisme sur toute les architectures et avec les modèles de programmation associés. Dans notre cas, ceci est vrai car notre application exploite essentiellement le parallélisme de données, qui est présent sur toutes les architectures et pris en charge par les modèles de programmation OpenMP, Pthreads et CUDA.
+Un des points critiques pour le passage d'un code d'une version séquentielle vers une version partiellement ou entièrement parallèle est celui du temps de développement nécessaire à cette tâche. Afin de simplifier la comparaison, on se place dans le cas où le code possède un fort potentiel de parallélisation et les portions de code exploitables ont été identifiées. L'hypothèse supplémentaire pour avoir une comparaison objective est la possibilité d'exploiter la forme de parallélisme sur toute les architectures et avec les modèles de programmation associés. Dans notre cas, ces hypothèses sont vérifiées en pratique car notre application exploite essentiellement le parallélisme de données, qui est présent sur toutes les architectures et pris en charge par les modèles de programmation OpenMP, Pthreads et CUDA.
 
 \subsubsection{Pthreads}
-Le modèle de programmation par \emph{threads} existe depuis les débuts de la programmation parallèle. C'est un modèle complexe à mettre en oeuvre car très proche de l'architecture. Celui-ci était pendant longtemps la seul alternative pour la programmation du processeur Cell, ce qui a rendu sa programmation fastidieuse, en plus des aspects de gestion explicite des transferts mémoire. La mise en oeuvre du code parallèle nécessite une refonte complète du code et une attention particulière aux détails ce qui rallonge le temps de développement mais aussi de \emph{debug} et de validation.
+Le modèle de programmation par \emph{threads} existe depuis les débuts de la programmation parallèle. C'est un modèle complexe à mettre en oeuvre car très proche de l'architecture. Celui-ci était pendant longtemps la seul alternative pour la programmation du processeur Cell, ce qui a rendu sa programmation fastidieuse, en plus des aspects de gestion explicite des transferts mémoire. La mise en oeuvre du code parallèle nécessite une refonte complète du code et une attention particulière aux détails ce qui rallonge le temps de développement mais aussi de débogage et de validation.
 
 \subsubsection{OpenMP}
 OpenMP est une infrastructure basée sur des directives de compilation et une API de \emph{runtime} permettant de masquer les aspects les plus désagréables des \emph{Ptheads}. Celui-ci repose en effet sur les threads, tout en évitant au programmeur les aspects bas-niveau de la parallélisation. Il permet des temps de développement assez courts, si le code de base n'est pas très complexe. Il a également l'avantage de permettre de garder le code séquentiel dans sa forme originale (garantie du \emph{code legacy}).
 
 \subsubsection{CUDA}
- La programmation parallèle avec le langage CUDA sur les GPU est globalement accessible aux développeurs \emph{C/C++}. La mise en oeuvre du code parallèle requiert une modification du code original pour coller au modèle de programmation CUDA. Selon la finesse de contrôle souhaitée, la programmation est plus ou moins complexe. L'API de \emph{Runtime} est plus haute en niveau d'abstraction que l'API Driver. La première est accessible aisément au programmeur et permet une mise ne oeuvre rapide. La seconde API plus bas niveau permet un contrôle plus fin de l'application au prix d'une programmation plus bas-niveau et donc plus complexe.
+ La programmation parallèle avec le langage CUDA sur les GPU est globalement accessible aux développeurs \emph{C/C++}. La mise en oeuvre du code parallèle requiert une modification du code original pour coller au modèle de programmation CUDA. Selon la finesse de contrôle souhaitée, la programmation est plus ou moins complexe. L'API de \emph{Runtime} est plus haute en niveau d'abstraction que l'API \emph{Driver}. La première est accessible aisément au programmeur et permet une mise ne oeuvre rapide. La seconde API plus bas niveau permet un contrôle plus fin de l'application au prix d'une programmation plus bas-niveau et donc plus complexe.
  
 \section{Architectures matérielles et environnement de développement}
-Les architectures qui ont servi pour les \emph{benchmarks} sont listées ci-dessous (Tab. \ref{archi_list}). Le panel comporte à la fois des processeurs du type multi-coeurs PowerPC et Intel, une gamme de GPU Nvidia avec les famille d'architecture G80 et GT200. Enfin, l'architecture hétérogène du Cell est également comparée. L'architecture PowerPC G4 avec un seul coeur est également présentée en tant que référence de la version séquentielle la plus performante.
+Les architectures qui ont servi pour les \emph{benchmarks} sont listées ci-dessous (Tab. \ref{archi_list}). Le panel comporte à la fois des processeurs du type multi-coeurs PowerPC et Intel, une gamme de GPU Nvidia avec les familles d'architectures G80 et GT200. Enfin, l'architecture hétérogène du Cell est également comparée. L'architecture PowerPC G4 avec un seul coeur est également présentée en tant que référence de la version séquentielle la plus performante.
 \begin{table}
 \begin{tabular}{|c|c|c|c|c|c|c|}
 \hline
@@ -209,11 +209,11 @@ L'évaluation des performances s'est faite sur les tailles d'images allant de 128
 \nonumber
 cpp=\frac{temps*Frequence}{taille^ {2}}
 \end{equation}
-Les versions implémentées sont celles présentées auparavant dans le chapitre 2.\\
-Ce que l'on peut observer à partir des résultats dans le tableau \ref{compare_perf_arch} en premier lieu, c'est que les transformations visant à optimiser la bande passante mémoire sont applicables à toutes les architectures ciblées pour le benchmark. Cela signifie que les transformations en question sont à un niveau d'abstraction suffisant pour pouvoir être appliquées à tout type d'architectures. On peut noter également une accélération super-linéaire sur la version \emph{Planar} sur le \textbf{Intel X3370} due au fait qu'une pression particulière est exercée sur la mémoire cache dans cette version, ce qui dégrade sensiblement la version mono-core. L'autre observation importante est celle concernant l'efficacité. En effet, l'architecture du processeur Cell reste la plus scalable, c'est celle ou l'accélération pour $p$ cores  est la plus proche de la valeur maximale théorique.
-Ce qui est notable également, c'est que le GPU reste très loin en performance des architectures CPU ou du Cell, car malgré les centaines de \emph{stream processors}, la meilleure version reste loin des meilleures versions sur le Cell ou les multi-core, exception faite de l'architecture GTX285 de seconde génération (GT200) qui contient 240 \emph{stream processors} et ou les contraintes d'alignement de la mémoire (\emph{memory coalescing}) sont beaucoup plus souples que sur les architectures CUDA de première génération (G80).\\
-Il apparaît que les GPP\nomenclature{GPP}{General Purpose Processor}, grâce à l'amplitude des gains (l'efficacité cumulée des transformations algorithmes et optimisations logicielles) sont les plus rapides. Les deux premières places reviennent aux octo-coeurs Yorkfield et Nehalem. Le Cell se classe en quatrième position, en étant 2,9 fois plus lent que le Nehalem. En ne prenant en compte que le temps de calcul, le plus rapide des GPU arrive en troisième position.
-Mais en prenant en compte le temps de transfert, le temps total pour le GTX 285 est multiplié par 8 et passe à 2,1 $ms$. Cela ramène les performances d'une machine \emph{many-cores} à celle d'un processeur dual core. Concernant les GPU mobiles, l'écart se creuse, car même en ne prenant en compte que le temps de calcul, le 8600M GT et ses 32 PE n'est qu'au niveau du Penryn P8700 qui n'est plus dans sa zone d'efficacité (sortie de cache). Comparé au Penryn T9600 qui n'a pas encore eu de sortie de cache, il est alors 5 fois plus lent.
+Les versions implantées sont celles présentées auparavant dans le chapitre 2.\\
+Ce que l'on peut observer à partir des résultats dans le tableau \ref{compare_perf_arch} en premier lieu, c'est que les transformations visant à optimiser la bande passante mémoire sont applicables à toutes les architectures ciblées pour le benchmark. Cela signifie que les transformations en question sont à un niveau d'abstraction suffisant pour pouvoir être appliquées à tout type d'architecture. On peut noter également une accélération super-linéaire sur la version \emph{Planar} sur le \textbf{Intel X3370} due au fait qu'une pression particulière est exercée sur la mémoire cache dans cette version, ce qui dégrade sensiblement la version mono-core. L'autre observation importante est celle concernant l'efficacité. En effet, l'architecture du processeur Cell reste la plus \emph{scalable}, c'est celle où l'accélération pour $p$ cores  est la plus proche de la valeur maximale théorique.
+Ce qui est notable également, c'est que le GPU reste très loin en performance des architectures CPU ou du Cell, car malgré les centaines de \emph{stream processors}, la meilleure version reste loin des meilleures versions sur le Cell ou les multi-core, exception faite de l'architecture GeForece 285 GTX de seconde génération (GT200) qui contient 240 \emph{stream processors} et où les contraintes d'alignement de la mémoire (\emph{memory coalescing}) sont beaucoup plus souples que sur les architectures CUDA de première génération (G80).\\
+Il apparaît également que les GPP\nomenclature{GPP}{General Purpose Processor}, grâce à l'amplitude des gains (l'efficacité cumulée des transformations algorithmiques et optimisations logicielles) sont les plus rapides. Les deux premières places reviennent aux octo-coeurs Yorkfield et Nehalem. Le Cell se classe en quatrième position, en étant 2,9 fois plus lent que le Nehalem. En ne prenant en compte que le temps de calcul, le plus rapide des GPU arrive en troisième position.
+Mais en prenant en compte le temps de transfert, le temps total pour le 285 GTX est multiplié par 8 et passe à 2,1 $ms$. Cela ramène les performances d'une machine \emph{many-cores} à celle d'un processeur dual core. Concernant les GPU mobiles, l'écart se creuse, car même en ne prenant en compte que le temps de calcul, le 8600M GT et ses 32 PE n'est qu'au niveau du Penryn P8700 qui n'est plus dans sa zone d'efficacité (sortie de cache). Comparé au Penryn T9600 qui n'a pas encore eu de sortie de cache, il est alors 5 fois plus lent.
 
 
 \begin{table}
@@ -265,19 +265,58 @@ Quadro FX4600 & scalaire & & 5.9 & & 4.3 & x1.4 & 0.81 \\
 \end{table}
 
 \section{Mesure d'efficacité énèrgétique}
- Le second benchmark consiste à estimer l'énergie consommée ($E = t \times P$) en se basant sur les TDP (\emph{Thermal Design Power}) annoncés par les constructeurs. Les résultats sont intéressants et paradoxaux. Si c'est effectivement un processeur de la gamme pour mobile qui est le plus efficace (Penryn T9600), ce n'est pas celui qui consomme le moins (Penryn U9300). Ce dernier, avec un TDP de 10 W, fait jeu égal avec l'octo-processeur Yorkfield et un TDP de 190 W. La seconde meilleure performance revient au Cell. La performance du Cell vis-à-vis des processeurs généralistes (Intel, AMD et IBM) avait déjà été observée lors de précédents congrès Super Computing/Top500 avec l'apparition d'un classement de Green Computing : pour les grands besoins en puissance de calcul, le Cell est le modèle de calcul le plus efficace énèrgétiquement : les machines Roadrunner, composés de Cell, de GPP et de GPU sont actuellement parmi les plus efficaces (en MFlops/Watt)\nomenclature{Flops}{Floating-point operations per second}.\\
-Concernant les GPU, ils arrivent tous en fin de classement, même si seul le $cpp$ de calcul est pris en compte. Le plus efficace étant paradoxalement celui qui consomme le plus (GTX 285).\\
-Il est intéressant d'observer l'efficacité énergétique de ces machines pour des images plus petites : 300x300. Dans ce cas, toutes les machines sont surdimensionnées : le bi-Yorkfield affichant une cadence de traitement de 26 315 images/sec et le "petit" Penryn U9300 une cadence de 2 777 images/sec. L'ordre de performance est maintenant respecté : le U9300 est le plus efficace et le Cell se positionne devant les processeurs octo-coeurs.\\
+ Le second benchmark consiste à estimer l'énergie consommée ($E = t \times P$) en se basant sur les TDP (\emph{Thermal Design Power}) annoncés par les constructeurs. Les résultats dans le tableau \ref{compare_conso_512} sont intéressants et paradoxaux. Si c'est effectivement un processeur de la gamme pour mobile qui est le plus efficace (Penryn T9600), ce n'est pas celui qui consomme le moins (Penryn U9300). Ce dernier, avec un TDP de 10 W, fait jeu égal avec l'octo-processeur Yorkfield et un TDP de 190 W. La seconde meilleure performance revient au Cell. La performance du Cell vis-à-vis des processeurs généralistes (Intel, AMD et IBM) avait déjà été observée lors de précédents congrès Super Computing/Top500 avec l'apparition d'un classement de Green Computing : pour les grands besoins en puissance de calcul, le Cell est le modèle de calcul le plus efficace énèrgétiquement : les machines  \emph{Roadrunner}, composés de Cell, de GPP et de GPU sont actuellement parmi les plus efficaces (en MFlops/Watt)\nomenclature{Flops}{Floating-point operations per second}.\\
+Concernant les GPU, ils arrivent tous en fin de classement, même si seul le $cpp$ de calcul est pris en compte. Le plus efficace étant paradoxalement celui qui consomme le plus (285 GTX).\\
+Il est intéressant d'observer l'efficacité énergétique de ces machines pour des images plus petites : 300$\times$300 (tableau \ref{compare_conso_300}). Dans ce cas, toutes les machines sont surdimensionnées : le bi-Yorkfield affichant une cadence de traitement de 26 315 images/sec et le "petit" Penryn U9300 une cadence de 2 777 images/sec. L'ordre de performance est maintenant respecté : le U9300 est le plus efficace et le Cell se positionne devant les processeurs octo-coeurs.\\
 Jusqu'à maintenant, les performances des machines étaient évaluées pour des  tailles fixes d'images. Il peut être intéressant de prendre le problème à l'envers et de s'interroger sur l'intervalle de taille d'image pour lequel ces processeurs sont performants.\\
 Si l'efficacité du Cell est constante (absence de cache) et celle des GPU croît avec la taille des images (problème de l'alimentation en données), les GPP ne sont efficaces que tant que les données tiennent dans les caches. Le tiling (automatique ou manuel) des données est nécessaire dans ce cas pour assurer une performance moyenne constante quand la taille des données augmente. Une configuration de type serveur est plus efficace (bus rapide) plus longtemps (2 processeurs quadri-coeurs Yorkfield ont un total de 24 Mo de cache L2) qu'une configuration portable (les dual coeurs ont entre 4 et 6 Mo de cache L2).
-En recalculant l'efficacité des Penryn pour une taille d'image 300$\times$300 au lieu de 512x512, le classement des processeurs efficaces est modifié. Le Penryn U9300 qui était aussi efficace que le bi-Yorkfield devient alors $\times$2,5 fois plus efficace.\\
-La taille des caches est un facteur primordial pour les performances des GPP, plus même que le nombre de coeurs (pour le moment). Les optimisations présentées, en repoussant le seuil des sorties de cache (version Halfpipe) et en diminuant leur amplitude, voire en les annulant (version Fullpipe et a priori version Halfpipe), sont nécessaires pour limiter l'accroissement de la taille des caches tout en ayant de bonnes performances pour des images de grande taille.
+En recalculant l'efficacité des Penryn pour une taille d'image 300$\times$300 au lieu de 512$\times$512, le classement des processeurs efficaces est modifié. Le Penryn U9300 qui était aussi efficace que le bi-Yorkfield devient alors 2,5 fois plus efficace.\\
+La taille des caches est un facteur primordial pour les performances des GPP, plus même que le nombre de coeurs (pour le moment). Les optimisations présentées, en repoussant le seuil des sortie de cache (version Halfpipe) et en diminuant leur amplitude, voire en les annulant (version Fullpipe et a priori version Halfpipe), sont nécessaires pour limiter l'accroissement de la taille des caches tout en ayant de bonnes performances pour des images de grande taille.
  
 \begin{table}
 \begin{tabular}{|c|c|c|c|c|}
 \hline
 \rowcolor {medium-gray}\textbf{Architecture}    & \textbf{Techno (nm)}    & \textbf{ Puissance (W)} & \textbf{Temps (ms)} & \textbf{Energie (mJ)} \\
-Penryn U9300 & 45 &10       & 0.360 & 3.6 \\
+\hline
+PowerPC G4   & 130 & 10       & 19.24 & 192.4 \\
+\hline
+\rowcolor {light-gray}PowerPC G5   &  90 & 2 x 70   &  0.32 &  44.0 \\
+\hline
+Penryn U9300 &  45 & 10       &  2.58 &  25.8 \\
+\hline
+\rowcolor {light-gray}Penryn P8700 & 45 & 25      & 2.30 & 57.5 \\
+\hline
+Penryn T9600 & 45 & 35      & 0.44 & 15.4 \\
+\hline
+\rowcolor {light-gray}Yorkfield & 45 & 95      & 0.59 & 56.0 \\
+\hline
+bi-Yorkfield      & 45 & 2x95  & 0.14 & 26.6 \\
+\hline
+\rowcolor {light-gray}bi-Nehalem     & 45 & 2x130 & 0.11 & 29.7 \\
+\hline
+Cell & 65 & 70 & 0.33 & 22.9\\
+\hline
+\rowcolor {light-gray}GeForce 9400M     & 55 & 12 & 5.12 & 62.2 \\
+\hline
+GeForce 8600M GT & 80 & 60 & 2.11 & 126.6\\
+\hline
+\rowcolor {light-gray}GeForce GT120     & 55 & 50 & 1.30 & 64.8 \\
+\hline
+Quadro FX4600 & 90 & 134 & 0.81 & 108.6\\
+\hline
+\rowcolor {light-gray}GeForce GTX285     & 55 & 183 & 0.26 & 47.6 \\
+\hline
+ \end{tabular}
+ \caption{Comparaison des architectures en énergie consommée pour des images 512$\times$512}
+ \label{compare_conso_512}
+\end{table}
+
+\begin{table}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\rowcolor {medium-gray}\textbf{Architecture}    & \textbf{Techno (nm)}    & \textbf{ Puissance (W)} & \textbf{Temps (ms)} & \textbf{Energie (mJ)} \\
+\hline
+Penryn U9300 &  45 & 10       &  0.360 &  3.6 \\
 \hline
 \rowcolor {light-gray}Penryn P8700 & 45 & 25      & 0.157 & 3.9 \\
 \hline
@@ -285,14 +324,15 @@ Penryn T9600 & 45 & 35      & 0.148 & 5.2 \\
 \hline
 \rowcolor {light-gray}bi-Yorkfield      & 45 & 2x95  & 0.048 & 9.1 \\
 \hline
-bi-Nehalem     & 45 & 2x130 & 0.038 & 9.8 \\
+bi-Nehalem     & 45 & 2x130 & 0.0.38 & 9.8 \\
 \hline
-\rowcolor {light-gray}Cell & 65 & 70 & 0.113 & 7.9\\
+Cell & 65 & 70 & 0.113 & 7.9\\
 \hline
  \end{tabular}
- \caption{Comparaison des architectures en énergie consommée}
- \label{compare_conso}
+ \caption{Comparaison des architectures en énergie consommée pour des images 300$\times$300}
+ \label{compare_conso_300}
 \end{table}
+
 
 \section{Conclusion}
 Dans ce qui précède des comparaisons avec plusieurs critères ont été effectuée sur différentes architectures parallèles. Les différents modèles de programmation ont été comparés en terme de difficulté de mise en oeuvre et d'adéquation avec les architectures matérielles. L'algorithme de détection de point d'intérêts de Harris a été utilisé pour comparer les architectures selon deux critères :  la performance temporelle pure et l'efficacité énergétique.\\
