@@ -560,7 +560,7 @@ La \emph{méta-programmation} est souvent blâmée par-ce qu'elle produit des exécu
 \rowcolor{light-gray}\textbf{Code Généré par \texttt{SKELL BE}} & 12.6 Ko & 14.5 Ko & 22.7 Ko & 49.4 Ko \\
 \hline
 \end{tabular}
-\caption{Benchmarks de l'algorithme de Harris}\label{codesize}
+\caption{Impact sur la taille de l'exécutable}\label{codesize}
 \end{table}
 De manière générale, le code \texttt{SKELL BE} tiens largement dans les 256 Ko du \emph{local store} mais celui-ci est 10 fois plus grand qu'un code équivalent écrit à la main. Ceci est principalement du au fait que \texttt{SKELL BE} génère par défaut un code SPMD contenant une structure du type \emph{switch}  qui englobe le code de tous les SPEs, ce qui donne approximativement un code 8 fois plus important. Une des solutions dans ce cas là serait de passer le PID du SPE comme symbole au pré-processeur et de ne faire compiler que le code propre à ce même SPE.
 \subsection{Impact sur le temps de compilation}
